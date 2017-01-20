@@ -6,6 +6,7 @@ import logging
 import locale
 from core.channels import InputChannel
 import os
+import sys
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
@@ -32,7 +33,7 @@ def get_console_size():
     else:
         # can't determine actual size
         # return default values
-        sizex, sizey = 80, 25 
+        sizex, sizey = 140, 25
         
     return sizey, sizex
 
@@ -82,6 +83,7 @@ class StdInOutView(StdOutView):
         self.input_buffer = ''
         self.output_buffer = ''
         self.panic = 'SKIP'
+        self.quit = 'QUIT'
         # record what the learner says
         self._learner_channel = InputChannel(serializer)
         # record what the environment says
@@ -158,12 +160,17 @@ class StdInOutView(StdOutView):
         print(self._env_output + ' reward:{:7}'.format(self.info['reward']))
         print(self._learner_input + ' time:{:9}'.format(self.info['time']))
         # printed
-        real_raw_input = vars(__builtins__).get('raw_input', input)
-        inputstr = real_raw_input()
-        if inputstr == self.panic:
-            inputstr = ''
+        real_raw_input = dict([attr, getattr(__builtins__, attr)]\
+                              for attr in dir(__builtins__) if not attr.startswith('_'))\
+            .get('rawinput',input)
+        input_str = real_raw_input()
+        if input_str == self.panic:
+            input_str = ''
             self._env._task_time = float('inf')
-        return inputstr
+        if input_str == self.quit:
+            input_str = ''
+            sys.exit()
+        return input_str
 
     def channel_to_str(self, text, bits):
         length = self._scroll_msg_length - 10
