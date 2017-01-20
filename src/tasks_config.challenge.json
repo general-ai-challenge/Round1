@@ -1,0 +1,21 @@
+{
+  "worlds": {
+    "gw": {
+      "type": "worlds.grid_world.GridWorld"
+    }
+  },
+  "tasks":
+  {
+    "cm1": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet1",
+      "world": "gw"
+    }
+  },
+  "scheduler":
+    {
+      "type": "core.scheduler.RandomTaskScheduler",
+      "args": {
+          "tasks": ["cm1"]
+        }
+    }
+}
