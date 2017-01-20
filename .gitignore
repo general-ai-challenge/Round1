@@ -1,3 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# CommAi-env logs
+*.log
+
+# Distribution / packaging
+*.egg
+*.whl
+
 src/tasks_config.py
 src/tasks-config.py
 src/tasks_config.json
