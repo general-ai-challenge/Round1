@@ -19,7 +19,7 @@ from core.environment import Environment
 from core.config_loader import JSONConfigLoader, PythonConfigLoader
 import learners
 from core.session import Session
-from view.console import ConsoleView, BaseView
+import platform
 
 
 def main():
@@ -94,12 +94,21 @@ def main():
 
 
 def create_view(view_type, learner_type, env, session, serializer, show_world):
-    if learner_type == 'learners.human_learner.HumanLearner' \
-            or view_type == 'ConsoleView':
-        return ConsoleView(env, session, serializer, show_world)
+    if platform.system() == 'Windows':
+        from view.win_console import StdInOutView
+        if learner_type == 'learners.human_learner.HumanLearner' \
+           or view_type == 'ConsoleView':
+            return StdInOutView(env, session, serializer, show_world)
+        else:
+            pass
+            # TODO
     else:
-        return BaseView(env, session)
-
+        from view.console import ConsoleView, BaseView
+        if learner_type == 'learners.human_learner.HumanLearner' \
+                or view_type == 'ConsoleView':
+            return ConsoleView(env, session, serializer, show_world)
+        else:
+            return BaseView(env, session)
 
 def create_learner(learner_type, serializer, learner_cmd, learner_port=None):
     if learner_type == 'learners.human_learner.HumanLearner':
