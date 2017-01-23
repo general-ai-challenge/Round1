@@ -52,6 +52,8 @@ def main():
                   default=10, type=int,
                   help='Maximum reward that we can give to a learner for'
                   ' a given task.')
+    op.add_option('--use-standard-output', action='store_true', default=False,
+                  help='Uses standard output instead of curses library.')
     opt, args = op.parse_args()
     if len(args) == 0:
         op.error("Tasks schedule configuration file required.")
@@ -74,7 +76,7 @@ def main():
     session = Session(env, learner, opt.time_delay)
     # setup view
     view = create_view(opt.view, opt.learner, env, session, serializer,
-                        opt.show_world)
+                        opt.show_world, opt.use_standard_output)
     try:
         # send the interface to the human learner
         learner.set_view(view)
@@ -93,8 +95,8 @@ def main():
         view.finalize()
 
 
-def create_view(view_type, learner_type, env, session, serializer, show_world):
-    if platform.system() == 'Windows':
+def create_view(view_type, learner_type, env, session, serializer, show_world, use_standard_output):
+    if platform.system() == 'Windows' or use_standard_output:
         from view.win_console import StdInOutView, StdOutView
         if learner_type == 'learners.human_learner.HumanLearner' \
            or view_type == 'ConsoleView':

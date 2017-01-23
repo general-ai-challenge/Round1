@@ -13,29 +13,35 @@ code = locale.getpreferredencoding()
 
 
 def get_console_size():
-    from ctypes import windll, create_string_buffer
+    try:
+        from ctypes import windll, create_string_buffer
 
-    # stdin handle is -10
-    # stdout handle is -11
-    # stderr handle is -12
+        # stdin handle is -10
+        # stdout handle is -11
+        # stderr handle is -12
 
-    h = windll.kernel32.GetStdHandle(-12)
-    csbi = create_string_buffer(22)
-    res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
+        h = windll.kernel32.GetStdHandle(-12)
+        csbi = create_string_buffer(22)
+        res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
 
-    if res:
-        import struct
-        (bufx, bufy, curx, cury, wattr,
-        left, top, right, bottom, maxx, maxy) = \
-            struct.unpack("hhhhHhhhhhh", csbi.raw)
-        sizex = right - left + 1
-        sizey = bottom - top + 1
-    else:
-        # can't determine actual size
-        # return default values
-        sizex, sizey = 140, 25
-        
-    return sizey, sizex
+        if res:
+            import struct
+            (bufx, bufy, curx, cury, wattr,
+            left, top, right, bottom, maxx, maxy) = \
+                struct.unpack("hhhhHhhhhhh", csbi.raw)
+            sizex = right - left + 1
+            sizey = bottom - top + 1
+            return sizey, sizex
+    except ImportError:
+        pass
+    try:
+        sizex, sizey = os.popen('stty size', 'r').read().split()
+        return sizey, sizex
+    except ValueError:
+        pass
+
+    # default values
+    return 25, 140
 
 
 class WinBaseView(object):
