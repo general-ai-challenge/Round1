@@ -95,13 +95,12 @@ def main():
 
 def create_view(view_type, learner_type, env, session, serializer, show_world):
     if platform.system() == 'Windows':
-        from view.win_console import StdInOutView
+        from view.win_console import StdInOutView, StdOutView
         if learner_type == 'learners.human_learner.HumanLearner' \
            or view_type == 'ConsoleView':
             return StdInOutView(env, session, serializer, show_world)
         else:
-            pass
-            # TODO
+            return StdOutView(env, session)
     else:
         from view.console import ConsoleView, BaseView
         if learner_type == 'learners.human_learner.HumanLearner' \

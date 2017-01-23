@@ -11,7 +11,7 @@ import sys
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
 
-# Uncle Google
+
 def get_console_size():
     from ctypes import windll, create_string_buffer
 
@@ -37,11 +37,15 @@ def get_console_size():
         
     return sizey, sizex
 
-class StdOutView(object):
+
+class WinBaseView(object):
+
+    NEXT_UPDATE = 1000
 
     def __init__(self, env, session):
         self._env = env
         self._session = session
+        self._last_update = 0
 
         # observe basic high level information about the session and environment
         env.task_updated.register(
@@ -63,7 +67,12 @@ class StdOutView(object):
 
     def on_task_updated(self, task):
         if 'current_task' in self.info:
-            print('Current_task: {0}'.format(task.get_name()))
+            if self.info['current_task'] != task.get_name():
+                self.info['current_task'] = task.get_name()
+
+    def print_info(self):
+        print('Time {}; Current task: {}; Reward {}.'.format(self.info['time'], self.info['current_task'],
+                                                             self.info['reward']))
 
     def initialize(self):
         pass
@@ -72,7 +81,27 @@ class StdOutView(object):
         pass
 
 
-class StdInOutView(StdOutView):
+class StdOutView(WinBaseView):
+    def __init__(self, env, session):
+        super(StdOutView, self).__init__(env, session)
+
+    def on_total_reward_updated(self, reward):
+        super(StdOutView, self).on_total_reward_updated(reward)
+        self.print_info()
+
+    def on_total_time_updated(self, time):
+        super(StdOutView, self).on_total_time_updated(time)
+        if self._last_update + self.NEXT_UPDATE <= time:
+            self._last_update = time
+            self.print_info()
+
+    def on_task_updated(self, task):
+        if self.info['current_task'] != task.get_name():
+            self.info['current_task'] = task.get_name()
+            print('Change of a current task to: {} in time {}'.format(task.get_name(), self.info['time']))
+
+
+class StdInOutView(WinBaseView):
 
     def __init__(self, env, session, serializer, show_world=False):
         super(StdInOutView, self).__init__(env, session)
