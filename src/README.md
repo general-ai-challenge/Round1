@@ -1,6 +1,10 @@
 ## To run tests
 
 `pip install -r requirements\dev.txt`
+and then
+`tox`
+
+Coverage report is in `htmlcov` folder
 
 ## To run app
 
