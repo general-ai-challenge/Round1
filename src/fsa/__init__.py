@@ -20,15 +20,21 @@ class MiniTasksAutomatonInterface():
         self.positive_table = self._parse_positive_from_description()
         self.negative_table = self._parse_negative_from_description()
         self.anything_allowed = self._parse_anything_from_description()
-        self.positive_automaton, self._final_state_ngram_length = self._build_automaton(self.positive_table)
-        self.negative_automaton, dummy = self._build_automaton(self.negative_table)
+        self.positive_automaton, self.positive_state_depth_dict = self._build_automaton(self.positive_table)
+        self.negative_automaton, self.negative_state_depth_dict = self._build_automaton(self.negative_table)
+
+    def _is_in_final_state(self, automaton, state):
+        for f in automaton.Final:
+            if f in state:
+                return True
+        return False
 
     def _build_automaton(self, ngram_table):
         nfa = NFA()
-        final_state_ngram_length = {}
 
         nfa.setSigma(self._sigma)
         initial_state = 0
+        state_depth_dict = {initial_state: 0}
         nfa.addState(initial_state)
         nfa.addInitial(initial_state)
         state = 1
@@ -40,14 +46,14 @@ class MiniTasksAutomatonInterface():
                 # loop on initial state is added during usage of the automaton to increase efficiency
                 nfa.addState(state)
                 nfa.addTransition(source_state, string[i], state)
+                state_depth_dict[state] = i + 1
                 if i == len(string) - 1:
                     nfa.addFinal(state)
-                    nfa.addTransition(state, '@epsilon', initial_state) # epsilon-transition
-                    final_state_ngram_length[state] = len(string)
+                    nfa.addTransition(state, '@epsilon', initial_state)  # epsilon-transition
                 source_state = state
                 state += 1
 
-        return nfa, final_state_ngram_length # final_state_ngram_length dictionary will be useful for accepting
+        return nfa, state_depth_dict # final_state_ngram_length dictionary will be useful for accepting
 
     def _parse_positive_from_description(self):
         ret = []
@@ -92,8 +98,75 @@ class MiniTasksAutomatonInterface():
 
         return False
 
+    def _get_available_transition_symbols(self, automaton, state_depth_dict, from_states, min_depth):
+        # assumes epsilon-closure has been performed on the from_states
+        # assumes a trie-like structure of states with epsilon transition from final states to the initial state
+        assert(len(from_states) != 0)
+        symbols = set()
+        for state in from_states:
+            if state_depth_dict[state] < min_depth:
+                continue
+            transition = automaton.delta[state]
+            assert len(transition) > 0
+            for symbol in transition:
+                if symbol == '@epsilon':
+                    continue # assumes epsilon transitions occur only from final states to initial state
+                symbols.add(symbol)  # assumes the target state has a greater depth than the source state
+
+        return symbols
+
     def get_correct_string(self):
-        return ''
+        # positive automaton part first
+        current = last_confirmed = -1
+        automaton = self.positive_automaton
+        state = automaton.epsilonClosure(automaton.Initial)
+        initial = state.copy()
+        missing_states = set(automaton.States).difference(initial)
+        threshold_length = int(math.ceil(random.random()*20))  # strings longer than 20 characters are not necessary now
+        chrs = []
+
+        while True:
+            is_initial = len(automaton.Initial.intersection(state)) != 0
+            symbols = self._get_available_transition_symbols(automaton, self.positive_state_depth_dict, state,
+                                                             current - last_confirmed)
+            next_symbol = None
+            pick_next_symbol_randomly = True
+
+            if current >= threshold_length:
+
+                if len(missing_states) > 0 and self.logical_op == self._and_string:
+                    # try to reach missing states when in "and" mode
+                    # find a symbol that will lead to one of the missing states (if there is such a symbol)
+
+                    # this will not always work - fix for case of "anything" string or GGA/GGB
+                    # remember the groups generated so far and generate the missing ones when in initial state
+                    # instead of missing states, remember missing final states.
+                    for symbol in symbols:
+                        target = automaton.evalSymbol(state, symbol)
+                        if len(target.intersection(missing_states)) != 0:
+                            missing_states = missing_states.difference(target)
+                            state = target
+                            next_symbol = symbol
+                            pick_next_symbol_randomly = False
+                            break
+
+                else:
+                    if self._is_in_final_state(automaton,state):
+                        break
+
+            if pick_next_symbol_randomly:
+                next_symbol = random.sample(symbols, 1)[0]
+                state = automaton.evalSymbol(state, next_symbol).union(initial)
+
+            missing_states = missing_states.difference(state)
+            current+=1
+            chrs.append(next_symbol)
+            if self._is_in_final_state(automaton,state):
+                last_confirmed = current
+
+        str = ''.join(chrs)
+        assert(self.is_string_correct(str))
+        return str
 
     def _get_random_string(self, length):
         chrlist = [chr(ord('A')+int(math.floor(random.random()*26))) for i in range(length)]
@@ -106,7 +179,6 @@ class MiniTasksAutomatonInterface():
             if not self.is_string_correct(str):
                 return str
         raise AssertionError("could not generate a random string that would not be accepted by the automaton")
-
 
     def get_wrong_string(self, randomization=1.0):
         str = self._get_random_wrong_string()
@@ -128,16 +200,16 @@ class MiniTasksAutomatonInterface():
         last_confirmed = -1
 
         for i in range(len(string)):
-            ilist = automaton.evalSymbol(ilist, string[i]).union(initial)
+            ilist = automaton.evalSymbol(ilist, string[i]).union(initial)  # loop here to be a matcher automaton
             if not ilist:
                 return False
             for f in automaton.Final:
                 if f in ilist:
                     if require_all:
                         missing_final_states.discard(f)
-                    if last_confirmed + self._final_state_ngram_length[f] >= i :
+                    if last_confirmed + self.positive_state_depth_dict[f] >= i:
                         # > condition is true if there's more than one match
-                        last_confirmed = i # there is no unmatched character in word up to position i
+                        last_confirmed = i  # there is no unmatched character in word up to position i
 
         if last_confirmed+1 != len(string) and not self.anything_allowed:
             # there is an unmatched character at position last_confirmed + 1
@@ -159,10 +231,9 @@ class MiniTasksAutomatonInterface():
         initial = ilist.copy()
 
         for i in range(len(string)):
-            ilist = automaton.evalSymbol(ilist, string[i]).union(initial)
-            for f in automaton.Final:
-                if f in ilist:
-                    return True # a single match is enough
+            ilist = automaton.evalSymbol(ilist, string[i]).union(initial) # loop here to be a matcher automaton
+            if self._is_in_final_state(automaton, ilist):
+                return True  # a single match is enough
         return False
 
     def is_string_correct(self, string):

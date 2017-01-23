@@ -203,4 +203,15 @@ class TestFSA(unittest.TestCase):
         obj = build_automaton("C", "and")
         self.assertFalse(obj.is_string_correct(obj.get_wrong_string(1)))
 
+    def test_fsa_generator_2(self):
+        obj = build_automaton("AB CF ABC", "or")
+        for ind in range(100):
+            str = obj.get_correct_string()
+            self.assertTrue(obj.is_string_correct(str))
+
+    def test_fsa_generator_2(self):
+        obj = build_automaton("AB CF ABC", "and")
+        for ind in range(100):
+            str = obj.get_correct_string()
+            self.assertTrue(obj.is_string_correct(str))
 
