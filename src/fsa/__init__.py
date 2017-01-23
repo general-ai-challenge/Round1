@@ -121,12 +121,12 @@ class MiniTasksAutomatonInterface():
         automaton = self.positive_automaton
         state = automaton.epsilonClosure(automaton.Initial)
         initial = state.copy()
-        missing_states = set(automaton.States).difference(initial)
+        missing_states = automaton.Final.copy()
         threshold_length = int(math.ceil(random.random()*20))  # strings longer than 20 characters are not necessary now
         chrs = []
+        attractor_state = None
 
         while True:
-            is_initial = len(automaton.Initial.intersection(state)) != 0
             symbols = self._get_available_transition_symbols(automaton, self.positive_state_depth_dict, state,
                                                              current - last_confirmed)
             next_symbol = None
@@ -135,19 +135,25 @@ class MiniTasksAutomatonInterface():
             if current >= threshold_length:
 
                 if len(missing_states) > 0 and self.logical_op == self._and_string:
+                    if attractor_state not in missing_states:
+                        attractor_state = random.sample(missing_states, 1)[0]
+                    attractor_state_depth = self.positive_state_depth_dict[attractor_state]
+                    to_try = list(range(attractor_state - attractor_state_depth+1, attractor_state+1))
+                    to_try.reverse()
+
                     # try to reach missing states when in "and" mode
                     # find a symbol that will lead to one of the missing states (if there is such a symbol)
-
-                    # this will not always work - fix for case of "anything" string or GGA/GGB
-                    # remember the groups generated so far and generate the missing ones when in initial state
-                    # instead of missing states, remember missing final states.
-                    for symbol in symbols:
-                        target = automaton.evalSymbol(state, symbol)
-                        if len(target.intersection(missing_states)) != 0:
-                            missing_states = missing_states.difference(target)
-                            state = target
-                            next_symbol = symbol
-                            pick_next_symbol_randomly = False
+                    for possible_target in to_try:
+                        did_break = False
+                        for symbol in symbols:
+                            target = automaton.evalSymbol(state, symbol)
+                            if possible_target in target:
+                                state = target
+                                next_symbol = symbol
+                                pick_next_symbol_randomly = False
+                                did_break = True
+                                break
+                        if did_break:
                             break
 
                 else:
