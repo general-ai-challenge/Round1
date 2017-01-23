@@ -196,8 +196,7 @@ class StdInOutView(WinBaseView):
         if input_str == self.panic:
             input_str = ''
             self._env._task_time = float('inf')
-        if input_str == self.quit:
-            input_str = ''
+        elif input_str == self.quit:
             sys.exit()
         return input_str
 

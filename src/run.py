@@ -109,6 +109,7 @@ def create_view(view_type, learner_type, env, session, serializer, show_world):
         else:
             return BaseView(env, session)
 
+
 def create_learner(learner_type, serializer, learner_cmd, learner_port=None):
     if learner_type == 'learners.human_learner.HumanLearner':
         return learners.human_learner.HumanLearner(serializer)
