@@ -5,8 +5,9 @@ from __future__ import unicode_literals
 import logging
 import locale
 from core.channels import InputChannel
-import os
 import sys
+import os
+import platform
 
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
@@ -34,11 +35,9 @@ def get_console_size():
             return sizey, sizex
     except ImportError:
         pass
-    try:
+    if platform.system() == 'Linux':
         sizex, sizey = os.popen('stty size', 'r').read().split()
-        return sizey, sizex
-    except ValueError:
-        pass
+        return int(sizex), int(sizey)
 
     # default values
     return 25, 140
@@ -194,11 +193,12 @@ class StdInOutView(WinBaseView):
         print("_"*self._total_msg_length)
         print(self._env_output + ' reward:{:7}'.format(self.info['reward']))
         print(self._learner_input + ' time:{:9}'.format(self.info['time']))
-        # printed
-        real_raw_input = dict([attr, getattr(__builtins__, attr)]\
-                              for attr in dir(__builtins__) if not attr.startswith('_'))\
-            .get('rawinput',input)
-        input_str = real_raw_input()
+        _ver = sys.version_info
+        if _ver[0] == 2:
+            input_str = raw_input()
+        else:
+            input_str = input()
+
         if input_str == self.panic:
             input_str = ''
             self._env._task_time = float('inf')
