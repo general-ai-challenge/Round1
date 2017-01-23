@@ -164,7 +164,3 @@ class MiniTasksAutomatonInterface():
 
 def build_automaton(description, logical_op):
     return MiniTasksAutomatonInterface(description, logical_op)
-
-obj = build_automaton("GLE EB not CDX anything","and");
-print(obj.is_string_correct("GLEBCDXAAXX"))
-print(obj)
