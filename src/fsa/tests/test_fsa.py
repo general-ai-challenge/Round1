@@ -199,4 +199,8 @@ class TestFSA(unittest.TestCase):
         self.assertFalse(obj.is_string_correct("GLEABACFA"))
         self.assertFalse(obj.is_string_correct("ABOPYQEG"))
 
+    def test_fsa_generator_1(self):
+        obj = build_automaton("C", "and")
+        self.assertFalse(obj.is_string_correct(obj.get_wrong_string(1)))
+
 

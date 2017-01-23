@@ -1,4 +1,5 @@
 from FAdo.fa import *
+import math
 
 
 class MiniTasksAutomatonInterface():
@@ -94,8 +95,22 @@ class MiniTasksAutomatonInterface():
     def get_correct_string(self):
         return ''
 
+    def _get_random_string(self, length):
+        chrlist = [chr(ord('A')+int(math.floor(random.random()*26))) for i in range(length)]
+        return "".join(chrlist)
+
+    def _get_random_wrong_string(self):
+        for i in range(100):
+            string_length = int(math.ceil(random.random()*20))
+            str = self._get_random_string(string_length)
+            if not self.is_string_correct(str):
+                return str
+        raise AssertionError("could not generate a random string that would not be accepted by the automaton")
+
+
     def get_wrong_string(self, randomization=1.0):
-        return ''
+        str = self._get_random_wrong_string()
+        return str
 
     def _eval_positive(self, string):
         """Verify if the positive NFA recognises given word.
