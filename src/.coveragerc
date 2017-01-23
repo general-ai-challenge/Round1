@@ -1,0 +1,6 @@
+[run]
+include = fsa/*
+
+[report]
+skip_covered = True
+sort = Cover

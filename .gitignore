@@ -9,6 +9,18 @@ __pycache__/
 *.egg
 *.whl
 
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+
 src/tasks_config.py
 src/tasks-config.py
 src/tasks_config.json
@@ -18,4 +30,3 @@ src/docs/source/internal.rst
 Makefile
 src/experimental
 .idea
-*.pyc

@@ -1,0 +1,4 @@
+git+https://github.com/0xnurl/fado-python3
+future==0.16.0
+pyzmq==16.0.2
+zmq==0.0.0

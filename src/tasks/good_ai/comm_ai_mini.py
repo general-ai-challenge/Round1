@@ -34,6 +34,7 @@ def change_string_randomly(astring):
 
 
 class TaskSet1(BaseTask):
+
     def __init__(self, world=None):
         super(TaskSet1, self).__init__(
             world=world, max_time=3000)
@@ -57,11 +58,11 @@ class TaskSet1(BaseTask):
             answer=self.answer
         )
 
-        self.set_message("description: {description}; verify: {verify}." \
-            .format(
-            description=description,
-            verify=verify
-        ))
+        self.set_message("description: {description}; verify: {verify}."
+                         .format(
+                             description=description,
+                             verify=verify
+                         ))
 
     @on_message(r'\.')
     def check_response(self, event):
