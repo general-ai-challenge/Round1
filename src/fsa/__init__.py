@@ -144,7 +144,7 @@ class MiniTasksAutomatonInterface():
         initial = ilist.copy()
 
         for i in range(len(string)):
-            ilist = automaton.evalSymbol(ilist, string[i]).union(ilist)
+            ilist = automaton.evalSymbol(ilist, string[i]).union(initial)
             for f in automaton.Final:
                 if f in ilist:
                     return True # a single match is enough
