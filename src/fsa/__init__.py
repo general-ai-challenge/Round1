@@ -1,6 +1,6 @@
 from FAdo.fa import *
 
-class DummyAutomatonInterface():
+class MiniTasksAutomatonInterface():
 
     _negation_string = "not"
     _sigma = []
@@ -140,7 +140,7 @@ class DummyAutomatonInterface():
 
 
 def build_automaton(description, logical_op):
-    return DummyAutomatonInterface(description, logical_op)
+    return MiniTasksAutomatonInterface(description, logical_op)
 
 
 obj = build_automaton("GLE EB CDX","or");
