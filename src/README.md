@@ -6,6 +6,9 @@ and then
 
 Coverage report is in `htmlcov` folder
 
+If you want to see coverage report in the terminal as well, then run
+`tox -- --cov-report term`
+
 ## To run app
 
 Python 2
