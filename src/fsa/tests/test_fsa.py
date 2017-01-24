@@ -49,11 +49,10 @@ class TestFSA(unittest.TestCase):
 
     def test_fsa_1_6(self):
         obj = build_automaton("XX", "and")
-        self.assertTrue(obj.is_string_correct("XXX")) # even odd length should be "true"
+        self.assertTrue(obj.is_string_correct("XXX"))  # even odd length should be "true"
         self.assertTrue(obj.is_string_correct("XXXX"))
         self.assertFalse(obj.is_string_correct("XXY"))
         self.assertFalse(obj.is_string_correct("ABGD"))
-
 
     def test_fsa_2_1(self):
         obj = build_automaton("anything", "or")
@@ -146,7 +145,7 @@ class TestFSA(unittest.TestCase):
         self.assertTrue(obj.is_string_correct("GLEABC"))
         self.assertTrue(obj.is_string_correct("GLEABCGLEA"))
         self.assertTrue(obj.is_string_correct("ABABAB"))
-        self.assertTrue(obj.is_string_correct("AB")) # this has to be confirmed with Tomas/Marco
+        self.assertTrue(obj.is_string_correct("AB"))  # this has to be confirmed with Tomas/Marco
         self.assertFalse(obj.is_string_correct("GLEEA"))
         self.assertFalse(obj.is_string_correct("GLEAACA"))
         self.assertFalse(obj.is_string_correct("AOPYQEG"))
@@ -209,9 +208,8 @@ class TestFSA(unittest.TestCase):
             str = obj.get_correct_string()
             self.assertTrue(obj.is_string_correct(str))
 
-    def test_fsa_generator_2(self):
+    def test_fsa_generator_3(self):
         obj = build_automaton("AB CF ABC", "and")
         for ind in range(100):
             str = obj.get_correct_string()
             self.assertTrue(obj.is_string_correct(str))
-
