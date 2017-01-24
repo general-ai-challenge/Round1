@@ -5,7 +5,7 @@ from src.fsa import build_automaton
 class TestFSA(unittest.TestCase):
 
     def assertGeneratedStrings(self, obj):
-        for i in range(1000):
+        for i in range(100):
             self.assertTrue(obj.is_string_correct(obj.get_correct_string()))
             self.assertFalse(obj.is_string_correct(obj.get_wrong_string(0)))
 
