@@ -80,7 +80,7 @@ class MiniTasksAutomatonInterface():
                 source_state = state
                 state += 1
 
-        return nfa, state_depth_dict, alphabet # state_depth_dict will be useful for accepting
+        return nfa, state_depth_dict, alphabet  # state_depth_dict will be useful for accepting
 
     def _parse_positive_from_description(self):
         """
@@ -93,7 +93,7 @@ class MiniTasksAutomatonInterface():
         for string in self.description_split:
             if len(string) == 0:
                 continue
-            if next_negated :
+            if next_negated:
                 next_negated = False
                 continue
             if string == self._negation_string:
@@ -222,12 +222,12 @@ class MiniTasksAutomatonInterface():
 
         return chrs, state
 
-    def get_correct_string(self):
+    def get_correct_string(self, length):
         """
         Generate a string accepted by the automaton
         :return: the generated string
         """
-        return self._get_string(True)
+        return self._get_string(length, True)
 
     def _find_symbol_which_leads_to_earliest_state(self, automaton, state, symbols, states_to_try):
         for possible_state in states_to_try:
@@ -237,10 +237,11 @@ class MiniTasksAutomatonInterface():
                     return symbol
         return None
 
-    def _get_string(self, make_correct = True, avoid_states = None, insert_not_string = None):
+    def _get_string(self, threshold_length, make_correct=True, avoid_states=None, insert_not_string=None):
         """
         Generate a string that is either accepted (make_correct == True) or not accepted (make_correct == False) by
         the function is_string_correct().
+        :param threshold_length: Approximate length of the string
         :param make_correct: Whether to generate the accepted or rejected string
         :param avoid_states: Which final states never to visit during generating (useful for rejected strings)
         :param insert_not_string: Whether to insert a string that is forbidden in accepted strings
@@ -251,7 +252,6 @@ class MiniTasksAutomatonInterface():
         state = automaton.epsilonClosure(automaton.Initial)
         initial = state.copy()
         missing_states = automaton.Final.copy()  # when doing "and" generation, all final states must be visited
-        threshold_length = int(math.ceil(random.random()*20))  # strings longer than 20 characters are not necessary now
         chrs = []  # will hold the generated string
         attractor_state = None  # useful when doing "and" generation and we want to force visiting certain final state
 
@@ -263,9 +263,9 @@ class MiniTasksAutomatonInterface():
                 if random.random() > 0.5:
                     # random: do not insert the "anything" strings always
                     if random.random() > 0.5 or len(self.negative_table) == 0:
-                        newchrs, state = self._get_correct_anything_string(int(math.ceil(random.random()*5)), state)
+                        newchrs, state = self._get_correct_anything_string(int(math.ceil(random.random() * 5)), state)
                     else:
-                        newchrs = self._get_correct_not_string(int(math.ceil(random.random()*5)), chrs)
+                        newchrs = self._get_correct_not_string(int(math.ceil(random.random() * 5)), chrs)
                         state = initial.copy()
                     current = last_confirmed = current + len(newchrs)
                     chrs.extend(newchrs)
@@ -286,7 +286,7 @@ class MiniTasksAutomatonInterface():
                             attractor_state = random.sample(missing_states, 1)[0]
                         attractor_state_depth = self.positive_state_depth_dict[attractor_state]
                         # the states that correspond to one n-gram form a sequence:
-                        states_to_try = list(range(attractor_state - attractor_state_depth+1, attractor_state+1))
+                        states_to_try = list(range(attractor_state - attractor_state_depth + 1, attractor_state + 1))
                         states_to_try.reverse()
                         # try to reach missing states when in "and" mode
                         # find a symbol that will lead to one of the missing states (if there is such a symbol)
@@ -297,7 +297,7 @@ class MiniTasksAutomatonInterface():
                             pick_next_symbol_randomly = False
 
                     else:
-                        if self._is_in_final_state(automaton,state):
+                        if self._is_in_final_state(automaton, state):
                             # finish generating only after generating the rest of the last n-gram
                             break
 
@@ -321,13 +321,13 @@ class MiniTasksAutomatonInterface():
                                 confirm_last_pick = True  # we're avoiding a final state: pretend there was a match
 
                         if not found_symbol or random.random() > 0.9:  # pick a random symbol not in "symbols" as next
-                            next_symbol = random.sample(set(self._sigma).difference(symbols),1)[0]
+                            next_symbol = random.sample(set(self._sigma).difference(symbols), 1)[0]
                             confirm_last_pick = True
 
                 state = automaton.evalSymbol(state, next_symbol).union(initial)
                 missing_states = missing_states.difference(state)
                 chrs.append(next_symbol)
-                if self._is_in_final_state(automaton,state):
+                if self._is_in_final_state(automaton, state):
                     confirm_last_pick = True
 
                 current += 1
@@ -339,7 +339,7 @@ class MiniTasksAutomatonInterface():
 
         # insert a string from the "not" table
         if not make_correct and insert_not_string is not None:
-            randSplit = int(math.floor(random.random()*len(chrs)))
+            randSplit = int(math.floor(random.random() * len(chrs)))
             chrsA = chrs[:randSplit]
             chrsB = chrs[randSplit:]
             chrsA.extend(list(insert_not_string))
@@ -363,22 +363,21 @@ class MiniTasksAutomatonInterface():
         :param length:
         :return: the generated string
         """
-        chrlist = [chr(ord('A')+int(math.floor(random.random()*26))) for i in range(length)]
+        chrlist = [chr(ord('A') + int(math.floor(random.random() * 26))) for i in range(length)]
         return "".join(chrlist)
 
-    def _get_random_wrong_string(self):
+    def _get_random_wrong_string(self, string_length):
         """
         Try 3 times to generate a random string not accepted by the function is_string_correct
         :return: None if failed to generate; otherwise the generated string
         """
         for i in range(3):
-            string_length = int(math.ceil(random.random()*20))
             str = self._get_random_string(string_length)
             if not self.is_string_correct(str):
                 return str
         return None  # raise AssertionError("could not generate a random string that is not accepted by the automaton")
 
-    def _get_almost_correct_string(self):
+    def _get_almost_correct_string(self, length):
         """
         returns a string not accepted by function is_string_correct, which is however only slightly wrong
         kinds of almost correct strings (from mini-tasks):
@@ -397,16 +396,16 @@ class MiniTasksAutomatonInterface():
         if self.logical_op == self._or_string:
             avoid_states = self.positive_automaton.Final
         elif len(self.negative_table) == 0:
-            avoid_states = random.sample(self.positive_automaton.Final,1)
+            avoid_states = random.sample(self.positive_automaton.Final, 1)
         else:
             if random.random() > 0.5 and len(self.positive_automaton.Final) > 0:
-                avoid_states = random.sample(self.positive_automaton.Final,1)
+                avoid_states = random.sample(self.positive_automaton.Final, 1)
             else:
                 insert_not_string = random.choice(self.negative_table)
 
-        return self._get_string(False, avoid_states, insert_not_string)
+        return self._get_string(length, False, avoid_states, insert_not_string)
 
-    def get_wrong_string(self, randomization=1.0):
+    def get_wrong_string(self, length, randomization=1.0):
         """
         returns a string not accepted by function is_string_correct
         :param randomization:
@@ -414,9 +413,9 @@ class MiniTasksAutomatonInterface():
         """
         string = None
         if(randomization == 1.0):
-            string = self._get_random_wrong_string()
+            string = self._get_random_wrong_string(length)
         if(string == None):
-            string = self._get_almost_correct_string()
+            string = self._get_almost_correct_string(length)
         return string
 
     def _eval_positive(self, string):
@@ -447,7 +446,7 @@ class MiniTasksAutomatonInterface():
                         # > condition is true if there's more than one match
                         last_confirmed = i  # there is no unmatched character in word up to position i
 
-        if last_confirmed+1 != len(string) and not self.anything_allowed:
+        if last_confirmed + 1 != len(string) and not self.anything_allowed:
             # there is an unmatched character at position last_confirmed + 1
             return False
 
@@ -468,7 +467,7 @@ class MiniTasksAutomatonInterface():
         initial = ilist.copy()
 
         for i in range(len(string)):
-            ilist = automaton.evalSymbol(ilist, string[i]).union(initial) # loop here to be a matcher automaton
+            ilist = automaton.evalSymbol(ilist, string[i]).union(initial)  # loop here to be a matcher automaton
             if self._is_in_final_state(automaton, ilist):
                 return True  # a single match is enough
         return False

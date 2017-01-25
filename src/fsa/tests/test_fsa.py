@@ -1,3 +1,4 @@
+import random
 import unittest
 from src.fsa import build_automaton
 
@@ -6,8 +7,8 @@ class TestFSA(unittest.TestCase):
 
     def assertGeneratedStrings(self, obj):
         for i in range(100):
-            self.assertTrue(obj.is_string_correct(obj.get_correct_string()))
-            self.assertFalse(obj.is_string_correct(obj.get_wrong_string(0)))
+            self.assertTrue(obj.is_string_correct(obj.get_correct_string(random.randint(1, 20))))
+            self.assertFalse(obj.is_string_correct(obj.get_wrong_string(random.randint(1, 20), 0)))
 
     def test_fsa_1_1(self):
         obj = build_automaton("C", "and")
@@ -226,24 +227,24 @@ class TestFSA(unittest.TestCase):
     def test_fsa_generator_1(self):
         obj = build_automaton("C", "and")
         for ind in range(100):
-            self.assertFalse(obj.is_string_correct(obj.get_wrong_string(1)))
+            self.assertFalse(obj.is_string_correct(obj.get_wrong_string(random.randint(1, 20), 1)))
 
     def test_fsa_generator_2(self):
         obj = build_automaton("AB CF ABC", "or")
         for ind in range(100):
-            string = obj.get_correct_string()
+            string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
 
     def test_fsa_generator_3(self):
         obj = build_automaton("AB CF ABC", "and")
         for ind in range(100):
-            string = obj.get_correct_string()
+            string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
 
     def test_fsa_generator_4(self):
         obj = build_automaton("MNO KL not CF not ABC anything", "and")
         for ind in range(100):
-            string = obj.get_correct_string()
+            string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
 
 # obj = build_automaton("AB anything", "or")  # this is not handled

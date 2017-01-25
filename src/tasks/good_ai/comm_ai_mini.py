@@ -25,15 +25,16 @@ class TaskSet1(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+
         length_of_description = random.randint(1, 3)
         description = random_string(length_of_description)
         is_correct = random.choice([True, False])
         automaton = build_automaton(description, "and")
 
         if is_correct:
-            verify = automaton.get_correct_string()
+            verify = automaton.get_correct_string(10)
         else:
-            verify = automaton.get_wrong_string()
+            verify = automaton.get_wrong_string(10)
 
         self.answer = "true" if is_correct else "false"
         self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
