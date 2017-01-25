@@ -257,7 +257,8 @@ class MiniTasksAutomatonInterface():
 
         while True:  # until the string is generated
             if last_confirmed == current and \
-                    self.anything_allowed:  # insert an "anything" string into the generated string
+                    self.anything_allowed and \
+                    current < threshold_length:  # insert an "anything" string into the generated string
                 # (last_confirmed == current) is true after a final state is entered
                 # when "not" strings are used, there's always "anything" allowed (asserted above)
                 if random.random() > 0.5:
@@ -497,3 +498,8 @@ def build_automaton(description, logical_op):
     :return:
     """
     return MiniTasksAutomatonInterface(description, logical_op)
+
+# obj = build_automaton("not DD not DVN AIORR ERIBI anything not JD","and")
+#
+# print("correct: "+obj.get_correct_string(6))
+# print("incorrect: "+obj.get_wrong_string(6,0))
