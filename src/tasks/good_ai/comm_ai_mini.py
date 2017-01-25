@@ -24,7 +24,11 @@ def random_string_from(length, subset):
 
 # generovat incorrect z distribuce correct
 # pridat minimalni delku
-def get_task(max_length_of_description, max_nr_of_groups, max_length_of_verify, description_type, not_portion=0, subset_size=13, contain_anything=None):
+def get_task(max_length_of_description, max_nr_of_groups, max_length_of_verify, description_type,
+             not_portion=None, subset_size=None, without_anything=None):
+    not_portion = not_portion or 0
+    subset_size = subset_size or 13
+
     if not description_type == "and" and not description_type == "or":
         print("Unknown description_type: {}".format(description_type))
         return
@@ -40,10 +44,18 @@ def get_task(max_length_of_description, max_nr_of_groups, max_length_of_verify, 
         not_subset = "".join(random.choice(reduced_alphabet) for _ in range(subset_size))
 
     descriptions = []
-    if contain_anything is not None:
-        has_anything = contain_anything
+    if without_anything:
+        has_anything = False
     else:
         has_anything = random.choice([True, False])
+
+    if description_type == "or" and not without_anything:
+        if random.random() < 0.05:
+            has_anything = True
+            nr_of_groups = 0
+        else:
+            has_anything = False
+
     for _ in range(nr_of_groups):
         length_of_description = random.randint(1, max_length_of_description)
         if not_portion > 0:
@@ -58,6 +70,7 @@ def get_task(max_length_of_description, max_nr_of_groups, max_length_of_verify, 
 
     if has_anything:
         descriptions.append("anything")
+
     descriptions = list(set(descriptions))
     automaton = build_automaton(" ".join(descriptions), description_type)
     type_connection = " {} ".format(description_type)
@@ -79,15 +92,18 @@ class TaskSetBase(BaseTask):
         self.max_length_of_description = None
         self.max_nr_of_groups = None
         self.max_length_of_verify = None
-        self.not_portion = None
         self.description_type = None
+        self.not_portion = None
+        self.subset_size = None
+        self.without_anything = None
 
     @on_start()
     def give_instructions(self, event):
         if not self.max_length_of_description or not self.max_nr_of_groups or not self.max_length_of_verify or not self.description_type:
             raise AttributeError("Some of the TaskSet attributes are not set!")
 
-        is_correct, task = get_task(self.max_length_of_description, self.max_nr_of_groups, self.max_length_of_verify, self.description_type)
+        is_correct, task = get_task(self.max_length_of_description, self.max_nr_of_groups, self.max_length_of_verify,
+                                    self.description_type, self.not_portion, self.subset_size, self.without_anything)
 
         self.answer = "true" if is_correct else "false"
         self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
@@ -122,5 +138,36 @@ class TaskSet1(TaskSetBase):
         self.max_length_of_description = 3
         self.max_nr_of_groups = 1
         self.max_length_of_verify = 10
-        self.not_portion = 0
         self.description_type = "and"
+        self.without_anything = True
+
+
+class TaskSet2(TaskSetBase):
+
+    def __init__(self, world=None):
+        super(TaskSet2, self).__init__(world=world)
+        self.max_length_of_description = 3
+        self.max_nr_of_groups = 3
+        self.max_length_of_verify = 10
+        self.description_type = "or"
+
+
+class TaskSet3(TaskSetBase):
+
+    def __init__(self, world=None):
+        super(TaskSet3, self).__init__(world=world)
+        self.max_length_of_description = 3
+        self.max_nr_of_groups = 3
+        self.max_length_of_verify = 30
+        self.description_type = "and"
+
+
+class TaskSet4(TaskSetBase):
+
+    def __init__(self, world=None):
+        super(TaskSet4, self).__init__(world=world)
+        self.max_length_of_description = 3
+        self.max_nr_of_groups = 3
+        self.max_length_of_verify = 30
+        self.description_type = "and"
+        self.not_portion = 0.5
