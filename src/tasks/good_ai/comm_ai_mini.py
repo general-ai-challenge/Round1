@@ -15,30 +15,83 @@ import tasks.competition.messages as msg
 
 
 def random_string(length):
-    return "".join(random.choice(string.ascii_uppercase) for _ in range(length))
+    return random_string_from(length, string.ascii_uppercase)
 
 
-class TaskSet1(BaseTask):
+def random_string_from(length, subset):
+    return "".join(random.choice(subset) for _ in range(length))
+
+
+# generovat incorrect z distribuce correct
+# pridat minimalni delku
+def get_task(max_length_of_description, max_nr_of_groups, max_length_of_verify, description_type, not_portion=0, subset_size=13, contain_anything=None):
+    if not description_type == "and" and not description_type == "or":
+        print("Unknown description_type: {}".format(description_type))
+        return
+    if subset_size > 13:
+        print("Subset size cannot be higher than 13.")
+        return
+
+    nr_of_groups = random.randint(1, max_nr_of_groups)
+    if not_portion > 0:
+        alphabet = string.ascii_uppercase
+        normal_subset = "".join(random.choice(alphabet) for _ in range(subset_size))
+        reduced_alphabet = "".join([char for char in alphabet if char not in normal_subset])
+        not_subset = "".join(random.choice(reduced_alphabet) for _ in range(subset_size))
+
+    descriptions = []
+    if contain_anything is not None:
+        has_anything = contain_anything
+    else:
+        has_anything = random.choice([True, False])
+    for _ in range(nr_of_groups):
+        length_of_description = random.randint(1, max_length_of_description)
+        if not_portion > 0:
+            if random.random() < not_portion:
+                description = "not " + random_string_from(length_of_description, not_subset)
+                has_anything = True
+            else:
+                description = random_string_from(length_of_description, normal_subset)
+        else:
+            description = random_string(length_of_description)
+        descriptions.append(description)
+
+    if has_anything:
+        descriptions.append("anything")
+    descriptions = list(set(descriptions))
+    automaton = build_automaton(" ".join(descriptions), description_type)
+    type_connection = " {} ".format(description_type)
+    complete_description = type_connection.join(descriptions)
+    is_correct = random.choice([True, False])
+
+    verify_length = random.randint(1, max_length_of_verify)
+    if is_correct:
+        verify = automaton.get_correct_string(verify_length)
+    else:
+        verify = automaton.get_wrong_string(verify_length, 0)
+    return (is_correct, "description: {}; verify {}".format(complete_description, verify))
+
+
+class TaskSetBase(BaseTask):
 
     def __init__(self, world=None):
-        super(TaskSet1, self).__init__(world=world, max_time=3000)
+        super(TaskSetBase, self).__init__(world=world, max_time=3000)
+        self.max_length_of_description = None
+        self.max_nr_of_groups = None
+        self.max_length_of_verify = None
+        self.not_portion = None
+        self.description_type = None
 
     @on_start()
     def give_instructions(self, event):
+        if not self.max_length_of_description or not self.max_nr_of_groups or not self.max_length_of_verify or not self.description_type:
+            raise AttributeError("Some of the TaskSet attributes are not set!")
 
-        length_of_description = random.randint(1, 3)
-        description = random_string(length_of_description)
-        is_correct = random.choice([True, False])
-        automaton = build_automaton(description, "and")
-
-        if is_correct:
-            verify = automaton.get_correct_string(10)
-        else:
-            verify = automaton.get_wrong_string(10)
+        is_correct, task = get_task(self.max_length_of_description, self.max_nr_of_groups, self.max_length_of_verify, self.description_type)
 
         self.answer = "true" if is_correct else "false"
         self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
-        self.set_message("description: {}; verify: {}.".format(description, verify))
+        self.set_message(task)
 
     @on_message(r'\.')
     def check_response(self, event):
@@ -60,3 +113,14 @@ class TaskSet1(BaseTask):
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
         self.set_reward(0, self.give_away_message)
+
+
+class TaskSet1(TaskSetBase):
+
+    def __init__(self, world=None):
+        super(TaskSet1, self).__init__(world=world)
+        self.max_length_of_description = 3
+        self.max_nr_of_groups = 1
+        self.max_length_of_verify = 10
+        self.not_portion = 0
+        self.description_type = "and"
