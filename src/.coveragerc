@@ -1,5 +1,7 @@
 [run]
-include = fsa/*
+include =
+    fsa/*
+    tasks/good_ai/*
 
 [report]
 skip_covered = True

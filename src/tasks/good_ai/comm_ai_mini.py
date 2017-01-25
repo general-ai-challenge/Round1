@@ -2,67 +2,43 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from core.task import on_start, on_message, on_timeout
-from tasks.competition.base import BaseTask
-import tasks.competition.messages as msg
+
 import random
 import string
+
+from core.task import on_message, on_start, on_timeout
+
+from fsa import build_automaton
+
+from tasks.competition.base import BaseTask
+import tasks.competition.messages as msg
 
 
 def random_string(length):
     return "".join(random.choice(string.ascii_uppercase) for _ in range(length))
 
 
-def replace_char(c):
-    candidates = list(string.ascii_uppercase)
-    candidates.remove(c)
-    return "".join(random.choice(candidates))
-
-
-def change_string_randomly(astring):
-    length = len(astring)
-
-    nr_of_changes = random.randint(1, length)
-    to_change = range(length)
-    to_change = random.sample(to_change, nr_of_changes)
-
-    new_string = list(astring)
-    for i in to_change:
-        new_string[i] = replace_char(new_string[i])
-
-    return "".join(new_string)
-
-
 class TaskSet1(BaseTask):
 
     def __init__(self, world=None):
-        super(TaskSet1, self).__init__(
-            world=world, max_time=3000)
+        super(TaskSet1, self).__init__(world=world, max_time=3000)
 
     @on_start()
     def give_instructions(self, event):
 
         length_of_description = random.randint(1, 3)
         description = random_string(length_of_description)
-
         is_correct = random.choice([True, False])
+        automaton = build_automaton(description, "and")
 
-        verify_multiply = random.randint(1, 3)
-        verify = "".join([description] * verify_multiply)
-        if not (is_correct):
-            verify = change_string_randomly(verify)
+        if is_correct:
+            verify = automaton.get_correct_string(10)
+        else:
+            verify = automaton.get_wrong_string(10)
 
         self.answer = "true" if is_correct else "false"
-
-        self.give_away_message = 'Wrong. The right answer is: {answer}.'.format(
-            answer=self.answer
-        )
-
-        self.set_message("description: {description}; verify: {verify}."
-                         .format(
-                             description=description,
-                             verify=verify
-                         ))
+        self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
+        self.set_message("description: {}; verify: {}.".format(description, verify))
 
     @on_message(r'\.')
     def check_response(self, event):
