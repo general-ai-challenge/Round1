@@ -298,7 +298,7 @@ class MiniTasksAutomatonInterface():
                             pick_next_symbol_randomly = False
 
                     else:
-                        if self._is_in_final_state(automaton, state):
+                        if self._is_in_final_state(automaton, state) or self.anything_allowed:
                             # finish generating only after generating the rest of the last n-gram
                             break
 
@@ -501,5 +501,6 @@ def build_automaton(description, logical_op):
 
 # obj = build_automaton("not DD not DVN AIORR ERIBI anything not JD","and")
 #
-# print("correct: "+obj.get_correct_string(6))
-# print("incorrect: "+obj.get_wrong_string(6,0))
+# for i in range(10):
+#     print("correct: "+obj.get_correct_string(16))
+#     print("incorrect: "+obj.get_wrong_string(16,0))
