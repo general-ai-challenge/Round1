@@ -171,3 +171,23 @@ class TaskSet4(TaskSetBase):
         self.max_length_of_verify = 30
         self.description_type = "and"
         self.not_portion = 0.5
+
+
+class TaskSet5(TaskSetBase):
+
+    def __init__(self, world=None):
+        super(TaskSet5, self).__init__(world=world)
+        self.world = world
+        self.task_set_list = [TaskSet1, TaskSet2, TaskSet3, TaskSet4]
+
+    @on_start()
+    def give_instructions(self, event):
+        actual_task_set = random.choice(self.task_set_list)()
+        self.max_length_of_description = actual_task_set.max_length_of_description
+        self.max_nr_of_groups = actual_task_set.max_nr_of_groups
+        self.max_length_of_verify = actual_task_set.max_length_of_verify
+        self.description_type = actual_task_set.description_type
+        self.not_portion = actual_task_set.not_portion
+        self.subset_size = actual_task_set.subset_size
+        self.without_anything = actual_task_set.without_anything
+        return super(TaskSet5, self).give_instructions(event)
