@@ -125,6 +125,16 @@ class TestFSA(unittest.TestCase):
         self.assertFalse(obj.is_string_correct("ABCGDTRW"))
         self.assertGeneratedStrings(obj)
 
+    def test_fsa_2_7(self):
+        obj = build_automaton("ZJA J Y", "or")
+        self.assertTrue(obj.is_string_correct("JYJYJ"))
+        self.assertTrue(obj.is_string_correct("JJJJJJJJ"))
+        self.assertTrue(obj.is_string_correct("YZJAZJA"))
+        self.assertTrue(obj.is_string_correct("ZJAJY"))
+        self.assertFalse(obj.is_string_correct("YJZJ"))
+        self.assertFalse(obj.is_string_correct("ZJAJD"))
+        self.assertGeneratedStrings(obj)
+
     def test_fsa_3_1(self):
         obj = build_automaton("AB CF", "and")
         self.assertTrue(obj.is_string_correct("ABABABCF"))
