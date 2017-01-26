@@ -18,7 +18,7 @@
   },
   "scheduler":
     {
-      "type": "core.scheduler.IncrementalTaskScheduler",
+      "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
           "tasks": ["cm0", "cm1"],
           "success_threshold": 100

@@ -75,6 +75,30 @@ class IncrementalTaskScheduler:
 #       scheduler and just repeats the given tasks N times.
 
 
+class ConsecutiveTaskScheduler:
+    '''
+    Switches to the next task type sequentially
+    After the current task was successfully solved N times in row
+    '''
+
+    def __init__(self, tasks, success_threshold=2):
+        self.tasks = tasks
+        self.task_ptr = 0
+        self.reward_count = 0
+        self.success_threshold = success_threshold
+
+    def get_next_task(self):
+        if self.reward_count == self.success_threshold:
+            self.reward_count = 0
+            self.task_ptr = (self.task_ptr + 1) % len(self.tasks)
+        return self.tasks[self.task_ptr]
+
+    def reward(self, reward):
+        if reward != 1:
+            self.reward_count = 0
+        self.reward_count += reward
+
+
 class DependenciesTaskScheduler:
     '''
     Takes a dependency graph between the tasks and randomly allocates between
