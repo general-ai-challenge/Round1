@@ -6,21 +6,72 @@ from __future__ import unicode_literals
 import random
 import string
 
-from core.task import on_message, on_start, on_timeout
-
-from fsa import build_automaton
-
-from tasks.competition.base import BaseTask
 import tasks.competition.messages as msg
+from core.task import on_message, on_start, on_timeout
+from fsa import build_automaton
+from tasks.competition.base import BaseTask
 
 
 def random_string(length):
     return random_string_from(length, string.ascii_uppercase)
 
 
-def random_string_from(length, subset):
-    return "".join(random.choice(subset) for _ in range(length))
+class TaskSet0(BaseTask):
+    _task_nr = 0
+    _SWITCH_TO_LONGER_DESCRIPTION = 1000
+    _SWITCH_TO_NEXT_SUBTASK = 10
+    _subtask_nr = -1
 
+    def __init__(self, world=None):
+        super(TaskSet0, self).__init__(world=world, max_time=3000)
+
+    @on_start()
+    def give_instructions(self, event):
+        length_of_description = 1 * (self._task_nr > self._SWITCH_TO_LONGER_DESCRIPTION) + 1
+        prev_subtask = self._subtask_nr
+        self._subtask_nr = self._task_nr // self._SWITCH_TO_NEXT_SUBTASK
+        if prev_subtask != self._subtask_nr:
+            self._description = random_string(length_of_description)
+            self._automaton = build_automaton(self._description, "and")
+        is_correct = random.choice([True, False])
+
+        verification_length = random.randint(length_of_description, length_of_description * 3 - 1)
+        if is_correct:
+            verify = self._automaton.get_correct_string(verification_length)
+        else:
+            verify = self._automaton.get_wrong_string(verification_length)
+
+        self.answer = "true" if is_correct else "false"
+        self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
+        self.set_message("description: {}; verify: {}.".format(self._description, verify))
+
+        self._task_nr = self._task_nr + 1
+
+    @on_message(r'\.')
+    def check_response(self, event):
+        # check if given answer matches
+        if event.is_message(self.answer, '.'):
+            # if the message sent by the learner equals the teacher's
+            # expected answer followed by a period, reward the learner.
+            self.set_reward(1, random.choice(msg.congratulations))
+        else:
+            # If the learner said anything else, it fails the task.
+            self.fail_learner()
+
+    @on_timeout()
+    def on_timeout(self, event):
+        # if the learner has not produced any plausible answer by the max_time
+        # allowed, fail the learner sending appropriate feedback.
+        self.fail_learner()
+
+    def fail_learner(self):
+        # fail the learner sending a random fail feedback message
+        self.set_reward(0, self.give_away_message)
+
+
+class TaskSet1(BaseTask):
+    def __init__(self, world=None):
+        super(TaskSet1, self).__init__(world=world, max_time=3000)
 
 # generovat incorrect z distribuce correct
 # pridat minimalni delku

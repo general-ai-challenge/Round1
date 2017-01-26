@@ -6,16 +6,22 @@
   },
   "tasks":
   {
+    "cm0": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet0",
+      "world": "gw"
+    },
     "cm1": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet1",
       "world": "gw"
     }
+
   },
   "scheduler":
     {
-      "type": "core.scheduler.RandomTaskScheduler",
+      "type": "core.scheduler.IncrementalTaskScheduler",
       "args": {
-          "tasks": ["cm1"]
+          "tasks": ["cm0", "cm1"],
+          "success_threshold": 100
         }
     }
 }
