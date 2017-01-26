@@ -16,6 +16,10 @@ def random_string(length):
     return random_string_from(length, string.ascii_uppercase)
 
 
+def random_string_from(length, subset):
+    return "".join(random.choice(subset) for _ in range(length))
+
+
 class TaskSet0(BaseTask):
     _task_nr = 0
     _SWITCH_TO_LONGER_DESCRIPTION = 1000

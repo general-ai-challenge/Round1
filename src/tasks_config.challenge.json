@@ -13,15 +13,30 @@
     "cm1": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet1",
       "world": "gw"
+    },
+    "cm2": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet2",
+      "world": "gw"
+    },
+    "cm3": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet3",
+      "world": "gw"
+    },
+    "cm4": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet4",
+      "world": "gw"
+    },
+    "cm5": {
+      "type": "tasks.good_ai.comm_ai_mini.TaskSet5",
+      "world": "gw"
     }
-
   },
   "scheduler":
     {
       "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
-          "tasks": ["cm0", "cm1"],
-          "success_threshold": 100
+          "tasks": ["cm0", "cm1","cm2", "cm3","cm4", "cm5"],
+          "success_threshold": 3
         }
     }
 }

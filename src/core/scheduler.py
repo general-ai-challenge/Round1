@@ -63,7 +63,7 @@ class IncrementalTaskScheduler:
         self.success_threshold = success_threshold
 
     def get_next_task(self):
-        if self.reward_count == self.success_threshold:
+        if self.reward_count == self.success_threshold - 1:
             self.reward_count = 0
             self.task_ptr = (self.task_ptr + 1) % len(self.tasks)
         return self.tasks[self.task_ptr]
@@ -88,7 +88,7 @@ class ConsecutiveTaskScheduler:
         self.success_threshold = success_threshold
 
     def get_next_task(self):
-        if self.reward_count == self.success_threshold:
+        if self.reward_count == self.success_threshold - 1:
             self.reward_count = 0
             self.task_ptr = (self.task_ptr + 1) % len(self.tasks)
         return self.tasks[self.task_ptr]
