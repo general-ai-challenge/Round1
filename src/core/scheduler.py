@@ -69,7 +69,9 @@ class IncrementalTaskScheduler:
         return self.tasks[self.task_ptr]
 
     def reward(self, reward):
-        self.reward_count += reward
+        if reward > 0:
+            self.reward_count += reward
+
 
 # TODO: Create a BatchedScheduler that takes as an argument another
 #       scheduler and just repeats the given tasks N times.
@@ -136,7 +138,8 @@ class DependenciesTaskScheduler:
         # remember the amount of times we have solved the task
         # using the name of the class to have a hashable value
         task_name = self.get_task_id(self.last_task)
-        self.rewards[task_name] += reward
+        if reward > 0:
+            self.rewards[task_name] += reward
         if self.rewards[task_name] >= self.unlock_threshold:
             self.solved_tasks.add(task_name)
             # refresh the list of available tasks
