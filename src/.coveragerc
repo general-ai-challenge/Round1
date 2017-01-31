@@ -1,4 +1,5 @@
 [run]
+branch = True
 include =
     fsa/*
     tasks/good_ai/*
