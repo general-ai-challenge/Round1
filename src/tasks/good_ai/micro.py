@@ -18,7 +18,10 @@ class TaskGenerator():
         - str - instance of the task
         - iterable or function
             - either iterable of correct answers
-            - or function which obtains answer and question and evaluates the answer and has to return True/False
+            - or function which obtains answer and question and evaluates the answer and has to return True/False/None
+            - if agent's answer is in iterable or function returns True, reward is 1
+            - if agent's answer is not in iterable or function returns None, reward is 0
+            - if function returns False, reward is -1
         - optionally it can return also the object which will override provide_feedback field (for the rest of generator lifetime)
     input_sep - str which is appended to task question. Defaults to ''
     provide_feedback can be bool, function, iterable, str or None
@@ -64,12 +67,23 @@ class TaskGenerator():
             feedback = feedback + self.feedback_sep
         return feedback
 
-    def is_answer_correct(self, answer):
+    def check_answer(self, answer, question=None):
+        '''
+        Returns a tuple (answer_is_correct, reward)
+        answer_is_correct - bool
+        reward - int -1, 0 or 1
+        '''
         if callable(self.answer):
-            return self.answer(answer)
+            check = self.answer(answer, question)
+            if check is None:
+                return False, 0
+            elif check is True:
+                return True, 1
+            else:
+                return False, -1
         if answer in self.answer:
-            return True
-        return False
+            return True, 1
+        return False, 0
 
 
 class MicroBase(BaseTask):
@@ -84,19 +98,15 @@ class MicroBase(BaseTask):
     @on_start()
     def give_instructions(self, event):
         self.question, self.check_answer = self.tasker.get_task_instance()
-        self.give_away_message = "dummy"
-        self.answer = "dummy"
         self.set_message(self.question)
 
     @on_message(r'\.')
     def check_response(self, event):
         event.message = event.message.strip()[:-1]  # remove trailing whitespaces - temp. workaround
-        correct = self.tasker.is_answer_correct(event.message)
-        self.set_reward(1)
-        # feedback_text = self.tasker.get_feedback_text(correct)
-        # self.set_message(feedback_text)
+        correct = self.tasker.check_answer(event.message, self.question)
+        feedback_text = self.tasker.get_feedback_text(correct) + '/'    # temp workaround so that feedback is never empty
         self.set_reward(1) if correct else self.set_reward(0)
-        self.set_message('x')
+        self.set_message(feedback_text)
 
     @on_timeout()
     def on_timeout(self, event):
@@ -107,15 +117,12 @@ class Micro1Task(MicroBase):
 
     def _get_task_generator(self):
         def micro1_question(self):
-            return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase
+            def micro1_reward(answer, question=''):
+                if answer in string.ascii_lowercase:
+                    return True
+                elif answer == ' ':
+                    return None
+                else:
+                    return False
+            return random.choice(string.ascii_lowercase + ' '), micro1_reward
         return TaskGenerator(micro1_question)
-
-
-class Micro1bTask(MicroBase):
-
-    def _get_task_generator(self):
-        def micro1_question(self):
-            def micro1_answer(answer, question=None):
-                return answer in string.ascii_lowercase
-            return random.choice(string.ascii_lowercase + ' '), micro1_answer
-        return TaskGenerator(micro1_question, '', True)

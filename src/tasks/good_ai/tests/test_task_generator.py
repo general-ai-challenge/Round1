@@ -9,31 +9,47 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_instancer_iterable(self):
         def micro1_question(self):
-            return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase + ' '
+            return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase
         tasker = TaskGenerator(micro1_question)
 
         question, answer = tasker.get_task_instance()
+        check_correct_answer = tasker.check_answer('a')
+        print(check_correct_answer)
+        check_wrong_answer = tasker.check_answer('/')
+        check_normal_answer = tasker.check_answer(' ')
 
-        self.assertTrue(tasker.is_answer_correct('a'))
-        self.assertTrue(tasker.is_answer_correct('a'))
-        self.assertTrue(tasker.is_answer_correct(' '))
-        self.assertFalse(tasker.is_answer_correct('.'))
-        self.assertFalse(tasker.is_answer_correct('/'))
+        self.assertTrue(check_correct_answer[0])
+        self.assertEqual(check_correct_answer[1], 1)
+        self.assertFalse(check_normal_answer[0])
+        self.assertEqual(check_normal_answer[1], 0)
+        self.assertFalse(check_wrong_answer[0])
+        self.assertEqual(check_wrong_answer[1], 0)  # iterable can only give positive reward
 
     def test_instancer_function(self):
         def micro1_question(self):
-            def micro1_answer(answer, question=None):
-                return answer in string.ascii_lowercase + ' '
-            return random.choice(string.ascii_lowercase + ' '), micro1_answer
+            def micro1_reward(answer, question=''):
+                print("checking answer")
+                print(repr(answer))
+                if answer in string.ascii_lowercase:
+                    return True
+                elif answer == ' ':
+                    return None
+                else:
+                    return False
+            return random.choice(string.ascii_lowercase + ' '), micro1_reward
         tasker = TaskGenerator(micro1_question)
 
         question, answer = tasker.get_task_instance()
+        check_correct_answer = tasker.check_answer('a')
+        check_wrong_answer = tasker.check_answer('/')
+        check_normal_answer = tasker.check_answer(' ')
 
-        self.assertTrue(tasker.is_answer_correct('a'))
-        self.assertTrue(tasker.is_answer_correct('a'))
-        self.assertTrue(tasker.is_answer_correct(' '))
-        self.assertFalse(tasker.is_answer_correct('.'))
-        self.assertFalse(tasker.is_answer_correct('/'))
+        self.assertTrue(check_correct_answer[0])
+        self.assertEqual(check_correct_answer[1], 1)
+        self.assertFalse(check_normal_answer[0])
+        self.assertEqual(check_normal_answer[1], 0)
+        self.assertFalse(check_wrong_answer[0])
+        self.assertEqual(check_wrong_answer[1], -1)
 
     def test_input_separator_single_char(self):
         def micro1_question(self):
