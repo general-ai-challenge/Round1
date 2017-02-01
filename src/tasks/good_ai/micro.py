@@ -155,6 +155,23 @@ class MicroMappingTask(MicroBase):
             return random.choice(list(mapping.keys())), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
 
+    # this could be solved by less code, but I chose the explicit way
+    def _get_simple_feedback_provider(self, mapping):
+        def feedback_provider(is_correct, question):
+            key = self.get_original_question(question)
+            return mapping[key]
+        return feedback_provider
+
+    def _get_prepend_feedback_provider(self, mapping, prepend_set, prepend_len_options=None):
+        prepend_len_options = prepend_len_options or [1]
+
+        def feedback_provider(is_correct, question):
+            key = self.get_original_question(question)
+            prepend_len = random.choice(prepend_len_options)
+            prepend = random_string_from(prepend_len, prepend_set)
+            return prepend + mapping[key]
+        return feedback_provider
+
 
 class Micro2Task(MicroMappingTask):
 
@@ -192,10 +209,7 @@ class Micro5Sub1Task(MicroMappingTask):
         permutation = ''.join(random.sample(numbers, len(numbers)))
         mapping = dict(zip(numbers, permutation))
 
-        def feedback_provider(is_correct, question):
-            key = self.get_original_question(question)
-            return mapping[key]
-        self.task_gen_kwargs['provide_feedback'] = feedback_provider
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
@@ -221,10 +235,7 @@ class Micro5Sub4Task(MicroMappingTask):
         numbers = '0123456789'
         mapping = {x: random_string_from(2, numbers) for x in numbers}
 
-        def feedback_provider(is_correct, question):
-            key = self.get_original_question(question)
-            return mapping[key]
-        self.task_gen_kwargs['provide_feedback'] = feedback_provider
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
@@ -237,10 +248,7 @@ class Micro5Sub5Task(MicroMappingTask):
         numbers = '0123456789'
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
 
-        def feedback_provider(is_correct, question):
-            key = self.get_original_question(question)
-            return mapping[key]
-        self.task_gen_kwargs['provide_feedback'] = feedback_provider
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
@@ -271,12 +279,7 @@ class Micro5Sub7Task(MicroMappingTask):
             answer = random_string_from(answer_len, numbers)
             mapping[x] = answer + '.'
 
-        def feedback_provider(is_correct, question):
-            key = self.get_original_question(question)
-            if is_correct:
-                return mapping[key][:-1]    # remove trailing dot
-            return mapping[key]
-        self.task_gen_kwargs['provide_feedback'] = feedback_provider
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
@@ -289,10 +292,179 @@ class Micro5Sub8Task(MicroMappingTask):
         questions = [random_string_from(2, numbers) for _ in range(nr_questions)]
         mapping = {x: random.choice(numbers) + '.' for x in questions}
 
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+class Micro5Sub9Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        nr_questions = 10
+        questions = []
+        for _ in range(nr_questions):
+            question_len = random.choice([1, 2])
+            question = random_string_from(question_len, numbers)
+            questions.append(question)
+        mapping = {x: random.choice(numbers) + '.' for x in questions}
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+# TODO: should be the ignored part be always the same for the same inputs or can it change? - this version changes it
+class Micro5Sub10Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        mapping = {x: random.choice(numbers) + '.' for x in numbers}
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_prepend_feedback_provider(mapping, numbers)
+        return mapping
+
+
+class Micro5Sub11Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        mapping = {x: random.choice(numbers) + '.' for x in numbers}
+
         def feedback_provider(is_correct, question):
             key = self.get_original_question(question)
-            if is_correct:
-                return mapping[key][:-1]    # remove trailing dot
-            return mapping[key]
+            do_prepend = random.choice([True, False])
+            if do_prepend:
+                prepend = random.choice(numbers)
+            else:
+                prepend = ''
+            return prepend + mapping[key]
         self.task_gen_kwargs['provide_feedback'] = feedback_provider
+        return mapping
+
+
+# stems from 5.7
+# TODO: description says "either 3 or 4 or 5 chars. Shown example for 3
+# chars". So will it be always the same size of feedback for on task
+# instance? Or can it be mixed? - this version is mixed
+# same question for 5.13, 5.14, 5.15, 5.16, 5.17 and 5.18
+class Micro5Sub12Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        mapping = {}
+        for x in numbers:
+            answer_len = random.choice([3, 4, 5])
+            answer = random_string_from(answer_len, numbers)
+            mapping[x] = answer + '.'
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+# stems from 5.9
+class Micro5Sub13Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        nr_questions = 10
+        questions = []
+        for _ in range(nr_questions):
+            question_len = random.choice([3, 4, 5])
+            question = random_string_from(question_len, numbers)
+            questions.append(question)
+        mapping = {x: random.choice(numbers) + '.' for x in questions}
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+# stems from 5.12
+class Micro5Sub14Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        mapping = {x: random.choice(numbers) + '.' for x in numbers}
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_prepend_feedback_provider(mapping, numbers, [2, 3, 4])
+        return mapping
+
+
+class Micro5Sub15Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        mapping = {}
+        for x in numbers:
+            answer_len = random.randint(1, 5)
+            answer = random_string_from(answer_len, numbers)
+            mapping[x] = answer + '.'
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+class Micro5Sub16Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        nr_questions = 10
+        questions = []
+        for _ in range(nr_questions):
+            question_len = random.randint(1, 5)
+            question = random_string_from(question_len, numbers)
+            questions.append(question)
+        mapping = {x: random.choice(numbers) + '.' for x in questions}
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+class Micro5Sub17Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        nr_questions = 10
+        questions = []
+        mapping = {}
+        for _ in range(nr_questions):
+            question_len = random.randint(1, 5)
+            question = random_string_from(question_len, numbers)
+            questions.append(question)
+        for x in questions:
+            answer_len = random.randint(1, 5)
+            answer = random_string_from(answer_len, numbers)
+            mapping[x] = answer + '.'
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        return mapping
+
+
+# stems from 5.17
+class Micro5Sub18Task(MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+
+    def _get_mapping(self):
+        numbers = '0123456789'
+        nr_questions = 10
+        questions = []
+        mapping = {}
+        for _ in range(nr_questions):
+            question_len = random.randint(1, 10)
+            question = random_string_from(question_len, numbers)
+            questions.append(question)
+        for x in questions:
+            answer_len = random.randint(1, 10)
+            answer = random_string_from(answer_len, numbers)
+            mapping[x] = answer + '.'
+        print(mapping)
+
+        self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
