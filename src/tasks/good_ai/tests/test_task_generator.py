@@ -2,7 +2,7 @@ import random
 import string
 import unittest
 
-from tasks.good_ai.micro import TaskGenerator
+from tasks.good_ai.task_generator import TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
