@@ -155,6 +155,16 @@ class MicroMappingTask(MicroBase):
             return random.choice(list(mapping.keys())), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
 
+    @staticmethod
+    def _get_random_answers(charset, nr_of_answers, answer_len_options=None, append=''):
+        answer_len_options = answer_len_options or [1]
+        result = []
+        for _ in range(nr_of_answers):
+            answer_len = random.choice(answer_len_options)
+            answer = random_string_from(answer_len, charset)
+            result.append(answer + append)
+        return result
+
     # this could be solved by less code, but I chose the explicit way
     def _get_simple_feedback_provider(self, mapping):
         def feedback_provider(is_correct, question):
@@ -273,11 +283,8 @@ class Micro5Sub7Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        mapping = {}
-        for x in numbers:
-            answer_len = random.choice([1, 2])
-            answer = random_string_from(answer_len, numbers)
-            mapping[x] = answer + '.'
+        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), [1, 2], '.')
+        mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
@@ -354,11 +361,8 @@ class Micro5Sub12Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        mapping = {}
-        for x in numbers:
-            answer_len = random.choice([3, 4, 5])
-            answer = random_string_from(answer_len, numbers)
-            mapping[x] = answer + '.'
+        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), [3, 4, 5], '.')
+        mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
@@ -399,11 +403,8 @@ class Micro5Sub15Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        mapping = {}
-        for x in numbers:
-            answer_len = random.randint(1, 5)
-            answer = random_string_from(answer_len, numbers)
-            mapping[x] = answer + '.'
+        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), range(1, 6), '.')
+        mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
@@ -433,15 +434,12 @@ class Micro5Sub17Task(MicroMappingTask):
         numbers = '0123456789'
         nr_questions = 10
         questions = []
-        mapping = {}
         for _ in range(nr_questions):
             question_len = random.randint(1, 5)
             question = random_string_from(question_len, numbers)
             questions.append(question)
-        for x in questions:
-            answer_len = random.randint(1, 5)
-            answer = random_string_from(answer_len, numbers)
-            mapping[x] = answer + '.'
+        answers = MicroMappingTask._get_random_answers(numbers, len(questions), range(1, 6), '.')
+        mapping = dict(zip(questions, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
@@ -455,16 +453,12 @@ class Micro5Sub18Task(MicroMappingTask):
         numbers = '0123456789'
         nr_questions = 10
         questions = []
-        mapping = {}
         for _ in range(nr_questions):
             question_len = random.randint(1, 10)
             question = random_string_from(question_len, numbers)
             questions.append(question)
-        for x in questions:
-            answer_len = random.randint(1, 10)
-            answer = random_string_from(answer_len, numbers)
-            mapping[x] = answer + '.'
-        print(mapping)
+        answers = MicroMappingTask._get_random_answers(numbers, len(questions), range(1, 11), '.')
+        mapping = dict(zip(questions, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
