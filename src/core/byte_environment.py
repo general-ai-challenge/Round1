@@ -14,12 +14,12 @@ from core.task import StateChanged, MessageReceived, \
     SequenceReceived, OutputSequenceUpdated, OutputMessageUpdated
 from core.obs.observer import Observable
 from core.serializer import ScramblingSerializerWrapper
-from core.channels import InputChannel, OutputChannel
+from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from collections import defaultdict
 import logging
 
 
-class Environment:
+class ByteEnvironment:
     '''
     The Environment is the one that communicates with the Learner,
     interpreting its output and reacting to it. The interaction is governed
@@ -51,13 +51,13 @@ class Environment:
         self._current_task = None
         self._current_world = None
         # we hear to our own output
-        self._output_channel_listener = InputChannel(serializer)
+        self._output_channel_listener = ByteInputChannel(serializer)
         if scramble:
             serializer = ScramblingSerializerWrapper(serializer)
         # output channel
-        self._output_channel = OutputChannel(serializer)
+        self._output_channel = ByteOutputChannel(serializer)
         # input channel
-        self._input_channel = InputChannel(serializer)
+        self._input_channel = ByteInputChannel(serializer)
         # priority of ongoing message
         self._output_priority = 0
         # reward that is to be given at the learner at the end of the task
@@ -84,8 +84,8 @@ class Environment:
             self._on_output_message_updated)
 
     def next(self, learner_input):
-        '''Main loop of the Environment. Receives one bit from the learner and
-        produces a response (also one bit)'''
+        '''Main loop of the Environment. Receives one byte from the learner and
+        produces a response (also one byte)'''
         # Make sure we have a task
         if not self._current_task:
             self._switch_new_task()
@@ -180,11 +180,12 @@ class Environment:
     def _on_output_message_updated(self, message):
         self.event_manager.raise_event(OutputMessageUpdated(message))
 
-    def set_reward(self, reward, message='', priority=0):
+    def set_reward(self, reward, message='', priority=0, terminate_task=True):
         '''Sets the reward that is going to be given
         to the learner once the task has sent all the remaining message'''
         self._reward = reward
-        self._current_task.end()
+        if terminate_task:
+            self._current_task.end()
         self.logger.debug('Setting reward {0} with message "{1}"'
                           ' and priority {2}'
                           .format(reward, message, priority))

@@ -29,7 +29,7 @@ class InputChannel:
         # event that gets fired for every new character
         self.message_updated = Observable()
 
-    def consume_bit(self, input_bit):
+    def consume(self, input_bit):
         '''
         Takes a bit into the channel
         '''
@@ -130,7 +130,7 @@ class OutputChannel:
             self._binary_buffer = new_buffer
             self.sequence_updated(self._binary_buffer)
 
-    def consume_bit(self):
+    def consume(self):
         if len(self._binary_buffer) > 0:
             output, new_buffer = self._binary_buffer[0], \
                 self._binary_buffer[1:]

@@ -27,7 +27,7 @@ class TestChannels(unittest.TestCase):
 
         ic.message_updated.register(all_good)
         for b in serialized_test_string:
-            ic.consume_bit(b)
+            ic.consume(b)
 
     def testInputClear(self):
         slzr = serializer.StandardSerializer()
@@ -35,7 +35,7 @@ class TestChannels(unittest.TestCase):
         test_string = 'my message'
         serialized_test_string = slzr.to_binary(test_string)
         for b in serialized_test_string:
-            ic.consume_bit(b)
+            ic.consume(b)
 
         def all_good(input_message):
             self.assertEqual('', input_message)
@@ -50,7 +50,7 @@ class TestChannels(unittest.TestCase):
         serialized_test_string = slzr.to_binary(test_string)
         oc.set_message(test_string)
         for b in serialized_test_string:
-            self.assertEqual(b, oc.consume_bit())
+            self.assertEqual(b, oc.consume())
 
     def testConsistency(self):
         slzr = serializer.StandardSerializer()
@@ -64,8 +64,8 @@ class TestChannels(unittest.TestCase):
         oc.set_message(test_string)
         ic.message_updated.register(all_good)
         while not oc.is_empty():
-            b = oc.consume_bit()
-            ic.consume_bit(b)
+            b = oc.consume()
+            ic.consume(b)
 
     def testSilenceConsistency(self):
         slzr = serializer.StandardSerializer()
@@ -81,8 +81,8 @@ class TestChannels(unittest.TestCase):
         oc.set_message(test_string)
         ic.message_updated.register(all_good)
         while not oc.is_empty():
-            b = oc.consume_bit()
-            ic.consume_bit(b)
+            b = oc.consume()
+            ic.consume(b)
         self.assertEqual(something_read[0], len(test_string))
 
     def testOverwrittingConsistency(self):
@@ -101,8 +101,8 @@ class TestChannels(unittest.TestCase):
         oc.set_message(test_string)
         ic.message_updated.register(all_good)
         while not oc.is_empty():
-            b = oc.consume_bit()
-            ic.consume_bit(b)
+            b = oc.consume()
+            ic.consume(b)
         self.assertEqual(something_read[0], len(test_string))
 
     def testIsSient(self):
@@ -112,11 +112,11 @@ class TestChannels(unittest.TestCase):
         oc.set_message(slzr.SILENCE_TOKEN)
         self.assertTrue(oc.is_silent())
         while not oc.is_empty():
-            oc.consume_bit()
+            oc.consume()
             self.assertTrue(oc.is_silent())
         oc.set_message('hello')
         while not oc.is_empty():
-            oc.consume_bit()
+            oc.consume()
             if not oc.is_empty():
                 self.assertFalse(oc.is_silent())
         self.assertTrue(oc.is_silent())

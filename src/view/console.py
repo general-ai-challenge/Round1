@@ -6,6 +6,8 @@ import curses
 import curses.textpad
 import logging
 import locale
+
+from core.byte_channels import ByteInputChannel
 from core.channels import InputChannel
 
 locale.setlocale(locale.LC_ALL, '')
@@ -94,7 +96,7 @@ class BaseView(object):
 
 class ConsoleView(BaseView):
 
-    def __init__(self, env, session, serializer, show_world=False):
+    def __init__(self, env, session, serializer, show_world=False, byte_channels=False):
         super(ConsoleView, self).__init__(env, session)
 
         # for visualization purposes, we keep an internal buffer of the
@@ -103,10 +105,17 @@ class ConsoleView(BaseView):
         self.input_buffer = ''
         self.output_buffer = ''
         self.panic = 'SKIP'
-        # record what the learner says
-        self._learner_channel = InputChannel(serializer)
-        # record what the environment says
-        self._env_channel = InputChannel(serializer)
+        if byte_channels:
+            # record what the learner says
+            self._learner_channel = ByteInputChannel(serializer)
+            # record what the environment says
+            self._env_channel = ByteInputChannel(serializer)
+        else:
+            # record what the learner says
+            self._learner_channel = InputChannel(serializer)
+            # record what the environment says
+            self._env_channel = InputChannel(serializer)
+
         # listen to the updates in these channels
         self._learner_channel.sequence_updated.register(
             self.on_learner_sequence_updated)
@@ -126,10 +135,10 @@ class ConsoleView(BaseView):
         del self.info['current_task']
 
     def on_env_token_updated(self, token):
-        self._env_channel.consume_bit(token)
+        self._env_channel.consume(token)
 
     def on_learner_token_updated(self, token):
-        self._learner_channel.consume_bit(token)
+        self._learner_channel.consume(token)
 
     def on_learner_message_updated(self, message):
         # we use the fact that messages arrive character by character

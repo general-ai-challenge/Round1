@@ -28,7 +28,7 @@ class EnvironmentMessenger:
     def init(self):
         '''Kick-starts the environment'''
         first_bit, reward = self._env.next(None)
-        self._input_channel.consume_bit(first_bit)
+        self._input_channel.consume(first_bit)
 
     def is_silent(self):
         return self._env._output_channel.is_silent()
@@ -68,9 +68,9 @@ class EnvironmentMessenger:
         # send every bit in it
         while not self._output_channel.is_empty():
             # send/receive a bit and reward
-            env_bit, reward = self._env.next(self._output_channel.consume_bit())
+            env_bit, reward = self._env.next(self._output_channel.consume())
             # save the bit
-            self._input_channel.consume_bit(env_bit)
+            self._input_channel.consume(env_bit)
             # save the reward
             if reward is not None:
                 self.cum_reward += reward

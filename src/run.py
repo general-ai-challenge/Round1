@@ -16,6 +16,7 @@ import operator
 from optparse import OptionParser
 from core.serializer import StandardSerializer
 from core.environment import Environment
+from core.byte_environment import ByteEnvironment
 from core.config_loader import JSONConfigLoader, PythonConfigLoader
 import learners
 from core.session import Session
@@ -54,6 +55,8 @@ def main():
                   ' a given task.')
     op.add_option('--use-standard-output', action='store_true', default=False,
                   help='Uses standard output instead of curses library.')
+    op.add_option('-y', '--byte-mode', action='store_true', default=False,
+                  help='Environment receives input in bytes.')
     opt, args = op.parse_args()
     if len(args) == 0:
         op.error("Tasks schedule configuration file required.")
@@ -66,17 +69,21 @@ def main():
     serializer = StandardSerializer()
     # create a learner (the human learner takes the serializer)
     learner = create_learner(opt.learner, serializer, opt.learner_cmd,
-                                opt.learner_port)
+                                opt.learner_port, opt.byte_mode)
     # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     # construct an environment
-    env = Environment(serializer, task_scheduler, opt.scramble,
-                      opt.max_reward_per_task)
+    if opt.byte_mode:
+        env = ByteEnvironment(serializer, task_scheduler, opt.scramble,
+                          opt.max_reward_per_task)
+    else:
+        env = Environment(serializer, task_scheduler, opt.scramble,
+                          opt.max_reward_per_task)
     # a learning session
     session = Session(env, learner, opt.time_delay)
     # setup view
-    view = create_view(opt.view, opt.learner, env, session, serializer,
-                        opt.show_world, opt.use_standard_output)
+    view = create_view(opt.view, opt.learner, env, session, serializer, opt.show_world,
+                       opt.use_standard_output, opt.byte_mode)
     try:
         # send the interface to the human learner
         learner.set_view(view)
@@ -95,26 +102,26 @@ def main():
         view.finalize()
 
 
-def create_view(view_type, learner_type, env, session, serializer, show_world, use_standard_output):
+def create_view(view_type, learner_type, env, session, serializer, show_world, use_standard_output, byte_mode):
     if platform.system() == 'Windows' or use_standard_output:
         from view.win_console import StdInOutView, StdOutView
         if learner_type == 'learners.human_learner.HumanLearner' \
            or view_type == 'ConsoleView':
-            return StdInOutView(env, session, serializer, show_world)
+            return StdInOutView(env, session, serializer, show_world, byte_mode)
         else:
             return StdOutView(env, session)
     else:
         from view.console import ConsoleView, BaseView
         if learner_type == 'learners.human_learner.HumanLearner' \
                 or view_type == 'ConsoleView':
-            return ConsoleView(env, session, serializer, show_world)
+            return ConsoleView(env, session, serializer, show_world, byte_mode)
         else:
             return BaseView(env, session)
 
 
-def create_learner(learner_type, serializer, learner_cmd, learner_port=None):
+def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byte_mode=False):
     if learner_type == 'learners.human_learner.HumanLearner':
-        return learners.human_learner.HumanLearner(serializer)
+        return learners.human_learner.HumanLearner(serializer, byte_mode)
     else:
         # dynamically load the class given by learner_type
         # separate the module from the class name
