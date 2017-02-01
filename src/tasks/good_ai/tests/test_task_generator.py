@@ -14,22 +14,19 @@ class TestTaskGenerator(unittest.TestCase):
 
         question, answer = tasker.get_task_instance()
         check_correct_answer = tasker.check_answer('a')
-        print(check_correct_answer)
-        check_wrong_answer = tasker.check_answer('/')
         check_normal_answer = tasker.check_answer(' ')
+        check_wrong_answer = tasker.check_answer('/')
 
         self.assertTrue(check_correct_answer[0])
         self.assertEqual(check_correct_answer[1], 1)
         self.assertFalse(check_normal_answer[0])
-        self.assertEqual(check_normal_answer[1], 0)
+        self.assertEqual(check_normal_answer[1], -1)
         self.assertFalse(check_wrong_answer[0])
-        self.assertEqual(check_wrong_answer[1], 0)  # iterable can only give positive reward
+        self.assertEqual(check_wrong_answer[1], -1)
 
     def test_instancer_function(self):
         def micro1_question(self):
             def micro1_reward(answer, question=''):
-                print("checking answer")
-                print(repr(answer))
                 if answer in string.ascii_lowercase:
                     return True
                 elif answer == ' ':
@@ -41,8 +38,8 @@ class TestTaskGenerator(unittest.TestCase):
 
         question, answer = tasker.get_task_instance()
         check_correct_answer = tasker.check_answer('a')
-        check_wrong_answer = tasker.check_answer('/')
         check_normal_answer = tasker.check_answer(' ')
+        check_wrong_answer = tasker.check_answer('/')
 
         self.assertTrue(check_correct_answer[0])
         self.assertEqual(check_correct_answer[1], 1)
@@ -116,7 +113,7 @@ class TestTaskGenerator(unittest.TestCase):
         def micro1_question(self):
             return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase + ' '
 
-        def micro1_feedback(correct):
+        def micro1_feedback(correct, question):
             return "nice" if correct else "bad :("
         tasker = TaskGenerator(micro1_question, '', micro1_feedback)
 
@@ -150,7 +147,7 @@ class TestTaskGenerator(unittest.TestCase):
 
     def test_instancer_feedback_override(self):
         def micro1_question(self):
-            def micro1_feedback(correct):
+            def micro1_feedback(correct, question):
                 return "nice" if correct else "bad :("
             return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase + ' ', micro1_feedback
         tasker = TaskGenerator(micro1_question, '', None)
