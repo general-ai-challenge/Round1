@@ -354,3 +354,47 @@ class Micro5Sub18Task(MicroMappingTask):
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
+
+
+class Micro6Sub1Task(MicroBase):
+
+    def _get_task_generator(self):
+        def micro6_1_question(self):
+            correct_answer = random.choice(string.ascii_lowercase) + '.'
+            question = "say {}".format(correct_answer)
+
+            def micro6_1_feedback(is_correct, question):
+                reaction = "correct" if is_correct else "false"
+                return reaction + '. ' + correct_answer
+            return question, [correct_answer], micro6_1_feedback
+        return TaskGenerator(micro6_1_question, '', None, ';')
+
+
+class Micro6Sub2Task(MicroBase):
+
+    def _get_task_generator(self):
+        valid_words = ["hello", "hi", "ahoy"]
+
+        def micro6_2_question(self):
+            word = random.choice(valid_words) + '.'
+            question = "say {}".format(word)
+
+            def micro6_2_feedback(is_correct, question):
+                reaction = "correct" if is_correct else "false"
+                return reaction + '. ' + word
+            return question, [word], micro6_2_feedback
+        return TaskGenerator(micro6_2_question, '', None, ';')
+
+
+# TODO: missing description of task
+class Micro6Sub3Task(MicroBase):
+    pass
+
+
+# TODO: feedback in example says something different than correct answer - also description references itself in a recursive manner
+# class Micro7Task(MicroBase):
+
+#     def _get_task_generator(self):
+#         def micro7_question(self):
+
+#         return TaskGenerator(micro7_question)
