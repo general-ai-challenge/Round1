@@ -138,6 +138,20 @@ class Micro1Task(MicroBase):
         return TaskGenerator(micro1_question)
 
 
+def random_string_from(length, subset):
+    return "".join(random.choice(subset) for _ in range(length))
+
+
+def random_strings_from(charset, nr_of_strings, string_len_options=None, append=''):
+    string_len_options = string_len_options or [1]
+    result = []
+    for _ in range(nr_of_strings):
+        answer_len = random.choice(string_len_options)
+        answer = random_string_from(answer_len, charset)
+        result.append(answer + append)
+    return result
+
+
 class MicroMappingTask(MicroBase):
 
     task_gen_kwargs = {}
@@ -154,16 +168,6 @@ class MicroMappingTask(MicroBase):
                 return answer == mapping[key]
             return random.choice(list(mapping.keys())), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
-
-    @staticmethod
-    def _get_random_answers(charset, nr_of_answers, answer_len_options=None, append=''):
-        answer_len_options = answer_len_options or [1]
-        result = []
-        for _ in range(nr_of_answers):
-            answer_len = random.choice(answer_len_options)
-            answer = random_string_from(answer_len, charset)
-            result.append(answer + append)
-        return result
 
     # this could be solved by less code, but I chose the explicit way
     def _get_simple_feedback_provider(self, mapping):
@@ -231,10 +235,6 @@ class Micro5Sub3Task(Micro5Sub1Task):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
 
 
-def random_string_from(length, subset):
-    return "".join(random.choice(subset) for _ in range(length))
-
-
 # TODO: example (also 5.5 and 5.6) shows one space between question and
 # the feedback, but the description does not mention it - this is version
 # without the space
@@ -283,7 +283,7 @@ class Micro5Sub7Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), [1, 2], '.')
+        answers = random_strings_from(numbers, len(numbers), [1, 2], '.')
         mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -296,7 +296,7 @@ class Micro5Sub8Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = [random_string_from(2, numbers) for _ in range(nr_questions)]
+        questions = random_strings_from(numbers, nr_questions, [2])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -309,11 +309,7 @@ class Micro5Sub9Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = []
-        for _ in range(nr_questions):
-            question_len = random.choice([1, 2])
-            question = random_string_from(question_len, numbers)
-            questions.append(question)
+        questions = random_strings_from(numbers, nr_questions, [1, 2])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -361,7 +357,7 @@ class Micro5Sub12Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), [3, 4, 5], '.')
+        answers = random_strings_from(numbers, len(numbers), [3, 4, 5], '.')
         mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -375,11 +371,7 @@ class Micro5Sub13Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = []
-        for _ in range(nr_questions):
-            question_len = random.choice([3, 4, 5])
-            question = random_string_from(question_len, numbers)
-            questions.append(question)
+        questions = random_strings_from(numbers, nr_questions, [3, 4, 5])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -403,7 +395,7 @@ class Micro5Sub15Task(MicroMappingTask):
 
     def _get_mapping(self):
         numbers = '0123456789'
-        answers = MicroMappingTask._get_random_answers(numbers, len(numbers), range(1, 6), '.')
+        answers = random_strings_from(numbers, len(numbers), range(1, 6), '.')
         mapping = dict(zip(numbers, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -416,11 +408,7 @@ class Micro5Sub16Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = []
-        for _ in range(nr_questions):
-            question_len = random.randint(1, 5)
-            question = random_string_from(question_len, numbers)
-            questions.append(question)
+        questions = random_strings_from(numbers, nr_questions, range(1, 6))
         mapping = {x: random.choice(numbers) + '.' for x in questions}
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -433,12 +421,8 @@ class Micro5Sub17Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = []
-        for _ in range(nr_questions):
-            question_len = random.randint(1, 5)
-            question = random_string_from(question_len, numbers)
-            questions.append(question)
-        answers = MicroMappingTask._get_random_answers(numbers, len(questions), range(1, 6), '.')
+        questions = random_strings_from(numbers, nr_questions, range(1, 6))
+        answers = random_strings_from(numbers, len(questions), range(1, 6), '.')
         mapping = dict(zip(questions, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
@@ -452,12 +436,8 @@ class Micro5Sub18Task(MicroMappingTask):
     def _get_mapping(self):
         numbers = '0123456789'
         nr_questions = 10
-        questions = []
-        for _ in range(nr_questions):
-            question_len = random.randint(1, 10)
-            question = random_string_from(question_len, numbers)
-            questions.append(question)
-        answers = MicroMappingTask._get_random_answers(numbers, len(questions), range(1, 11), '.')
+        questions = random_strings_from(numbers, nr_questions, range(1, 11))
+        answers = random_strings_from(numbers, len(questions), range(1, 11), '.')
         mapping = dict(zip(questions, answers))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
