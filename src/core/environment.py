@@ -180,7 +180,7 @@ class Environment:
     def _on_output_message_updated(self, message):
         self.event_manager.raise_event(OutputMessageUpdated(message))
 
-    def set_reward(self, reward, message='', priority=0):
+    def set_reward(self, reward, message='', priority=0, terminate_task=True):
         '''Sets the reward that is going to be given
         to the learner once the task has sent all the remaining message'''
         self._reward = reward
