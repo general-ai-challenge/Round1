@@ -198,7 +198,6 @@ class StdInOutView(WinBaseView):
         self._total_msg_length = columns - 1
         self._scroll_msg_length = columns - 1 - reward_len
 
-
     def get_input(self):
         print("_"*self._total_msg_length)
         print(self._env_output + ' reward:{:7}'.format(self.info['reward']))

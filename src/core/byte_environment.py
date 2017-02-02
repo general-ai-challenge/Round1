@@ -98,7 +98,6 @@ class ByteEnvironment:
             # Process the input from the learner and raise events
             if learner_input is not None:
                 # record the input from the learner and deserialize it
-                # TODO this bit is dropped otherwise on a timeout...
                 self._input_channel.consume(learner_input)
             # We are in the middle of the task, so no rewards are given
             reward = None
@@ -118,10 +117,7 @@ class ByteEnvironment:
                     self._task_separator_issued = True
                     reward = None
             else:
-                # TODO: decide what to do here.
-                # Should we consume the bit or not?
                 self._input_channel.consume(learner_input)
-                # If there is still something to say, continue saying it
                 reward = None
         # Get one bit from the output buffer and ship it
         if self._output_channel.is_empty():

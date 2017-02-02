@@ -25,6 +25,7 @@ class ByteInputChannel:
 
         # event that gets fired for every new character
         self.message_updated = Observable()
+        self.sequence_updated = Observable()
 
     def consume(self, input_char):
         '''
@@ -32,18 +33,20 @@ class ByteInputChannel:
         '''
         self._buffer += input_char
         self.message_updated(self._buffer)
+        self.sequence_updated(self._buffer)
 
     def clear(self):
         '''Clears all the  buffers'''
         self._set_buffer('')
-        self.message_updated(self._buffer)
 
     def _set_buffer(self, new_buffer):
         '''
         Replaces the deserialized part of the buffer.
         '''
-        self._buffer = new_buffer
-        self.message_updated(self._buffer)
+        if self._buffer != new_buffer:
+            self._buffer = new_buffer
+            self.message_updated(self._buffer)
+            self.sequence_updated(self._buffer)
 
     def get_text(self):
         return self._buffer
@@ -73,6 +76,7 @@ class ByteOutputChannel:
 
     def set_message(self, message):
         self._buffer += message
+        self.sequence_updated(self._buffer)
 
     def clear(self):
         self._set_buffer('')
@@ -83,7 +87,7 @@ class ByteOutputChannel:
         '''
         if self._buffer != new_buffer:
             self._buffer = new_buffer
-            self.sequence_updated('')
+            self.sequence_updated(self._buffer)
 
     def consume(self):
         if len(self._buffer) > 0:
@@ -98,4 +102,4 @@ class ByteOutputChannel:
     def is_silent(self):
         ''' All the bits in the output token are the result of serializing
         silence tokens'''
-        self._buffer.strip(self.serializer.SILENCE_TOKEN)
+        return self._buffer.strip(self.serializer.SILENCE_TOKEN) == ''
