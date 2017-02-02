@@ -23,7 +23,6 @@ class ByteInputChannel:
         self._buffer = ''
         # remember the position until which we deserialized the binary buffer
 
-        # event that gets fired for every new character
         self.message_updated = Observable()
         self.sequence_updated = Observable()
 
@@ -61,7 +60,7 @@ class ByteInputChannel:
         '''
         Replaces the deserialized part of the buffer.
         '''
-        pass
+        self._buffer = new_buffer
 
 
 class ByteOutputChannel:
