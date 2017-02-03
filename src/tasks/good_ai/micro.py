@@ -1,9 +1,9 @@
 import random
 import string
 
-from core.task import on_message, on_start, on_timeout
-from tasks.competition.base import BaseTask
-from tasks.good_ai.task_generator import TaskGenerator
+from src.core.task import on_message, on_start, on_timeout
+from src.tasks.competition.base import BaseTask
+from src.tasks.good_ai.task_generator import TaskGenerator
 
 
 class MicroBase(BaseTask):
@@ -13,7 +13,8 @@ class MicroBase(BaseTask):
         self.tasker = self._get_task_generator()
         self.task_separator = False
 
-    def _get_task_generator(self):
+    @staticmethod
+    def _get_task_generator():
         pass
 
     def get_original_question(self, question):

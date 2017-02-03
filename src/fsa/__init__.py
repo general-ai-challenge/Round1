@@ -2,7 +2,7 @@ from FAdo.fa import *
 import math
 
 
-class MiniTasksAutomatonInterface():
+class MiniTasksAutomaton(object):
 
     _separator_string = " "
     _negation_string = "not"
@@ -574,7 +574,7 @@ def build_automaton(description, logical_op):
     :param logical_op:
     :return:
     """
-    return MiniTasksAutomatonInterface(description, logical_op)
+    return MiniTasksAutomaton(description, logical_op)
 
 # obj = build_automaton("ZJA J Y","or")
 # obj.is_string_correct("ZJAJD")
