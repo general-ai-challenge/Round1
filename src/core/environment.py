@@ -15,6 +15,7 @@ from core.task import StateChanged, MessageReceived, \
 from core.obs.observer import Observable
 from core.serializer import ScramblingSerializerWrapper
 from core.channels import InputChannel, OutputChannel
+from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from collections import defaultdict
 import logging
 
@@ -35,7 +36,7 @@ class Environment:
         receive for a given task.
     '''
     def __init__(self, serializer, task_scheduler, scramble=False,
-                 max_reward_per_task=10):
+                 max_reward_per_task=10, byte_mode=False):
         # save parameters into member variables
         self._task_scheduler = task_scheduler
         self._serializer = serializer
@@ -50,14 +51,23 @@ class Environment:
         # intialize member variables
         self._current_task = None
         self._current_world = None
-        # we hear to our own output
-        self._output_channel_listener = InputChannel(serializer)
+
         if scramble:
             serializer = ScramblingSerializerWrapper(serializer)
-        # output channel
-        self._output_channel = OutputChannel(serializer)
-        # input channel
-        self._input_channel = InputChannel(serializer)
+        if byte_mode:
+            # we hear to our own output
+            self._output_channel_listener = ByteInputChannel(serializer)
+            # output channel
+            self._output_channel = ByteOutputChannel(serializer)
+            # input channel
+            self._input_channel = ByteInputChannel(serializer)
+        else:
+            # we hear to our own output
+            self._output_channel_listener = InputChannel(serializer)
+            # output channel
+            self._output_channel = OutputChannel(serializer)
+            # input channel
+            self._input_channel = InputChannel(serializer)
         # priority of ongoing message
         self._output_priority = 0
         # reward that is to be given at the learner at the end of the task

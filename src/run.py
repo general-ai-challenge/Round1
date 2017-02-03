@@ -16,7 +16,6 @@ import operator
 from optparse import OptionParser
 from core.serializer import StandardSerializer
 from core.environment import Environment
-from core.byte_environment import ByteEnvironment
 from core.config_loader import JSONConfigLoader, PythonConfigLoader
 import learners
 from core.session import Session
@@ -73,12 +72,9 @@ def main():
     # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     # construct an environment
-    if opt.byte_mode:
-        env = ByteEnvironment(serializer, task_scheduler, opt.scramble,
-                          opt.max_reward_per_task)
-    else:
-        env = Environment(serializer, task_scheduler, opt.scramble,
-                          opt.max_reward_per_task)
+
+    env = Environment(serializer, task_scheduler, opt.scramble,
+                      opt.max_reward_per_task, opt.byte_mode)
     # a learning session
     session = Session(env, learner, opt.time_delay)
     # setup view
