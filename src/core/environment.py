@@ -103,6 +103,7 @@ class Environment:
         # If the task has not reached the end by either Timeout or
         # achieving the goal
         if not self._current_task.has_ended():
+            reward = None
             # Check if a Timeout occurred
             self._current_task.check_timeout(self._task_time)
             # Process the input from the learner and raise events
@@ -110,8 +111,10 @@ class Environment:
                 # record the input from the learner and deserialize it
                 # TODO this bit is dropped otherwise on a timeout...
                 self._input_channel.consume(learner_input)
+                if self._current_task.has_ended() and self._output_channel.is_empty():
+                    reward = self._reward if self._reward is not None else 0
+                    self._switch_new_task()
             # We are in the middle of the task, so no rewards are given
-            reward = None
         else:
             # If the task is ended and there is nothing else to say,
             # issue a silence and then return reward and move to next task
@@ -194,7 +197,8 @@ class Environment:
         '''Sets the reward that is going to be given
         to the learner once the task has sent all the remaining message'''
         self._reward = reward
-        self._current_task.end()
+        if terminate_task:
+            self._current_task.end()
         self.logger.debug('Setting reward {0} with message "{1}"'
                           ' and priority {2}'
                           .format(reward, message, priority))

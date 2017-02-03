@@ -22,7 +22,7 @@ class BaseTask(Task):
         super(BaseTask, self).__init__(*args, **kwargs)
 
     # ignore anything the learner says while the teacher is speaking
-    @on_message()
+    @on_message('.')
     def on_any_message(self, event):
         # if the environment is speaking
         if not self._env.is_silent():
