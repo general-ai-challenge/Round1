@@ -6,21 +6,25 @@
   },
   "tasks":
   {
-    "1V1L": {
-      "type": "tasks.micro.micro.Repeat1V1L"
+    "2.1": {
+      "type": "tasks.good_ai.micro.Micro1Task"
     },
-    "3V1L": {
-      "type": "tasks.micro.micro.Repeat3V1L"
+    "2.2": {
+      "type": "tasks.good_ai.micro.Micro2Task"
     },
-    "3V2L": {
-      "type": "tasks.micro.micro.Repeat3V2L"
+    "2.3": {
+      "type": "tasks.good_ai.micro.Micro3Task"
+    },
+    "2.4": {
+      "type": "tasks.good_ai.micro.Micro4Task"
     }
   },
   "scheduler":
     {
-      "type": "core.scheduler.RandomTaskScheduler",
+      "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
-          "tasks": ["3V1L"]
+          "tasks": ["2.1", "2.2", "2.3", "2.4"],
+          "success_threshold": 3
         }
     }
 }

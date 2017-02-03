@@ -11,8 +11,9 @@ class MicroBase(BaseTask):
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
         self.tasker = self._get_task_generator()
+        self.task_separator = False
 
-    def _get_task_generator():
+    def _get_task_generator(self):
         pass
 
     def get_original_question(self, question):
@@ -23,15 +24,11 @@ class MicroBase(BaseTask):
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
 
-    @on_message(r'\.')
+    @on_message(r'.')
     def check_response(self, event):
-        event.message = event.message.strip()[:-1]  # remove trailing whitespaces - temp. workaround
         correct, reward = self.tasker.check_answer(event.message, self.question)
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
-        if len(feedback_text) == 0:
-            feedback_text = feedback_text + '/'    # temp workaround so that feedback is never empty
-        self.set_reward(reward)
-        self.set_message(feedback_text)
+        self.set_reward(reward, feedback_text)
 
     @on_timeout()
     def on_timeout(self, event):
@@ -46,7 +43,7 @@ class Micro1Task(MicroBase):
                 if answer == ' ':
                     return None
                 return answer in string.ascii_lowercase
-            return random.choice(string.ascii_lowercase + ' '), micro1_reward
+            return random.choice(string.ascii_lowercase), micro1_reward
         return TaskGenerator(micro1_question)
 
 
