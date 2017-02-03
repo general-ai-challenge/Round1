@@ -71,3 +71,44 @@ class HumanLearner(BaseLearner):
             self.speaking = True
             output = re.compile('\.+').sub('.', output)
             self._output_channel.set_message(output)
+
+
+class ImmediateHumanLearner(HumanLearner):
+    def __init__(self, serializer, byte_mode):
+        '''
+        Takes the serialization protocol
+        '''
+        self._serializer = serializer
+        if byte_mode:
+            self._input_channel = ByteInputChannel(serializer)
+            self._output_channel = ByteOutputChannel(serializer)
+        else:
+            self._input_channel = InputChannel(serializer)
+            self._output_channel = OutputChannel(serializer)
+        self.logger = logging.getLogger(__name__)
+        self.speaking = False
+
+    def on_message(self, message):
+        self.ask_for_input()
+
+    def next(self, input):
+        # Ask for input
+        self.ask_for_input()
+        # If the buffer is empty, fill it with silence
+        if self._output_channel.is_empty():
+            self.logger.debug("Output buffer is empty, filling with silence")
+            # Add one silence token to the buffer
+            self._output_channel.set_message(self._serializer.SILENCE_TOKEN)
+        # Get the bit to return
+        output = self._output_channel.consume()
+        # Interpret the bit from the learner
+        self._input_channel.consume(input)
+        return output
+
+
+class HaltOnDotHumanLearner(HumanLearner):
+    def __init__(self, serializer, byte_mode):
+        super(ImmediateHumanLearner, self).__init__(serializer, byte_mode)
+
+    def on_message(self, message):
+        self.ask_for_input()

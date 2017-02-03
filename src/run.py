@@ -105,14 +105,14 @@ def main():
 def create_view(view_type, learner_type, env, session, serializer, show_world, use_standard_output, byte_mode):
     if platform.system() == 'Windows' or use_standard_output:
         from view.win_console import StdInOutView, StdOutView
-        if learner_type == 'learners.human_learner.HumanLearner' \
+        if learner_type.split('.')[0:2] == ['learners', 'human_learner'] \
            or view_type == 'ConsoleView':
             return StdInOutView(env, session, serializer, show_world, byte_mode)
         else:
             return StdOutView(env, session)
     else:
         from view.console import ConsoleView, BaseView
-        if learner_type == 'learners.human_learner.HumanLearner' \
+        if learner_type.split('.')[0:2] == ['learners', 'human_learner'] \
                 or view_type == 'ConsoleView':
             return ConsoleView(env, session, serializer, show_world, byte_mode)
         else:
@@ -120,8 +120,14 @@ def create_view(view_type, learner_type, env, session, serializer, show_world, u
 
 
 def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byte_mode=False):
-    if learner_type == 'learners.human_learner.HumanLearner':
-        return learners.human_learner.HumanLearner(serializer, byte_mode)
+    if learner_type.split('.')[0:2] == ['learners', 'human_learner']:
+        c = learner_type.split('.')[2]
+        if c == 'HumanLearner':
+            return learners.human_learner.HumanLearner(serializer, byte_mode)
+        elif c == 'ImmediateHumanLearner':
+            return learners.human_learner.ImmediateHumanLearner(serializer, byte_mode)
+        elif c == 'HaltOnDotHumanLearner':
+            return learners.human_learner.HaltOnDotHumanLearner(serializer, byte_mode)
     else:
         # dynamically load the class given by learner_type
         # separate the module from the class name

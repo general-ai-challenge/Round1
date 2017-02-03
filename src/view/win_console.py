@@ -197,6 +197,10 @@ class StdInOutView(WinBaseView):
         reward_len = 15
         self._total_msg_length = columns - 1
         self._scroll_msg_length = columns - 1 - reward_len
+        # properties init
+        self._learner_input = self.channel_to_str(
+            '',
+            self._learner_channel.get_undeserialized())
 
     def get_input(self):
         print("_"*self._total_msg_length)
