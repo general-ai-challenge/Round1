@@ -1,9 +1,9 @@
 import random
 import string
 
-from src.core.task import on_message, on_start, on_timeout
-from src.tasks.competition.base import BaseTask
-from src.tasks.good_ai.task_generator import TaskGenerator
+from core.task import on_message, on_start, on_timeout
+from tasks.competition.base import BaseTask
+from tasks.good_ai.task_generator import TaskGenerator
 
 
 class MicroBase(BaseTask):
@@ -109,18 +109,18 @@ class Micro2Task(MicroMappingTask):
 class Micro3Task(MicroMappingTask):
 
     def _get_mapping(self):
-        alphabet = string.ascii_lowercase + ' '
-        mapping = dict(zip(alphabet, alphabet))
+        permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
+        mapping = dict(zip(string.ascii_lowercase, permutation))
+        for c in '!":?.,;':
+            mapping[c] = c
         return mapping
 
 
 class Micro4Task(MicroMappingTask):
 
     def _get_mapping(self):
-        permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
-        mapping = dict(zip(string.ascii_lowercase, permutation))
-        for c in '!":?.,;':
-            mapping[c] = c
+        alphabet = string.ascii_lowercase + ' !":?.,;'
+        mapping = dict(zip(alphabet, alphabet))
         return mapping
 
 
