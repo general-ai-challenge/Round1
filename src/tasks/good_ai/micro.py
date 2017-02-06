@@ -2,11 +2,11 @@ import random
 import string
 
 from core.task import on_message, on_start, on_timeout
-from tasks.competition.base import BaseTask
+from core.task import Task
 from tasks.good_ai.task_generator import TaskGenerator
 
 
-class MicroBase(BaseTask):
+class MicroBase(Task):
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
@@ -22,14 +22,21 @@ class MicroBase(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
 
     @on_message(r'.')
     def check_response(self, event):
+        if not self._env.is_silent():
+            if not event.message[-1] == ' ':
+                self.set_immediate_reward(-1)
+            return
         if not self.question:
             return
-        correct, reward = self.tasker.check_answer(event.message, self.question)
+        correct, reward = self.tasker.check_answer(event.message.strip(), self.question)
+        if reward == 0:
+            return
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_immediate_reward(reward)
         self.set_reward(None, feedback_text)
@@ -38,6 +45,12 @@ class MicroBase(BaseTask):
     @on_timeout()
     def on_timeout(self, event):
         self.set_reward(0)
+
+    @staticmethod
+    def _is_prefix(answer, correct_answer):
+        if len(answer) >= len(correct_answer):
+            return False
+        return correct_answer.startswith(answer)
 
 
 class Micro1Task(MicroBase):
@@ -79,6 +92,13 @@ class MicroMappingTask(MicroBase):
         def micro_mapping_question(self):
             def micro_mapping_reward(answer, question):
                 key = self.get_original_question(question)
+                # print("key {}".format(key))
+                # print("answer {}".format(repr(answer)))
+                # print("question {}".format(repr(question)))
+                # print(mapping[key])
+                # print(answer == mapping[key])
+                if len(answer) > 0 and MicroBase._is_prefix(answer, mapping[key]):
+                    return None
                 return answer == mapping[key]
             return random.choice(list(mapping.keys())), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
@@ -138,6 +158,7 @@ class Micro5Sub1Task(MicroMappingTask):
         mapping = dict(zip(numbers, permutation))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
+        print(repr(mapping))
         return mapping
 
 
