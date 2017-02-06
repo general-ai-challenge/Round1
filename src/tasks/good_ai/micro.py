@@ -11,7 +11,6 @@ class MicroBase(BaseTask):
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
         self.tasker = self._get_task_generator()
-        self.task_separator = False
 
     @staticmethod
     def _get_task_generator():
