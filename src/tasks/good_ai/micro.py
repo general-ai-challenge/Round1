@@ -385,15 +385,50 @@ class Micro6Sub2Task(MicroBase):
         return TaskGenerator(micro6_2_question, '', None, ';')
 
 
-# TODO: missing description of task
 class Micro6Sub3Task(MicroBase):
-    pass
+
+    def _get_task_generator(self):
+        valid_words = ["hello", "hi", "ahoy", "world", "agent", "ai"]
+
+        def micro6_3_question(self):
+            sentence = random.choice(valid_words) + random.choice(valid_words) + '.'
+            question = "say {}".format(sentence)
+
+            def micro6_3_feedback(is_correct, question):
+                reaction = "correct" if is_correct else "false"
+                return reaction + '. ' + sentence
+            return question, [sentence], micro6_3_feedback
+        return TaskGenerator(micro6_3_question, '', None, ';')
 
 
-# TODO: feedback in example says something different than correct answer - also description references itself in a recursive manner
-# class Micro7Task(MicroBase):
+class Micro7Task(MicroBase):
 
-#     def _get_task_generator(self):
-#         def micro7_question(self):
+    def _get_task_generator(self):
+        def micro7_question(self):
+            alphabet = string.ascii_lowercase
+            sentence = "{}{}{}{}{}.".format(' ' * random.randint(0, 6), random.choice(alphabet), ' ' * random.randint(0, 6),
+                                            random.choice(alphabet), ' ' * random.randint(0, 6))
+            question = "say {}".format(sentence)
 
-#         return TaskGenerator(micro7_question)
+            def micro7_feedback(is_correct, question):
+                reaction = "correct" if is_correct else "false"
+                return reaction + '. ' + sentence
+            return question, [sentence], micro7_feedback
+
+        return TaskGenerator(micro7_question, '', None, ';')
+
+
+class Micro8Task(MicroBase):
+
+    def _get_task_generator(self):
+        def micro8_question(self):
+            valid_words = ["hello", "hi", "ahoy", "mono"]
+            word = random.choice(valid_words) + '.'
+            question = "spell: {}".format(word)
+            sentence = " ".join(word)
+
+            def micro8_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                return reaction + '! ' + sentence
+            return question, [sentence], micro8_feedback
+        return TaskGenerator(micro8_question, '', None, ';')
