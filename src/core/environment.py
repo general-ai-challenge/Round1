@@ -112,14 +112,13 @@ class Environment:
                 # TODO this bit is dropped otherwise on a timeout...
                 self._input_channel.consume(learner_input)
                 if self._current_task.has_ended() and self._output_channel.is_empty():
-                    reward = self._reward if self._reward is not None else 0
                     self._switch_new_task()
             # We are in the middle of the task, so no rewards are given
         else:
             # If the task is ended and there is nothing else to say,
             # issue a silence and then return reward and move to next task
             if self._output_channel.is_empty():
-                if self._task_separator_issued:
+                if self._task_separator_issued or self._should_skip_separator():
                     # Have nothing more to say
                     # reward the learner if necessary and switch to new task
                     reward = self._reward if self._reward is not None else 0
@@ -192,6 +191,9 @@ class Environment:
 
     def _on_output_message_updated(self, message):
         self.event_manager.raise_event(OutputMessageUpdated(message))
+
+    def _should_skip_separator(self):
+        return hasattr(self._current_task, 'skip_task_separator') and self._current_task.skip_task_separator
 
     def set_reward(self, reward, message='', priority=0, terminate_task=True):
         '''Sets the reward that is going to be given
