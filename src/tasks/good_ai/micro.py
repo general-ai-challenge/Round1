@@ -27,10 +27,13 @@ class MicroBase(BaseTask):
 
     @on_message(r'.')
     def check_response(self, event):
+        if not self.question:
+            return
         correct, reward = self.tasker.check_answer(event.message, self.question)
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_immediate_reward(reward)
         self.set_reward(None, feedback_text)
+        self.question = None
 
     @on_timeout()
     def on_timeout(self, event):
