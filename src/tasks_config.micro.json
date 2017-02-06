@@ -21,6 +21,60 @@
     "5.1": {
       "type": "tasks.good_ai.micro.Micro5Sub1Task"
     },
+    "5.2": {
+      "type": "tasks.good_ai.micro.Micro5Sub2Task"
+    },
+    "5.3": {
+      "type": "tasks.good_ai.micro.Micro5Sub3Task"
+    },
+    "5.4": {
+      "type": "tasks.good_ai.micro.Micro5Sub4Task"
+    },
+    "5.5": {
+      "type": "tasks.good_ai.micro.Micro5Sub5Task"
+    },
+    "5.6": {
+      "type": "tasks.good_ai.micro.Micro5Sub6Task"
+    },
+    "5.7": {
+      "type": "tasks.good_ai.micro.Micro5Sub7Task"
+    },
+    "5.8": {
+      "type": "tasks.good_ai.micro.Micro5Sub8Task"
+    },
+    "5.9": {
+      "type": "tasks.good_ai.micro.Micro5Sub9Task"
+    },
+    "5.10": {
+      "type": "tasks.good_ai.micro.Micro5Sub10Task"
+    },
+    "5.11": {
+      "type": "tasks.good_ai.micro.Micro5Sub11Task"
+    },
+    "5.12": {
+      "type": "tasks.good_ai.micro.Micro5Sub12Task"
+    },
+    "5.13": {
+      "type": "tasks.good_ai.micro.Micro5Sub13Task"
+    },
+    "5.14": {
+      "type": "tasks.good_ai.micro.Micro5Sub14Task"
+    },
+    "5.15": {
+      "type": "tasks.good_ai.micro.Micro5Sub15Task"
+    },
+    "5.16": {
+      "type": "tasks.good_ai.micro.Micro5Sub16Task"
+    },
+    "5.17": {
+      "type": "tasks.good_ai.micro.Micro5Sub17Task"
+    },
+    "5.18": {
+      "type": "tasks.good_ai.micro.Micro5Sub18Task"
+    },
+    "6.2": {
+      "type": "tasks.good_ai.micro.Micro6Sub1Task"
+    },
     "6.2": {
       "type": "tasks.good_ai.micro.Micro6Sub2Task"
     }
@@ -29,7 +83,7 @@
     {
       "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
-          "tasks": ["5.1","1", "2", "3", "4"],
+          "tasks": ["5.2"],
           "success_threshold": 10
         }
     }
