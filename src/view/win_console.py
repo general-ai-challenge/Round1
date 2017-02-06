@@ -120,17 +120,22 @@ class StdInOutView(WinBaseView):
         self.output_buffer = ''
         self.panic = 'SKIP'
         self.quit = 'QUIT'
+        self._byte_channels = byte_channels
 
         if byte_channels:
             # record what the learner says
             self._learner_channel = ByteInputChannel(serializer)
             # record what the environment says
             self._env_channel = ByteInputChannel(serializer)
+            # reward buffer
+            self._reward_buffer = ''
         else:
             # record what the learner says
             self._learner_channel = InputChannel(serializer)
             # record what the environment says
             self._env_channel = InputChannel(serializer)
+
+
 
         # listen to the updates in these channels
         self._learner_channel.sequence_updated.register(
@@ -150,6 +155,21 @@ class StdInOutView(WinBaseView):
         session.learner_token_updated.register(self.on_learner_token_updated)
         del self.info['current_task']
 
+    def on_total_reward_updated(self, reward):
+        change = reward - self.info['reward']
+        self.info['reward'] = reward
+        if self._byte_channels:
+            self._reward_buffer = self._reward_buffer[0:-1]
+            self._reward_buffer += self._encode_reward(change)
+            self._reward = self.channel_to_str(
+                self._reward_buffer,
+                self._env_channel.get_undeserialized())
+
+    @staticmethod
+    def _encode_reward(reward):
+        d = {0: " ", 1: "+", -1: "-", 2: "2", -2: "\u01BB"}
+        return d[reward]
+
     def on_env_token_updated(self, token):
         self._env_channel.consume(token)
 
@@ -164,6 +184,11 @@ class StdInOutView(WinBaseView):
             self._learner_input = self.channel_to_str(
                 self.input_buffer,
                 self._learner_channel.get_undeserialized())
+            if self._byte_channels:
+                self._reward_buffer += ' '
+                self._reward = self.channel_to_str(
+                    self._reward_buffer,
+                    self._env_channel.get_undeserialized())
 
     def on_learner_sequence_updated(self, sequence):
         self._learner_input = self.channel_to_str(
@@ -175,7 +200,7 @@ class StdInOutView(WinBaseView):
             self.output_buffer += \
                 self._env_channel.get_text()[-1]
             self.output_buffer = self.output_buffer[-self._scroll_msg_length:]
-            self.env_output = self.channel_to_str(
+            self._env_output = self.channel_to_str(
                 self.output_buffer,
                 self._env_channel.get_undeserialized())
 
@@ -206,6 +231,8 @@ class StdInOutView(WinBaseView):
         print("_"*self._total_msg_length)
         print(self._env_output + ' reward:{:7}'.format(self.info['reward']))
         print(self._learner_input + ' time:{:9}'.format(self.info['time']))
+        if self._byte_channels:
+            print(self._reward)
         _ver = sys.version_info
         if _ver[0] == 2:
             input_str = raw_input()
