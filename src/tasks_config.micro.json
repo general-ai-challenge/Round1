@@ -6,25 +6,31 @@
   },
   "tasks":
   {
-    "2.1": {
+    "1": {
       "type": "tasks.good_ai.micro.Micro1Task"
     },
-    "2.2": {
+    "2": {
       "type": "tasks.good_ai.micro.Micro2Task"
     },
-    "2.3": {
+    "3": {
       "type": "tasks.good_ai.micro.Micro3Task"
     },
-    "2.4": {
+    "4": {
       "type": "tasks.good_ai.micro.Micro4Task"
+    },
+    "5.1": {
+      "type": "tasks.good_ai.micro.Micro5Sub1Task"
+    },
+    "6.2": {
+      "type": "tasks.good_ai.micro.Micro6Sub2Task"
     }
   },
   "scheduler":
     {
       "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
-          "tasks": ["2.1", "2.2", "2.3", "2.4"],
-          "success_threshold": 3
+          "tasks": ["5.1","1", "2", "3", "4"],
+          "success_threshold": 10
         }
     }
 }

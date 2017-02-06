@@ -72,6 +72,8 @@ class Environment:
         self._output_priority = 0
         # reward that is to be given at the learner at the end of the task
         self._reward = None
+        # reward that is to be given immediately
+        self._immediate_reward = None
         # Current task time
         self._task_time = None
         # Task separator issued
@@ -144,6 +146,10 @@ class Environment:
         self._output_channel_listener.consume(output)
         # advance time
         self._task_time += 1
+
+        if self._immediate_reward is not None and reward is None:
+            reward = self._immediate_reward
+            self._immediate_reward = None;
         if reward is not None:
             # process the reward (clearing it if it's not allowed)
             reward = self._allowable_reward(reward)
@@ -195,18 +201,22 @@ class Environment:
     def _should_skip_separator(self):
         return hasattr(self._current_task, 'skip_task_separator') and self._current_task.skip_task_separator
 
-    def set_reward(self, reward, message='', priority=0, terminate_task=True):
+    def set_reward(self, reward, message='', priority=0):
         '''Sets the reward that is going to be given
         to the learner once the task has sent all the remaining message'''
         self._reward = reward
-        if terminate_task:
-            self._current_task.end()
+        self._current_task.end()
         self.logger.debug('Setting reward {0} with message "{1}"'
                           ' and priority {2}'
                           .format(reward, message, priority))
         # adds a final space to the final message of the task
         # to separate the next task instructions
         self.set_message(message, priority)
+
+    def set_immediate_reward(self, reward):
+        '''Sets the reward immediately'''
+        self._immediate_reward = reward
+        self.logger.debug('Setting immediate reward {}'.format(reward))
 
     def set_message(self, message, priority=0):
         ''' Saves the message in the output buffer so it can be delivered

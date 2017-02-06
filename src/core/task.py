@@ -401,8 +401,11 @@ class ScriptSet(object):
         return str(self.__class__.__name__)
 
     # ### API for the scripts ###
-    def set_reward(self, reward, message='', priority=0, terminate_task=True):
-        self._env.set_reward(reward, message, priority, terminate_task)
+    def set_reward(self, reward, message='', priority=0):
+        self._env.set_reward(reward, message, priority)
+
+    def set_immediate_reward(self, reward):
+        self._env.set_immediate_reward(reward)
 
     def set_message(self, message, priority=0):
         self._env.set_message(message, priority)
@@ -459,7 +462,7 @@ class Task(ScriptSet):
         '''Gets the environment's task time'''
         return self._env._task_time
 
-    def set_reward(self, reward, message='', priority=1, terminate_task=True):
+    def set_reward(self, reward, message='', priority=1):
         '''Assigns a reward to the learner and ends the task.
 
         :param reward: numerical reward given to the learner
@@ -468,7 +471,7 @@ class Task(ScriptSet):
             message on the output stream and the priority is lower than it,
             the message will be blocked.
         '''
-        super(Task, self).set_reward(reward, message, priority, terminate_task)
+        super(Task, self).set_reward(reward, message, priority)
 
     def set_message(self, message, priority=1):
         '''Sets the message that is going to be sent to the learner over
