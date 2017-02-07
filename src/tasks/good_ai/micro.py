@@ -13,11 +13,11 @@ class MicroBase(Task):
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
-        self.tasker = self._get_task_generator()
+        self.tasker = self.get_task_generator()
         self.skip_task_separator = True
 
     @staticmethod
-    def _get_task_generator():
+    def get_task_generator():
         pass
 
     def get_original_question(self, question):
@@ -63,7 +63,7 @@ class MicroBase(Task):
 
 class Micro1Task(MicroBase):
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         def micro1_question(self):
             def micro1_reward(answer, question=''):
                 if answer == ' ':
@@ -94,7 +94,7 @@ class MicroMappingTask(MicroBase):
     def _get_mapping(self):
         pass
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         mapping = self._get_mapping()
 
         def multigen(d):
@@ -391,7 +391,7 @@ class Micro5Sub18Task(MicroMappingTask):
 
 class Micro6Sub1Task(MicroBase):
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         def micro6_1_question(self):
             correct_answer = random.choice(string.ascii_lowercase) + '.'
             question = "say: {}".format(correct_answer)
@@ -405,7 +405,7 @@ class Micro6Sub1Task(MicroBase):
 
 class Micro6Sub2Task(MicroBase):
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         valid_words = ["hello", "hi", "ahoy"]
 
         def micro6_2_question(self):
@@ -421,7 +421,7 @@ class Micro6Sub2Task(MicroBase):
 
 class Micro6Sub3Task(MicroBase):
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         valid_words = ["hello", "hi", "ahoy", "world", "agent", "ai"]
 
         def micro6_3_question(self):
@@ -438,7 +438,7 @@ class Micro6Sub3Task(MicroBase):
 class Micro7Task(MicroBase):
     reg_answer_end = r'\.'
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         def micro7_question(self):
             alphabet = string.ascii_lowercase
             sentence = "{}{}{}{}{}.".format(' ' * random.randint(0, 6), random.choice(alphabet), ' ' * random.randint(0, 6),
@@ -458,7 +458,7 @@ class Micro7Task(MicroBase):
 class Micro8Task(MicroBase):
     reg_answer_end = r'\.'
 
-    def _get_task_generator(self):
+    def get_task_generator(self):
         def micro8_question(self):
             valid_words = ["hello", "hi", "ahoy", "mono"]
             word = random.choice(valid_words) + '.'
