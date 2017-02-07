@@ -470,3 +470,149 @@ class Micro8Task(MicroBase):
                 return reaction + '! ' + sentence
             return question, [sentence], micro8_feedback
         return TaskGenerator(micro8_question, '', None, ';')
+
+
+class Micro9Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    def get_task_generator(self):
+        def micro9_question(self):
+            valid_words = ["hello", "hi", "ahoy", "mono"]
+            n = random.randint(2, 3)
+            questions = []
+            words = []
+            for i in range(0, n):
+                word = random.choice(valid_words)
+                words.append(word)
+                questions.append('say: {}'.format(word))
+            question = ' '.join(questions)
+            question += '.'
+            sentence = ' '.join(words)
+            sentence += '.'
+
+            def micro9_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            return question, [sentence], micro9_feedback
+        return TaskGenerator(micro9_question, '', None, ';')
+
+
+class Micro10Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    def get_task_generator(self):
+        def micro10_question(self):
+            actions = ['reverse', 'concatenate', 'interleave']
+            action = random.choice(actions)
+            valid_words = ["ab", "ac", "ad", "bc", "bd", "cd"]
+            questions = []
+            words = []
+            for i in range(0, 2):
+                word = random.choice(valid_words)
+                words.append(word)
+                questions.append('say: {}'.format(word))
+            question = ' '.join(questions)
+            question += ' '
+            question += action
+            question += ':.'
+            if action == 'reverse':
+                words.reverse()
+                sentence = ' '.join(words)
+            elif action == 'concatenate':
+                sentence = ''.join(words)
+            else:
+                sentence = [val for pair in zip(words[0], words[1]) for val in pair]
+                sentence = ''.join(sentence)
+            sentence += '.'
+
+            def micro10_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            return question, [sentence], micro10_feedback
+        return TaskGenerator(micro10_question, '', None, ';')
+
+
+class Micro11Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    @staticmethod
+    def string_special_union(str1, str2):
+        if str1.find(str2) >= 0:
+            return str1
+        return str1 + str2
+
+    @staticmethod
+    def string_special_exclude(str1, str2):
+        return str1.replace(str2, '')
+
+    def get_task_generator(self):
+        def micro11_question(self):
+            actions = ['union', 'exclude']
+            action = random.choice(actions)
+            valid_words = ["abc", "acd", "adc", "bcd", "bda", "cdb"]
+            valid_second_words = ["a", "b", "c", "d"]
+            word = random.choice(valid_words)
+            second_word = random.choice(valid_second_words)
+            question = 'say: {} say: {} {}:.'.format(word, second_word, action)
+            if action == 'union':
+                sentence = Micro11Task.string_special_union(word, second_word)
+            else:
+                sentence = Micro11Task.string_special_exclude(word, second_word)
+            sentence += '.'
+
+            def micro11_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            return question, [sentence], micro11_feedback
+        return TaskGenerator(micro11_question, '', None, ';')
+
+
+class Micro12Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    def get_task_generator(self):
+        def micro12_question(self):
+            alphabet = string.ascii_lowercase
+            idx = random.randint(0, len(alphabet) - 2)
+            question = 'after {} comes what:.'.format(alphabet[idx])
+            sentence = alphabet[idx + 1]
+            sentence += '.'
+
+            def micro12_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            return question, [sentence], micro12_feedback
+        return TaskGenerator(micro12_question, '', None, ';')
+
+
+class Micro13Task(MicroBase):
+    reg_answer_end = r'\.'
+    m7 = Micro7Task()
+    m8 = Micro8Task()
+    m9 = Micro9Task()
+    m10 = Micro10Task()
+    m11 = Micro11Task()
+    m12 = Micro12Task()
+
+    @on_start()
+    def give_instructions(self, event):
+        self.tasker = self.get_task_generator()
+        self.question, self.check_answer = self.tasker.get_task_instance()
+        self.set_message(self.question)
+
+    def get_task_generator(self):
+        tasks = [self.m9, self.m10, self.m11]
+        task = random.choice(tasks)
+        return task.get_task_generator()
