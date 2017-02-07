@@ -1,5 +1,6 @@
 import random
 import string
+import re
 
 from core.task import on_message, on_start, on_timeout
 from core.task import Task
@@ -7,6 +8,8 @@ from tasks.good_ai.task_generator import TaskGenerator
 
 
 class MicroBase(Task):
+    reg_answer_end = r'.'
+    MAXIMUM_ANSWER_LEN = 1000
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
@@ -32,25 +35,30 @@ class MicroBase(Task):
             if not event.message[-1] == ' ':
                 self.set_immediate_reward(-1)
             return
-        if not self.question:
+        if not self._answer_ended(event.message):
             return
-        correct, reward = self.tasker.check_answer(event.message.strip(), self.question)
+        message = event.message.strip()
+        if message == '':
+            message = ' '
+        correct, reward = self.tasker.check_answer(message, self.question)
         if reward == 0:
             return
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_immediate_reward(reward)
         self.set_reward(None, feedback_text)
-        self.question = None
 
     @on_timeout()
     def on_timeout(self, event):
         self.set_reward(0)
 
     @staticmethod
-    def _is_prefix(answer, correct_answer):
+    def is_prefix(answer, correct_answer):
         if len(answer) >= len(correct_answer):
             return False
         return correct_answer.startswith(answer)
+
+    def _answer_ended(self, message):
+        return not (re.search(self.reg_answer_end, message) is None)
 
 
 class Micro1Task(MicroBase):
@@ -100,12 +108,7 @@ class MicroMappingTask(MicroBase):
         def micro_mapping_question(self):
             def micro_mapping_reward(answer, question):
                 key = self.get_original_question(question)
-                # print("key {}".format(key))
-                # print("answer {}".format(repr(answer)))
-                # print("question {}".format(repr(question)))
-                # print(mapping[key])
-                # print(answer == mapping[key])
-                if len(answer) > 0 and MicroBase._is_prefix(answer, mapping[key]):
+                if len(answer) > 0 and MicroBase.is_prefix(answer, mapping[key]):
                     return None
                 return answer == mapping[key]
             return next(gen), micro_mapping_reward
@@ -166,7 +169,6 @@ class Micro5Sub1Task(MicroMappingTask):
         mapping = dict(zip(numbers, permutation))
 
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
-        print(repr(mapping))
         return mapping
 
 
@@ -392,7 +394,7 @@ class Micro6Sub1Task(MicroBase):
     def _get_task_generator(self):
         def micro6_1_question(self):
             correct_answer = random.choice(string.ascii_lowercase) + '.'
-            question = "say {}".format(correct_answer)
+            question = "say: {}".format(correct_answer)
 
             def micro6_1_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
@@ -408,7 +410,7 @@ class Micro6Sub2Task(MicroBase):
 
         def micro6_2_question(self):
             word = random.choice(valid_words) + '.'
-            question = "say {}".format(word)
+            question = "say: {}".format(word)
 
             def micro6_2_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
@@ -424,7 +426,7 @@ class Micro6Sub3Task(MicroBase):
 
         def micro6_3_question(self):
             sentence = random.choice(valid_words) + random.choice(valid_words) + '.'
-            question = "say {}".format(sentence)
+            question = "say: {}".format(sentence)
 
             def micro6_3_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
@@ -434,23 +436,27 @@ class Micro6Sub3Task(MicroBase):
 
 
 class Micro7Task(MicroBase):
+    reg_answer_end = r'\.'
 
     def _get_task_generator(self):
         def micro7_question(self):
             alphabet = string.ascii_lowercase
             sentence = "{}{}{}{}{}.".format(' ' * random.randint(0, 6), random.choice(alphabet), ' ' * random.randint(0, 6),
                                             random.choice(alphabet), ' ' * random.randint(0, 6))
-            question = "say {}".format(sentence)
+            question = "say: {}".format(sentence)
+            sentence = re.sub(' +', ' ', sentence).strip()
 
             def micro7_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
-                return reaction + '. ' + sentence
+                return reaction + '!' + sentence
+                print("sentence: ".format(sentence))
             return question, [sentence], micro7_feedback
 
         return TaskGenerator(micro7_question, '', None, ';')
 
 
 class Micro8Task(MicroBase):
+    reg_answer_end = r'\.'
 
     def _get_task_generator(self):
         def micro8_question(self):
