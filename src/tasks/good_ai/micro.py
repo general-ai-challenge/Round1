@@ -89,6 +89,14 @@ class MicroMappingTask(MicroBase):
     def _get_task_generator(self):
         mapping = self._get_mapping()
 
+        def multigen(d):
+            while True:
+                k = list(d.keys()) * len(d.keys())
+                random.shuffle(k)
+                for i in k:
+                    yield i
+        gen = multigen(mapping)
+
         def micro_mapping_question(self):
             def micro_mapping_reward(answer, question):
                 key = self.get_original_question(question)
@@ -100,7 +108,7 @@ class MicroMappingTask(MicroBase):
                 if len(answer) > 0 and MicroBase._is_prefix(answer, mapping[key]):
                     return None
                 return answer == mapping[key]
-            return random.choice(list(mapping.keys())), micro_mapping_reward
+            return next(gen), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
 
     # this could be solved by less code, but I chose the explicit way
