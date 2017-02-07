@@ -61,7 +61,7 @@ class Micro1Task(MicroBase):
                 if answer == ' ':
                     return None
                 return answer in string.ascii_lowercase
-            return random.choice(string.ascii_lowercase), micro1_reward
+            return random.choice(string.ascii_lowercase + ' '), micro1_reward
         return TaskGenerator(micro1_question)
 
 
@@ -134,7 +134,7 @@ class Micro2Task(MicroMappingTask):
     def _get_mapping(self):
         correct_answer = random.choice(string.ascii_lowercase)
         mapping = {x: correct_answer for x in string.ascii_lowercase}
-        for c in '!":?.,;':
+        for c in ' !":?.,;':
             mapping[c] = c
         return mapping
 
@@ -144,7 +144,7 @@ class Micro3Task(MicroMappingTask):
     def _get_mapping(self):
         permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
         mapping = dict(zip(string.ascii_lowercase, permutation))
-        for c in '!":?.,;':
+        for c in ' !":?.,;':
             mapping[c] = c
         return mapping
 
