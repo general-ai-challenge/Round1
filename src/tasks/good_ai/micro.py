@@ -41,8 +41,6 @@ class MicroBase(Task):
         if message == '':
             message = ' '
         correct, reward = self.tasker.check_answer(message, self.question)
-        if reward == 0:
-            return
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_immediate_reward(reward)
         self.set_reward(None, feedback_text)
