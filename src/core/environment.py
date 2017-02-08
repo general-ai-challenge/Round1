@@ -156,6 +156,7 @@ class Environment:
             reward = self._allowable_reward(reward)
         if self._result is not None:
             self._task_scheduler.reward(self._result)
+            self._result = None
         return output, reward
 
     def get_reward_per_task(self):
