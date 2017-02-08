@@ -66,22 +66,23 @@ class TaskGenerator(object):
 
     def check_answer(self, answer, question=None):
         '''
-        Returns a tuple (answer_is_correct, reward)
+        Returns a triple (task_finished, answer_is_correct, reward)
+        task_finished - bool
         answer_is_correct - bool
         reward - int -1, 0 or 1
         '''
         if callable(self.answer):
-            check = self.answer(answer, question)
+            check, reward = self.answer(answer, question)
             if check is None:
-                return False, 0
+                return False, False, reward
             elif check is True:
-                return True, 1
+                return True, True, reward
             else:
-                return False, -1
+                return True, False, reward
         if answer in self.answer:
-            return True, 1
+            return True, True, 1
         else:
-            return False, -1
+            return True, False, -1
 
     def get_original_question(self, question):
         input_sep_len = len(self.input_sep)

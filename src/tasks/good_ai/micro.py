@@ -40,11 +40,11 @@ class MicroBase(Task):
         message = event.message.strip()
         if message == '':
             message = ' '
-        correct, reward = self.tasker.check_answer(message, self.question)
-        feedback_text = self.tasker.get_feedback_text(correct, self.question)
+        finished, correct, reward = self.tasker.check_answer(message, self.question)
         self.set_immediate_reward(reward)
-        self.set_result(None, feedback_text, provide_result_as_reward=False)
-        # TODO tasker.check_answer should return reward AND result; set_result should be called as set_result(result,...
+        if finished:
+            feedback_text = self.tasker.get_feedback_text(correct, self.question)
+            self.set_result(correct, feedback_text, provide_result_as_reward=False)
 
     @on_timeout()
     def on_timeout(self, event):
@@ -66,8 +66,12 @@ class Micro1Task(MicroBase):
         def micro1_question(self):
             def micro1_reward(answer, question=''):
                 if answer == ' ':
-                    return None
-                return answer in string.ascii_lowercase
+                    if question == ' ':
+                        return True, 1
+                    else:
+                        return False, 0
+                success = answer in string.ascii_lowercase
+                return success, 1 if success else -1
             return random.choice(string.ascii_lowercase + ' '), micro1_reward
         return TaskGenerator(micro1_question)
 
@@ -108,8 +112,9 @@ class MicroMappingTask(MicroBase):
             def micro_mapping_reward(answer, question):
                 key = self.get_original_question(question)
                 if len(answer) > 0 and MicroBase.is_prefix(answer, mapping[key]):
-                    return None
-                return answer == mapping[key]
+                    return None, 0
+                correct = answer == mapping[key]
+                return correct, 1 if correct else -1
             return next(gen), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
 
@@ -193,8 +198,6 @@ class Micro5Sub4Task(MicroMappingTask):
         return mapping
 
 
-# TODO: trailing dots in the answer is ignored by CommAI-env
-# TODO: I will try to refactor following classes ASAP. I just need to see them all in order to make proper decisions- MV
 class Micro5Sub5Task(MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
 
