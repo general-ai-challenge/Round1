@@ -57,7 +57,7 @@ class TurningTask(BaseTask):
         lambda ws, ts: ws.learner_direction == ts.target_direction)
     def on_moved(self, event):
         # reward the learner when it's facing the right direction
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -83,7 +83,7 @@ class MovingTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -117,7 +117,7 @@ class MovingRelativeTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -153,7 +153,7 @@ class MovingAbsoluteTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -190,7 +190,7 @@ class PickUpTask(BaseTask):
                              object=self.target_obj))
 
     def on_object_picked_up(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -230,7 +230,7 @@ class PickUpAroundTask(BaseTask):
                              object=self.target_obj))
 
     def on_object_picked_up(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -272,7 +272,7 @@ class PickUpInFrontTask(BaseTask):
                              object=self.target_obj))
 
     def on_object_picked_up(self, event):
-        self.set_reward(1, "You picked up the {0}.".format(self.target_obj))
+        self.set_result(1, "You picked up the {0}.".format(self.target_obj))
 
     @on_timeout()
     def fail_learner(self, event):
@@ -307,7 +307,7 @@ class GivingTask(BaseTask):
         lambda ws, ts: ws.teacher_inventory[ts.target_obj] ==
         ts.initial_count + 1)
     def on_give_me_object(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
     @on_timeout()
     def fail_learner(self, event):
@@ -364,7 +364,7 @@ class PickUpAroundAndGiveTask(BaseTask):
         ts.initial_count + 1)
     def on_give_me_object(self, event):
         if self.object_picked_up:
-            self.set_reward(1)
+            self.set_result(1)
         else:
             self.set_message("You have to pick up the {object} first."
                              .format(object=self.state.target_obj))
@@ -407,7 +407,7 @@ class CountingInventoryTask(BaseTask):
         answer = event.get_match(1)
         num_answer = msg.string_to_number(answer)
         if num_answer == count:
-            self.set_reward(1, "Correct!")
+            self.set_result(1, "Correct!")
         else:
             self.set_message("{negative_feedback} "
                              "You have {count} {objects}.".format(
@@ -486,9 +486,9 @@ class CountingInventoryGivingTask(BaseTask):
         elif self.stage == 'final-query':
             # reward the learner if it replied correctly all the questions
             if not self.failed:
-                self.set_reward(1, feedback)
+                self.set_result(1, feedback)
             else:
-                self.set_reward(0, feedback)
+                self.set_result(0, feedback)
 
     # if I have one more of the target object, the learner solved the task
     # if it also picked up the object in the grid.
@@ -532,7 +532,7 @@ class LookTask(BaseTask):
     def on_message(self, event):
         dir = self.get_world().state.learner_direction
         if dir == self.dir:
-            self.set_reward(1, "Congratulations! "
+            self.set_result(1, "Congratulations! "
                             "You are looking in the right direction.")
 
 
@@ -553,7 +553,7 @@ class LookAroundTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos != ts.learner_pos)
     def on_moved(self, event):
-        self.set_reward(0, "You are not allowed to move.")
+        self.set_result(0, "You are not allowed to move.")
 
     @on_message(r"I look\.$")
     def on_message(self, event):
@@ -563,7 +563,7 @@ class LookAroundTask(Task):
             self.ndir += 1
             ddir = len(self.visited_dirs) - self.ndir
             if ddir == 0:
-                self.set_reward(1, "Congratulations!")
+                self.set_result(1, "Congratulations!")
             else:
                 self.set_message(str(ddir) + " directions to go.")
         elif dir in self.visited_dirs:
@@ -606,4 +606,4 @@ class FindObjectAroundTask(Task):
             self.get_world().remove_entity(np)
 
     def on_object_picked(self, event):
-        self.set_reward(1, 'Well done!')
+        self.set_result(1, 'Well done!')

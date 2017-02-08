@@ -43,11 +43,12 @@ class MicroBase(Task):
         correct, reward = self.tasker.check_answer(message, self.question)
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_immediate_reward(reward)
-        self.set_reward(None, feedback_text)
+        self.set_result(None, feedback_text, provide_result_as_reward=False)
+        # TODO tasker.check_answer should return reward AND result; set_result should be called as set_result(result,...
 
     @on_timeout()
     def on_timeout(self, event):
-        self.set_reward(0)
+        self.set_result(0)
 
     @staticmethod
     def is_prefix(answer, correct_answer):

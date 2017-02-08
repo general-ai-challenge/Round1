@@ -46,7 +46,7 @@ class Repeat1V1L(BaseTask):
     @on_message(r"\.")
     def check_response(self, event):
         if event.is_message(self.target_string, '.'):
-            self.set_reward(1, random.choice(micro_congratulations))
+            self.set_result(1, random.choice(micro_congratulations))
         else:
             self.fail_learner()
 
@@ -57,7 +57,7 @@ class Repeat1V1L(BaseTask):
     def fail_learner(self):
         feedback = random.choice(micro_failed)
         feedback += self.target_string + '.'
-        self.set_reward(0, feedback)
+        self.set_result(0, feedback)
 
 
 class Repeat3V1L(BaseTask):
@@ -75,7 +75,7 @@ class Repeat3V1L(BaseTask):
     @on_message(r"\.")
     def check_response(self, event):
         if event.is_message(self.target_string, '.'):
-            self.set_reward(1, random.choice(micro_congratulations))
+            self.set_result(1, random.choice(micro_congratulations))
         else:
             self.fail_learner()
 
@@ -86,7 +86,7 @@ class Repeat3V1L(BaseTask):
     def fail_learner(self):
         feedback = random.choice(micro_failed)
         feedback += self.target_string + '.'
-        self.set_reward(0, feedback)
+        self.set_result(0, feedback)
 
 
 class Repeat3V2L(BaseTask):
@@ -104,7 +104,7 @@ class Repeat3V2L(BaseTask):
     @on_message(r"\.")
     def check_response(self, event):
         if event.is_message(self.target_string, '.'):
-            self.set_reward(1, random.choice(micro_congratulations))
+            self.set_result(1, random.choice(micro_congratulations))
         else:
             self.fail_learner()
 
@@ -115,4 +115,4 @@ class Repeat3V2L(BaseTask):
     def fail_learner(self):
         feedback = random.choice(micro_failed)
         feedback += self.target_string + '.'
-        self.set_reward(0, feedback)
+        self.set_result(0, feedback)

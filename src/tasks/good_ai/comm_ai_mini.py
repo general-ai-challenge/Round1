@@ -57,7 +57,7 @@ class TaskSet0(BaseTask):
         if event.is_message(self.answer, '.'):
             # if the message sent by the learner equals the teacher's
             # expected answer followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -70,7 +70,7 @@ class TaskSet0(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, self.give_away_message)
+        self.set_result(0, self.give_away_message)
 
 
 class TaskSetBase(BaseTask):
@@ -168,7 +168,7 @@ class TaskSetBase(BaseTask):
         if event.is_message(self.answer, '.'):
             # if the message sent by the learner equals the teacher's
             # expected answer followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -181,7 +181,7 @@ class TaskSetBase(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, self.give_away_message)
+        self.set_result(0, self.give_away_message)
 
 
 class TaskSet1(TaskSetBase):

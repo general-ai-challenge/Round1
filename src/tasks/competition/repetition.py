@@ -56,7 +56,7 @@ class BeSilentTask(Task):
         # every incoming 1 bit we don't start again sending the feedback
         # message.
         if not self.flag_failed:
-            self.set_reward(0, random.choice(msg.failed))
+            self.set_result(0, random.choice(msg.failed))
             # set the flag, so we don't
             self.flag_failed = True
 
@@ -65,7 +65,7 @@ class BeSilentTask(Task):
     def on_timeout(self, event):
         # if the learner has been silent, it receives reward +1 and the task is
         # over.
-        self.set_reward(1, random.choice(msg.congratulations))
+        self.set_result(1, random.choice(msg.congratulations))
 
 
 class RepeatCharacterTask(BaseTask):
@@ -90,7 +90,7 @@ class RepeatCharacterTask(BaseTask):
         if event.is_message(self.cur_char, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -103,7 +103,7 @@ class RepeatCharacterTask(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))
 
 
 class RepeatWhatISayTask(BaseTask):
@@ -128,7 +128,7 @@ class RepeatWhatISayTask(BaseTask):
         if event.is_message(self.cur_phrase, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -141,7 +141,7 @@ class RepeatWhatISayTask(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))
 
 
 class RepeatWhatISay2Task(BaseTask):
@@ -166,7 +166,7 @@ class RepeatWhatISay2Task(BaseTask):
         if event.is_message(self.cur_phrase, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -179,7 +179,7 @@ class RepeatWhatISay2Task(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))
 
 
 class RepeatWhatISayMultipleTimesTask(BaseTask):
@@ -211,7 +211,7 @@ class RepeatWhatISayMultipleTimesTask(BaseTask):
         if event.is_message(self.target, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase repeated n times followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -224,7 +224,7 @@ class RepeatWhatISayMultipleTimesTask(BaseTask):
 
     def fail_learner(self):
         # fail the learner teaching it the correct answer
-        self.set_reward(0, "{negative_feedback} correct answer is: {answer}."
+        self.set_result(0, "{negative_feedback} correct answer is: {answer}."
                         .format(
                             negative_feedback=random.choice(msg.failed),
                             answer=self.target
@@ -260,7 +260,7 @@ class RepeatWhatISayMultipleTimes2Task(BaseTask):
         if event.is_message(self.target, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase repeated n times followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -271,7 +271,7 @@ class RepeatWhatISayMultipleTimes2Task(BaseTask):
 
     def fail_learner(self):
         # fail the learner if it hasn't repeated the message by the timeout
-        self.set_reward(0, "{negative_feedback} correct answer is: {answer}."
+        self.set_result(0, "{negative_feedback} correct answer is: {answer}."
                         .format(
                             negative_feedback=random.choice(msg.failed),
                             answer=self.target
@@ -309,7 +309,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCommaTask(BaseTask):
         if event.is_message(self.target, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase repeated n times followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -320,7 +320,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCommaTask(BaseTask):
 
     def fail_learner(self):
         # fail the learner if it hasn't repeated the message by the timeout
-        self.set_reward(0, "{negative_feedback} correct answer is: {answer}."
+        self.set_result(0, "{negative_feedback} correct answer is: {answer}."
                         .format(
                             negative_feedback=random.choice(msg.failed),
                             answer=self.target
@@ -358,7 +358,7 @@ class RepeatWhatISayMultipleTimesSeparatedByAndTask(BaseTask):
         if event.is_message(self.target, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase repeated n times followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -369,7 +369,7 @@ class RepeatWhatISayMultipleTimesSeparatedByAndTask(BaseTask):
 
     def fail_learner(self):
         # fail the learner if it hasn't repeated the message by the timeout
-        self.set_reward(0, "{negative_feedback} correct answer is: {answer}."
+        self.set_result(0, "{negative_feedback} correct answer is: {answer}."
                         .format(
                             negative_feedback=random.choice(msg.failed),
                             answer=self.target
@@ -408,7 +408,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCATask(BaseTask):
         if event.is_message(self.target, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase repeated n times followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -419,7 +419,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCATask(BaseTask):
 
     def fail_learner(self):
         # fail the learner if it hasn't repeated the message by the timeout
-        self.set_reward(0, "{negative_feedback} correct answer is: {answer}."
+        self.set_result(0, "{negative_feedback} correct answer is: {answer}."
                         .format(
                             negative_feedback=random.choice(msg.failed),
                             answer=self.target
@@ -456,7 +456,7 @@ class RepeatWhatISayDisjunction(BaseTask):
             if event.is_message_exact(answer, '.'):
                     # if the message sent by the learner equals the teacher's
                     # selected phrase followed by a period, reward the learner.
-                    self.set_reward(1, random.choice(msg.congratulations))
+                    self.set_result(1, random.choice(msg.congratulations))
                     break
 
             # If we reached thsi point, it fails the task.
@@ -470,7 +470,7 @@ class RepeatWhatISayDisjunction(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))
 
 
 class RepeatWhatISayConjunctionNegation(BaseTask):
@@ -528,7 +528,7 @@ class RepeatWhatISayConjunctionNegation(BaseTask):
             if event.is_message_exact(answer, '.'):
                 # if the message sent by the learner equals the teacher's
                 # selected phrase followed by a period, reward the learner.
-                self.set_reward(1, random.choice(msg.congratulations))
+                self.set_result(1, random.choice(msg.congratulations))
                 break
             # If we reached thsi point, it fails the task.
             self.fail_learner()
@@ -541,7 +541,7 @@ class RepeatWhatISayConjunctionNegation(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))
 
 
 # timing constants
@@ -566,7 +566,7 @@ class VerbTask(Task):
     @on_message(r'\.$')
     def correct(self, event):
         if event.is_message(self.target_verb, '.'):
-            self.set_reward(1, 'You {0}.'.format(
+            self.set_result(1, 'You {0}.'.format(
                 self.verbs_past[self.verbs.index(self.target_verb)]))
         else:
             self.fail_learner()
@@ -576,4 +576,4 @@ class VerbTask(Task):
         self.fail_learner()
 
     def fail_learner(self):
-        self.set_reward(0, random.choice(msg.failed))
+        self.set_result(0, random.choice(msg.failed))

@@ -117,7 +117,7 @@ class ObjectExistenceTask1(BaseTask):
     def on_message(self, event):
         if event.is_message("yes", '.'):
             if self.obj == self.obj_question:
-                self.set_reward(1, "Correct!")
+                self.set_result(1, "Correct!")
             else:
                 s = "Wrong, I do not have " + self.obj_question + ". "
                 s += "Do I have " + self.obj_question + "?"
@@ -126,7 +126,7 @@ class ObjectExistenceTask1(BaseTask):
 
         if event.is_message("no", '.'):
             if self.obj != self.obj_question:
-                self.set_reward(1, "Correct!")
+                self.set_result(1, "Correct!")
             else:
                 s = "Wrong, I do have " + self.obj_question + ". "
                 s += "Do I have " + self.obj_question + "?"
@@ -134,7 +134,7 @@ class ObjectExistenceTask1(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
-        self.set_reward(0, "You are too slow! Let's try something else.")
+        self.set_result(0, "You are too slow! Let's try something else.")
 
 
 class ObjectExistenceTask2(BaseTask):
@@ -194,7 +194,7 @@ class ObjectExistenceTask2(BaseTask):
         if event.is_message(self.answer, '.'):
             # if the message sent by the learner equals the teacher's selected
             # phrase followed by a period, reward the learner.
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -207,7 +207,7 @@ class ObjectExistenceTask2(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_reward(0, self.give_away_message)
+        self.set_result(0, self.give_away_message)
 
 
 class AssociateObjectWithPropertyTask(BaseTask):
@@ -232,7 +232,7 @@ class AssociateObjectWithPropertyTask(BaseTask):
     @on_message(r"\.")
     def check_response(self, event):
         if event.is_message(self.property, '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self, event):
@@ -280,7 +280,7 @@ class VerifyThatObjectHasPropertyTask(BaseTask):
     @on_message()
     def check_response(self, event):
         if event.is_message(self.answer, '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self, event):
@@ -322,7 +322,7 @@ class ListPropertiesOfAnObjectTask(BaseTask):
         # if the produced elements match the expected properties
         # reward the learner
         if (self.object_properties == potential_properties):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self, event):
@@ -359,7 +359,7 @@ class NameAPropertyOfAnObjectTask(BaseTask):
         # matching
         if any(event.is_message(property_, '.')
                 for property_ in self.object_properties):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self, event):
@@ -396,7 +396,7 @@ class HowManyPropertiesDoesAnObjectHaveTask(BaseTask):
         # is 1)
         if any(event.is_message(correct_alt, '.')
                for correct_alt in msg.number_to_strings(self.property_count)):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self, event):
@@ -441,7 +441,7 @@ class ListObjectsWithACertainPropertyTask(BaseTask):
         else:
             potential_objects=set()
         if (self.objects == potential_objects):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             answer = self.get_shuffled_correct_objects(self.objects)
             feedback = 'the right objects are: {answer}. please try again. '.format(
@@ -487,7 +487,7 @@ class NameAnObjectWithAPropertyTask(BaseTask):
             if any(event.is_message(object_, '.')
                    for object_ in self.objects):
                 # is match found, give reward
-                self.set_reward(1, random.choice(msg.congratulations))
+                self.set_result(1, random.choice(msg.congratulations))
             else:
                 feedback = 'one right answer is: {answer}. please try again. '.format(
                     answer=random.choice(self.objects))
@@ -553,7 +553,7 @@ class HowManyObjectsHaveACertainPropertyTask(BaseTask):
         # is 1)
         if any(event.is_message(correct_alt, '.')
                for correct_alt in msg.number_to_strings(self.object_count)):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             feedback = 'the right answer is: {answer}. please try again. '.format(
                 answer=msg.number_to_string(self.object_count))
@@ -624,7 +624,7 @@ class WhoHasACertainObjectWithACertainPropertyTask(BaseTask):
         else:
             potential_baskets=set()
         if (self.basket_set == potential_baskets):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             answer = self.get_shuffled_correct_baskets(self.basket_set)
             feedback = 'the right answer is: {answer}. please try again. '.format(
@@ -723,7 +723,7 @@ class ListThePropertiesThatAnObjectHasInABasketOnlyTask(BaseTask):
         else:
             potential_properties=set()
         if self.distinctive_properties_set == potential_properties:
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             answer = self.get_shuffled_correct_properties(self.distinctive_properties_set)
             feedback = 'the right properties are: {answer}. please try again. '.format(
@@ -810,7 +810,7 @@ class ListThePropertiesThatAnObjectHasInAllBasketsTask(BaseTask):
         else:
             potential_properties=set()
         if self.shared_properties_set == potential_properties:
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
         else:
             answer = self.get_shuffled_correct_properties(self.shared_properties_set)
             feedback = 'the right properties are: {answer}. please try again. '.format(

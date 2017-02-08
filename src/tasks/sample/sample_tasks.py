@@ -30,9 +30,9 @@ class RepeatingCharTask(Task):
     @on_message("[^ ]")
     def on_message(self, event):
         if event.is_message(self.target_char):
-            self.set_reward(1, "")
+            self.set_result(1, "")
         else:
-            self.set_reward(0, "")
+            self.set_result(0, "")
 
 
 class YesNoTask(Task):
@@ -55,11 +55,11 @@ class YesNoTask(Task):
     @on_message("yes|no")
     def on_message(self, event):
         if self.coin_toss and event.get_match() == 'yes':
-            self.set_reward(1, "")
+            self.set_result(1, "")
         elif not self.coin_toss and event.get_match() == 'no':
-            self.set_reward(1, "")
+            self.set_result(1, "")
         else:
-            self.set_reward(0, "")
+            self.set_result(0, "")
 
 
 class BeSilentTask(Task):
@@ -73,12 +73,12 @@ class BeSilentTask(Task):
     @on_sequence(r'1')
     def on_bitread(self, event):
         # if the learner produces a one, it loses
-        self.set_reward(0, '')
+        self.set_result(0, '')
 
     @on_timeout()
     def on_timeout(self, event):
         # if it reached timeout without loosing, it wins
-        self.set_reward(1, '')
+        self.set_result(1, '')
 
 
 class RepeatingPhraseTask(Task):
@@ -117,7 +117,7 @@ class RepeatingPhraseTask(Task):
     @on_message(r"I am not Mr Robot$")
     def on_correct_message(self, event):
         if self.instructions_completed:
-            self.set_reward(1, "Correct")
+            self.set_result(1, "Correct")
 
     # This handler gets executed if the learner didn't solve the task in
     # 10000 steps
@@ -147,7 +147,7 @@ class SampleConflictingMessagesTask(Task):
     def on_keyword_message(self, event):
         # The priority parameter only applies for the message for now
         # In this case, the message will be blocked.
-        self.set_reward(1, "You're Goddamn right.", priority=5)
+        self.set_result(1, "You're Goddamn right.", priority=5)
 
 
 class MovingTask(Task):
@@ -167,7 +167,7 @@ class MovingTask(Task):
     # notice that we get the task state and the world state
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
 
 class TurnLeftTask(Task):
@@ -185,7 +185,7 @@ class TurnLeftTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_direction == ts.dest_direction)
     def on_turned(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
 
 class TurnRightTask(Task):
@@ -203,7 +203,7 @@ class TurnRightTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_direction == ts.dest_direction)
     def on_turned(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
 
 class LookAroundTask(Task):
@@ -216,7 +216,7 @@ class LookAroundTask(Task):
 
     @on_message(u"I look.")
     def on_message(self, event):
-        self.set_reward(1)
+        self.set_result(1)
 
 
 class PickAnApple(Task):
@@ -251,7 +251,7 @@ class PickAnApple(Task):
     @on_state_changed(lambda ws, ts: ws.learner_inventory['apple'] >
                       ts.starting_apples)
     def on_apple_picked(self, event):
-        self.set_reward(1, 'Enjoy!')
+        self.set_result(1, 'Enjoy!')
 
 
 class UnicodeTask(Task):
@@ -265,4 +265,4 @@ class UnicodeTask(Task):
     # on non-silent character
     @on_message(u"א$")
     def on_message(self, event):
-        self.set_reward(1, "Correct!")
+        self.set_result(1, "Correct!")

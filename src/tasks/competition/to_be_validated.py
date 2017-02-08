@@ -145,7 +145,7 @@ class ItalianHowManyPropertiesDoesAnObjectHaveTask(Task):
                                               'giusto.',
                                               'corretto.']
 
-            self.set_reward(1,random.choice(italian_msg_congratulations))
+            self.set_result(1, random.choice(italian_msg_congratulations))
 
     @on_timeout()
     def give_away_answer(self,event):
@@ -199,7 +199,7 @@ class GuessTheNumberAskingQuestionsExplicitModelTask(Task):
         elif self.re_query.match(event.message):
             self.set_message(self.target_number + '.')
         elif event.message[-(self.digits+1):] == (self.target_number + '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self,event):
@@ -245,7 +245,7 @@ class GuessTheNumberAskingQuestionsTask(Task):
         elif self.re_query.match(event.message):
             self.set_message(self.target_number + '.')
         elif event.message[-(self.digits+1):] == (self.target_number + '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self,event):
@@ -304,7 +304,7 @@ class GuessTheNumberAskingForDigitsExplicitModelTask(Task):
             else:
                 self.set_message('the number has only ' + str(self.digits) + ' digits.')
         elif event.message[-(self.digits+1):] == (self.target_number + '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self,event):
@@ -368,7 +368,7 @@ class GuessTheNumberAskingForDigitsTask(Task):
             else:
                 self.set_message('the number has only ' + str(self.digits) + ' digits.')
         elif event.message[-(self.digits+1):] == (self.target_number + '.'):
-            self.set_reward(1, random.choice(msg.congratulations))
+            self.set_result(1, random.choice(msg.congratulations))
 
     @on_timeout()
     def give_away_answer(self,event):
@@ -451,7 +451,7 @@ class RepeatCharacter(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-2:] == self.prime:
-            self.set_reward(1)
+            self.set_result(1)
 
 class RepeatStringMax4(Task):
     def __init__(self):
@@ -477,7 +477,7 @@ class RepeatStringMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.prime):] == self.prime:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class RepeatStringMin5Max10(Task):
@@ -504,7 +504,7 @@ class RepeatStringMin5Max10(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.prime):] == self.prime:
-            self.set_reward(1)
+            self.set_result(1)
 
 class GlobalTwoAssociatedCharacters(Task):
     def __init__(self):
@@ -526,7 +526,7 @@ class GlobalTwoAssociatedCharacters(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-2:] == self.target + ".":
-            self.set_reward(1)
+            self.set_result(1)
 
 class GlobalCharacterPrimeTarget(Task):
     def __init__(self):
@@ -549,7 +549,7 @@ class GlobalCharacterPrimeTarget(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-2:] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class LocalCharacterPrimeTarget(Task):
@@ -583,7 +583,7 @@ class LocalCharacterPrimeTarget(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-2:] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 class GlobalTwoAssociatedDelimitedStringsMax4(Task):
     def __init__(self):
@@ -606,7 +606,7 @@ class GlobalTwoAssociatedDelimitedStringsMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class GlobalTwoAssociatedStringsMax4(Task):
@@ -630,7 +630,7 @@ class GlobalTwoAssociatedStringsMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 class LocalTwoAssociatedDelimitedStringsMax4(Task):
     # for comments, see first Local task in this file
@@ -658,7 +658,7 @@ class LocalTwoAssociatedDelimitedStringsMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class LocalTwoAssociatedStringsMax4(Task):
@@ -687,7 +687,7 @@ class LocalTwoAssociatedStringsMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class GlobalStringPrimeTargetMax4(Task):
@@ -712,7 +712,7 @@ class GlobalStringPrimeTargetMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 class LocalStringPrimeTargetMax4(Task):
     # for comments, see first Local task in this file
@@ -741,7 +741,7 @@ class LocalStringPrimeTargetMax4(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
 
 
 class GlobalStringPrimeTargetMin5Max10(Task):
@@ -766,4 +766,4 @@ class GlobalStringPrimeTargetMin5Max10(Task):
         if not self.instructions_completed:
             pass
         elif event.message[-len(self.target):] == self.target:
-            self.set_reward(1)
+            self.set_result(1)
