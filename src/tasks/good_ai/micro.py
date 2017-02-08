@@ -616,3 +616,62 @@ class Micro13Task(MicroBase):
         tasks = [self.m9, self.m10, self.m11]
         task = random.choice(tasks)
         return task.get_task_generator()
+
+
+class Micro15Sub1Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    def get_task_generator(self):
+        def micro15_question(self):
+            def micro15_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            action = random.randint(1, 4)
+            words = list('abcde')
+            # and
+            if action == 1:
+                word1 = random.choice(words)
+                word2 = random.choice(words)
+                question = ' say: {} and {}.'.format(word1, word2)
+                sentence1 = '{}{}.'.format(word1, word2)
+                sentence2 = '{}{}.'.format(word2, word1)
+                return question, [sentence1, sentence2], micro15_feedback
+            # or
+            elif action == 2:
+                word1 = random.choice(words)
+                word2 = random.choice(words)
+                question = ' say: {} or {}.'.format(word1, word2)
+                sentence = '{}.'.format(random.choice([word1, word2]))
+
+                def or_reward(answer, question=''):
+                    return answer.find(word1) >= 0 or answer.find(word1) >= 0
+                return question, or_reward, micro15_feedback
+            # anything and not
+            elif action == 3:
+                word1 = 'anything'
+                word2 = random.choice(words)
+                words.remove(word2)
+                question = ' say: {} and not {}.'.format(word1, word2)
+                sentence = random.choice(words)
+
+                def anything_and_not_reward(answer, question=''):
+                    return answer.find(word2) < 0
+                return question, anything_and_not_reward, micro15_feedback
+            # or but not
+            else:
+                word1 = random.choice(words)
+                words.remove(word1)
+                word2 = random.choice(words)
+                words.remove(word2)
+                word3 = random.choice([word1, word2, random.choice(words)])
+                question = ' say: {} or {} but not {}.'.format(word1, word2, word3)
+                sentence = random.choice(words)
+
+                def or_but_not_reward(answer, question=''):
+                    return answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
+                return question, or_but_not_reward, micro15_feedback
+
+        return TaskGenerator(micro15_question, '', None, ';')
