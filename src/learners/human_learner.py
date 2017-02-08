@@ -108,7 +108,12 @@ class ImmediateHumanLearner(HumanLearner):
 
 class HaltOnDotHumanLearner(HumanLearner):
     def __init__(self, serializer, byte_mode):
-        super(ImmediateHumanLearner, self).__init__(serializer, byte_mode)
+        super(HaltOnDotHumanLearner, self).__init__(serializer, byte_mode)
 
     def on_message(self, message):
-        self.ask_for_input()
+        # we ask for input on two consecutive silences
+        if message[-1:] == '.' and self._output_channel.is_empty() and not self.speaking:
+            self.ask_for_input()
+        elif self._output_channel.is_empty():
+            # If we were speaking, we are not speaking anymore
+            self.speaking = False
