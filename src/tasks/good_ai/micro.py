@@ -649,7 +649,8 @@ class Micro15Sub1Task(MicroBase):
                 sentence = '{}.'.format(random.choice([word1, word2]))
 
                 def or_reward(answer, question=''):
-                    return answer.find(word1) >= 0 or answer.find(word1) >= 0
+                    correct = answer.find(word1) >= 0 or answer.find(word2) >= 0
+                    return correct, 1 if correct else -1
                 return question, or_reward, micro15_feedback
             # anything and not
             elif action == 3:
@@ -660,7 +661,8 @@ class Micro15Sub1Task(MicroBase):
                 sentence = random.choice(words)
 
                 def anything_and_not_reward(answer, question=''):
-                    return answer.find(word2) < 0
+                    correct = answer.find(word2) < 0
+                    return correct, 1 if correct else -1
                 return question, anything_and_not_reward, micro15_feedback
             # or but not
             else:
@@ -673,7 +675,8 @@ class Micro15Sub1Task(MicroBase):
                 sentence = random.choice(words)
 
                 def or_but_not_reward(answer, question=''):
-                    return answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
+                    correct = answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
+                    return correct, 1 if correct else -1
                 return question, or_but_not_reward, micro15_feedback
 
         return TaskGenerator(micro15_question, '', None, ';')
