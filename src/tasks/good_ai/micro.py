@@ -11,7 +11,6 @@ ARBITRARY_SUCCESS_NUMBER = 20
 
 class MicroBase(Task):
     reg_answer_end = r'.'
-    MAXIMUM_ANSWER_LEN = 1000
     failed_task_tolerance = 1.0
 
     def __init__(self, world=None):
@@ -79,17 +78,22 @@ class MicroBase(Task):
             if not event.message[-1] == ' ':
                 self.set_immediate_reward(-1)
             return
-        if not self._answer_ended(event.message):
-            return
 
         self.preprocess_answer(event.message)
+
+        if not self._answer_ended(self.agent_answer):
+            return
+
         finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
         self.provide_reward(reward)
         self.question_answered(correct)
         self.check_if_task_instance_solved()
+        # if one task sub-instance solved
         if finished:
             self.provide_feedback(correct)
+            # give next instruction
             self.give_instructions()
+            # internal buffer reset
             self.agent_answer = ''
 
     @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
