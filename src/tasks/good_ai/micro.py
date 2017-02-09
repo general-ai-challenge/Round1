@@ -167,7 +167,6 @@ class MicroMappingTask(MicroBase):
         super(MicroMappingTask, self).__init__()
         all_options = self._get_mapping_options()
         self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
-        print(self.known_mapping)
         self.should_know = False
         self.expected_reward = 0
 

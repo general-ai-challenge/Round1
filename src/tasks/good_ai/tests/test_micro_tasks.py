@@ -97,6 +97,7 @@ class TestMicro5Sub1Learner(BaseLearner):
     def next(self, input):
         if self.is_feedback:
             self.mapping[self.last_input] = [input]
+            self.is_feedback = not self.is_feedback
             return
         else:
             self.last_input = input
@@ -148,7 +149,6 @@ class TestMicroTask(unittest.TestCase):
             self.basic_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
 
-    @unittest.skip("just do it")
     def test_micro5sub1(self):
         for _ in range(1):
             task = micro.Micro5Sub1Task()
