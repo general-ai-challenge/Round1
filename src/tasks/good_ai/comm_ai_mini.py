@@ -138,7 +138,7 @@ class TaskSetBase(BaseTask):
             verify = automaton.get_correct_string(verify_length)
         else:
             verify = automaton.get_wrong_string(verify_length, 0)
-        return (is_correct, "description: {}; verify {}".format(complete_description, verify))
+        return (is_correct, "description: {}; verify {}.".format(complete_description, verify))
 
     def __init__(self, world=None):
         super(TaskSetBase, self).__init__(world=world, max_time=3000)
