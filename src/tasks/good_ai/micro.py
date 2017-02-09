@@ -56,7 +56,8 @@ class MicroBase(Task):
             self.consecutive_reward += 1
         else:
             self.consecutive_reward = 0
-        self.set_immediate_reward(reward)
+        if reward != 0:
+            self.set_immediate_reward(reward)
 
     def provide_feedback(self, correct):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
