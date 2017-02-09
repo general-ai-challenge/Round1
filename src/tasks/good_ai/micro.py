@@ -12,13 +12,12 @@ ARBITRARY_SUCCESS_NUMBER = 20
 class MicroBase(Task):
     reg_answer_end = r'.'
     MAXIMUM_ANSWER_LEN = 1000
+    failed_task_tolerance = 1.0
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
-        self.tasker = self.get_task_generator()
         self.skip_task_separator = True
-        self.questions_asked = 0
-        self.consecutive_reward = 0
+        self.new_task_instance()
 
     @staticmethod
     def get_task_generator():
@@ -32,6 +31,13 @@ class MicroBase(Task):
 
     def get_original_question(self, question):
         return self.tasker.get_original_question(question)
+
+    def new_task_instance(self):
+        self.tasker = self.get_task_generator()
+        self.questions_asked = 0
+        self.consecutive_reward = 0
+        self.task_instance_successful = True
+        self.max_questions_nr = None
 
     @on_start()
     def give_instructions(self, event):
@@ -57,13 +63,22 @@ class MicroBase(Task):
             self.consecutive_reward = 0
         self.question_answered(correct)
         self.set_immediate_reward(reward)
+        solved = self.agent_solved_instance()
+        if solved is False:  # agent failed the task instance
+            self.task_instance_successful = False
+            self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
+        elif solved is True:    # agent managed to solve the task instance
+            self.new_task_instance()
         if finished:
             feedback_text = self.tasker.get_feedback_text(correct, self.question)
             self.set_result(correct, feedback_text, provide_result_as_reward=False)
+        if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:
+            self.new_task_instance()
 
     @on_timeout()
     def on_timeout(self, event):
         self.set_result(0)
+        self.new_task_instance()
 
     @staticmethod
     def is_prefix(answer, correct_answer):
