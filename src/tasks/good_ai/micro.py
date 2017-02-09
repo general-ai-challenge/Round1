@@ -824,7 +824,7 @@ class Micro15Sub2Task(MicroBase):
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            alphabet = 'abcdefghi'
+            alphabet = string.ascii_lowercase
             actions = ['or', 'and']
             action = random.choice(actions)
             operands = random.randint(2, 4)
@@ -848,6 +848,70 @@ class Micro15Sub2Task(MicroBase):
                 sentence = ''.join(words)
                 sentence += '.'
                 question = 'say: ' + clause + '.'
-                return question, sentence, micro15sub2_feedback
+                return question, [sentence], micro15sub2_feedback
 
         return TaskGenerator(micro15sub2_question, '', None, ';')
+
+
+class Micro17Task(MicroBase):
+    reg_answer_end = r'\.'
+    MAPPING_SIZE = 8
+
+    def get_task_generator(self):
+        import pickle
+        with open('res\\vocabulary', 'rb') as fp:
+            vocabulary = pickle.load(fp)
+        vocabulary = vocabulary[:1000]
+        mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
+                           random.sample(vocabulary, self.MAPPING_SIZE)))
+
+        def micro17_question(self):
+            def micro17_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            word1 = random.choice(list(mapping.keys()))
+            word2 = mapping[word1]
+            question = 'random_mapping: ' + word1 + '.'
+            sentence = word2 + '.'
+            return question, [sentence], micro17_feedback
+
+        return TaskGenerator(micro17_question, '', None, ';')
+
+        # from PyDictionary import PyDictionary
+        # pydi = PyDictionary()
+        # sample = random.sample(vocabulary, self.MAPPING_SIZE)
+        # close_words = [word for pydi. in sample]
+
+
+class Micro18Task(MicroBase):
+    reg_answer_end = r'\.'
+    MAPPING_SIZE = 8
+
+    def get_task_generator(self):
+        sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+        sequence2 = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
+        sequence3 = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
+        sequence4 = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen',
+                     'sixteen', 'seventeen', 'eighteen', 'nineteen']
+
+        chosen_sequence = random.choice([sequence1, sequence2, sequence3, sequence4])
+        if random.randint(0, 2) > 0:
+            chosen_sequence.reverse()
+
+        def micro18_question(self):
+            def micro18_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            idx = random.randint(0, len(chosen_sequence) - 2)
+            word = chosen_sequence[idx]
+            question = 'say next after: ' + word + '.'
+            sentence = chosen_sequence[idx + 1] + '.'
+            return question, [sentence], micro18_feedback
+
+        return TaskGenerator(micro18_question, '', None, ';')
