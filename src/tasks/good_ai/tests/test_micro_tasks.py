@@ -113,7 +113,7 @@ class TestMicroTask(unittest.TestCase):
             answer = learner.next(question)
             reward = messenger.send(answer)
             learner.reward(reward)
-            if task.agent_mastered_instance() is not None:
+            if task.agent_solved_instance() is not None:
                 break
 
     def test_micro1(self):
@@ -122,7 +122,7 @@ class TestMicroTask(unittest.TestCase):
             learner = TestMicro1Learner(task.alphabet)
             messenger = task_messenger(task)
             self.basic_run(messenger, learner, task)
-            self.assertTrue(task.agent_mastered_instance(), True)
+            self.assertTrue(task.agent_solved_instance(), True)
 
     def test_micro2(self):
         for _ in range(10):
@@ -130,7 +130,7 @@ class TestMicroTask(unittest.TestCase):
             task = micro.Micro2Task()
             messenger = task_messenger(task)
             self.basic_run(messenger, learner, task)
-            self.assertTrue(task.agent_mastered_instance(), 0)
+            self.assertTrue(task.agent_solved_instance(), 0)
 
     def test_micro3(self):
         for _ in range(10):
@@ -138,7 +138,7 @@ class TestMicroTask(unittest.TestCase):
             task = micro.Micro3Task()
             messenger = task_messenger(task)
             self.basic_run(messenger, learner, task)
-            self.assertTrue(task.agent_mastered_instance())
+            self.assertTrue(task.agent_solved_instance())
 
     def test_micro4(self):
         for _ in range(10):
@@ -146,12 +146,13 @@ class TestMicroTask(unittest.TestCase):
             learner = BaseLearner()
             messenger = task_messenger(task)
             self.basic_run(messenger, learner, task)
-            self.assertTrue(task.agent_mastered_instance())
+            self.assertTrue(task.agent_solved_instance())
 
-    @unittest.skip("demonstrating skipping")
+    @unittest.skip("just do it")
     def test_micro5sub1(self):
         for _ in range(1):
+            task = micro.Micro5Sub1Task()
             learner = TestMicro5Sub1Learner()
-            messenger = task_messenger(micro.Micro5Sub1Task)
-            self.basic_run(messenger, learner, 10)
-            self.assertEqual(messenger.get_cumulative_reward(), 10)
+            messenger = task_messenger(task)
+            self.basic_run(messenger, learner, task)
+            self.assertTrue(task.agent_solved_instance())

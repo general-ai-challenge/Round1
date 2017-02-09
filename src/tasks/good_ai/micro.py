@@ -18,13 +18,13 @@ class MicroBase(Task):
         self.tasker = self.get_task_generator()
         self.skip_task_separator = True
         self.questions_asked = 0
-        self.cumulative_reward = 0
+        self.consecutive_reward = 0
 
     @staticmethod
     def get_task_generator():
         pass
 
-    def agent_mastered_instance(self):
+    def agent_solved_instance(self):
         return False
 
     def question_answered(self, is_correct):
@@ -52,7 +52,9 @@ class MicroBase(Task):
         finished, correct, reward = self.tasker.check_answer(message, self.question)
         self.questions_asked += 1
         if correct:
-            self.cumulative_reward += 1
+            self.consecutive_reward += 1
+        else:
+            self.consecutive_reward = 0
         self.question_answered(correct)
         self.set_immediate_reward(reward)
         if finished:
@@ -78,9 +80,9 @@ class TransparentTaskMixin(object):
     Mixin for Micro tasks, which - once understood - can be solved perfectly from the 1st step
     '''
 
-    def agent_mastered_instance(self):
+    def agent_solved_instance(self):
         if self.questions_asked >= ARBITRARY_SUCCESS_NUMBER:
-            return self.cumulative_reward == self.questions_asked
+            return self.consecutive_reward == self.questions_asked
 
 
 class Micro1Task(MicroBase):
@@ -99,9 +101,9 @@ class Micro1Task(MicroBase):
             self.should_know = True
         self.remaining_options -= 1
 
-    def agent_mastered_instance(self):
+    def agent_solved_instance(self):
         if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.cumulative_reward >= self.expected_reward
+            return self.consecutive_reward >= self.expected_reward
 
     def get_task_generator(self):
         alphabet = self.alphabet
@@ -132,22 +134,37 @@ class MicroMappingTask(MicroBase):
 
     def __init__(self):
         super(MicroMappingTask, self).__init__()
-        all_options = self._get_all_mapping_options()
+        all_options = self._get_mapping_options()
         self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
+        print(self.known_mapping)
         self.should_know = False
         self.expected_reward = 0
 
-    def _get_all_mapping_options(self):
+    def _get_mapping_options(self):
+        '''
+        If the mapping task is standard mapping (one element to some other element), it only has to implement this method.
+        MicroMappingTask then handles the creation of mapping and implementing the mechanism for checking the agent performance.
+        But if the mapping task has some special needs (e.g. mapping each element to unique thing) it has to implement _get_mapping
+        and agent_solved_instance by itself
+        '''
         return {}
 
     def _get_mapping(self):
-        pass    # this will just collapse all mapping options to one
+        '''
+        This just picks one of the possible mappings from _get_mapping_options
+        By default, there can be more elements mapped onto the same thing
+        '''
+        mapping_options = self._get_mapping_options()
+        result = {x: random.choice(y) for x, y in mapping_options.items()}
+        return result
 
-    def agent_mastered_instance(self):
+    def agent_solved_instance(self):
         if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.cumulative_reward >= self.expected_reward
+            return self.consecutive_reward >= self.expected_reward
 
     def question_answered(self, is_correct):
+        if len(self.known_mapping) == 0:    # not all Mapping tasks use the all_mapping_options concept
+            return
         if is_correct:
             self.known_mapping[self.question] = 1
         else:
@@ -204,9 +221,9 @@ class Micro2Task(MicroMappingTask):
         self.expected_reward = 0
         self.remaining_options = len(string.ascii_lowercase)
 
-    def agent_mastered_instance(self):
+    def agent_solved_instance(self):
         if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.cumulative_reward >= self.expected_reward
+            return self.consecutive_reward >= self.expected_reward
 
     def question_answered(self, is_correct):
         if self.should_know:
@@ -224,9 +241,8 @@ class Micro2Task(MicroMappingTask):
 
 class Micro3Task(MicroMappingTask):
 
-    def _get_all_mapping_options(self):
-        result = {x: string.ascii_lowercase for x in string.ascii_lowercase}
-        return result
+    def _get_mapping_options(self):
+        return {x: list(string.ascii_lowercase) for x in string.ascii_lowercase}
 
     def _get_mapping(self):
         permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
@@ -791,7 +807,7 @@ class Micro15Sub2Task(MicroBase):
 
                 def or_but_not_reward(answer, question=''):
                     correct = any(answer.find(word) >= 0 for word in words) \
-                              and all(answer.find(no_word) < 0 for no_word in no_words)
+                        and all(answer.find(no_word) < 0 for no_word in no_words)
                     return correct, 1 if correct else -1
                 question = 'say: ' + clause + ' and not ' + ' and '.join(no_words) + '.'
                 return question, or_but_not_reward, micro15sub2_feedback
