@@ -44,26 +44,22 @@ class EnvironmentByteMessenger:
         return self.cum_reward
 
 
-def task_messenger(task_funct):
+def task_messenger(task):
     slzr = serializer.StandardSerializer()
-    task = task_funct()
     scheduler = SingleTaskScheduler(task)
     env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
     return EnvironmentByteMessenger(env, slzr)
 
 
 class TestMicro1Learner(BaseLearner):
-    pass
 
-
-class TestMicro2Learner(BaseLearner):
-
-    def __init__(self):
-        self.valid_chars = list(string.ascii_lowercase)
+    def __init__(self, alphabet, preserve_specials=False):
+        self.valid_chars = list(alphabet)
         self.char = None
+        self.preserve_specials = preserve_specials
 
     def next(self, input):
-        if input not in string.ascii_lowercase:
+        if self.preserve_specials and input not in string.ascii_lowercase:
             return input
         if not self.char:
             self.char = self.valid_chars.pop()
@@ -98,54 +94,71 @@ class TestMicro3Learner(BaseLearner):
             self.mapping[self.last_input] = [self.answer]
 
 
+class TestMicro5Sub1Learner(BaseLearner):
+
+    def __init__(self):
+        numbers = '0123456789'
+        self.mapping = {x: list(numbers) for x in numbers}
+        self.is_feedback = False
+
+    def next(self, input):
+        if self.is_feedback:
+            self.mapping[self.last_input] = [input]
+            return
+        else:
+            self.last_input = input
+            self.answer = self.mapping[input][-1]
+            self.is_feedback = not self.is_feedback
+            return self.answer
+
+
 class TestMicroTask(unittest.TestCase):
 
-    def basic_run(self, messenger, learner, rounds=10):
-        for _ in range(rounds):
+    def basic_run(self, messenger, learner, task):
+        while True:
             question = messenger.get_text()[-1]
-            # print("question read {}".format(repr(question)))
             answer = learner.next(question)
-            # print("answer read {}".format(repr(answer)))
             reward = messenger.send(answer)
-            # print("rward obtained {}".format(reward))
-            # cum_reward = messenger.get_cumulative_reward()
-            # print("cumulative reward read {}".format(cum_reward))
             learner.reward(reward)
+            if task.agent_mastered_instance() is not None:
+                break
 
     def test_micro1(self):
         for _ in range(10):
-            learner = TestMicro1Learner()
-            expected_reward = 0
-            messenger = task_messenger(micro.Micro1Task)
-            for _ in range(10):
-                question = messenger.get_text()[-1]
-                if question != " ":
-                    expected_reward += 1
-                answer = learner.next(question)
-                reward = messenger.send(answer)
-                learner.reward(reward)
-            self.assertEqual(messenger.get_cumulative_reward(), expected_reward)
+            task = micro.Micro1Task()
+            learner = TestMicro1Learner(task.alphabet)
+            messenger = task_messenger(task)
+            self.basic_run(messenger, learner, task)
+            self.assertTrue(task.agent_mastered_instance(), True)
 
     def test_micro2(self):
         for _ in range(10):
-            learner = TestMicro2Learner()
-            messenger = task_messenger(micro.Micro2Task)
-            self.basic_run(messenger, learner, 52)
-            self.assertGreater(messenger.get_cumulative_reward(), 0)
+            learner = TestMicro1Learner(string.ascii_lowercase, True)
+            task = micro.Micro2Task()
+            messenger = task_messenger(task)
+            self.basic_run(messenger, learner, task)
+            self.assertTrue(task.agent_mastered_instance(), 0)
 
     def test_micro3(self):
         for _ in range(10):
             learner = TestMicro3Learner()
-            messenger = task_messenger(micro.Micro3Task)
-            self.basic_run(messenger, learner, 1089)    # 33*33
-            cum_reward = messenger.get_cumulative_reward()
-            self.assertGreater(cum_reward, -1090)
-            self.basic_run(messenger, learner, 1)
-            self.assertEqual(cum_reward + 1, messenger.get_cumulative_reward())
+            task = micro.Micro3Task()
+            messenger = task_messenger(task)
+            self.basic_run(messenger, learner, task)
+            self.assertTrue(task.agent_mastered_instance())
 
     def test_micro4(self):
         for _ in range(10):
-            learner = TestMicro1Learner()
-            messenger = task_messenger(micro.Micro4Task)
+            task = micro.Micro4Task()
+            learner = BaseLearner()
+            messenger = task_messenger(task)
+            self.basic_run(messenger, learner, task)
+            self.assertTrue(task.agent_mastered_instance())
+
+    @unittest.skip("demonstrating skipping")
+    def test_micro5sub1(self):
+        for _ in range(1):
+            learner = TestMicro5Sub1Learner()
+            messenger = task_messenger(micro.Micro5Sub1Task)
             self.basic_run(messenger, learner, 10)
             self.assertEqual(messenger.get_cumulative_reward(), 10)

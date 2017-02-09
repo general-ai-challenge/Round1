@@ -1,10 +1,12 @@
 import random
-import string
 import re
+import string
 
 from core.task import on_message, on_start, on_timeout
 from core.task import Task
 from tasks.good_ai.task_generator import TaskGenerator
+
+ARBITRARY_SUCCESS_NUMBER = 20
 
 
 class MicroBase(Task):
@@ -15,9 +17,17 @@ class MicroBase(Task):
         super(MicroBase, self).__init__(world=world, max_time=3000)
         self.tasker = self.get_task_generator()
         self.skip_task_separator = True
+        self.questions_asked = 0
+        self.cumulative_reward = 0
 
     @staticmethod
     def get_task_generator():
+        pass
+
+    def agent_mastered_instance(self):
+        return False
+
+    def question_answered(self, is_correct):
         pass
 
     def get_original_question(self, question):
@@ -25,7 +35,6 @@ class MicroBase(Task):
 
     @on_start()
     def give_instructions(self, event):
-
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
 
@@ -41,6 +50,10 @@ class MicroBase(Task):
         if message == '':
             message = ' '
         finished, correct, reward = self.tasker.check_answer(message, self.question)
+        self.questions_asked += 1
+        if correct:
+            self.cumulative_reward += 1
+        self.question_answered(correct)
         self.set_immediate_reward(reward)
         if finished:
             feedback_text = self.tasker.get_feedback_text(correct, self.question)
@@ -60,19 +73,42 @@ class MicroBase(Task):
         return not (re.search(self.reg_answer_end, message) is None)
 
 
+class TransparentTaskMixin(object):
+    '''
+    Mixin for Micro tasks, which - once understood - can be solved perfectly from the 1st step
+    '''
+
+    def agent_mastered_instance(self):
+        if self.questions_asked >= ARBITRARY_SUCCESS_NUMBER:
+            return self.cumulative_reward == self.questions_asked
+
+
 class Micro1Task(MicroBase):
 
+    def __init__(self):
+        self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
+        super(Micro1Task, self).__init__()
+        self.expected_reward = 0
+        self.should_know = False
+        self.remaining_options = len(self.alphabet)
+
+    def question_answered(self, is_correct):
+        if self.should_know:
+            self.expected_reward += 1
+        if is_correct or self.remaining_options == 0:
+            self.should_know = True
+        self.remaining_options -= 1
+
+    def agent_mastered_instance(self):
+        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
+            return self.cumulative_reward >= self.expected_reward
+
     def get_task_generator(self):
+        alphabet = self.alphabet
+        correct_answer = random.choice(alphabet)
+
         def micro1_question(self):
-            def micro1_reward(answer, question=''):
-                if answer == ' ':
-                    if question == ' ':
-                        return True, 1
-                    else:
-                        return False, 0
-                success = answer in string.ascii_lowercase
-                return success, 1 if success else -1
-            return random.choice(string.ascii_lowercase + ' '), micro1_reward
+            return random.choice(alphabet), correct_answer
         return TaskGenerator(micro1_question)
 
 
@@ -94,8 +130,32 @@ class MicroMappingTask(MicroBase):
 
     task_gen_kwargs = {}
 
+    def __init__(self):
+        super(MicroMappingTask, self).__init__()
+        all_options = self._get_all_mapping_options()
+        self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
+        self.should_know = False
+        self.expected_reward = 0
+
+    def _get_all_mapping_options(self):
+        return {}
+
     def _get_mapping(self):
-        pass
+        pass    # this will just collapse all mapping options to one
+
+    def agent_mastered_instance(self):
+        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
+            return self.cumulative_reward >= self.expected_reward
+
+    def question_answered(self, is_correct):
+        if is_correct:
+            self.known_mapping[self.question] = 1
+        else:
+            self.known_mapping[self.question] -= 1
+        if self.should_know:
+            self.expected_reward += 1
+        if all(x == 1 for x in self.known_mapping.values()):
+            self.should_know = True
 
     def get_task_generator(self):
         mapping = self._get_mapping()
@@ -138,6 +198,22 @@ class MicroMappingTask(MicroBase):
 
 class Micro2Task(MicroMappingTask):
 
+    def __init__(self):
+        super(Micro2Task, self).__init__()
+        self.should_know = False
+        self.expected_reward = 0
+        self.remaining_options = len(string.ascii_lowercase)
+
+    def agent_mastered_instance(self):
+        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
+            return self.cumulative_reward >= self.expected_reward
+
+    def question_answered(self, is_correct):
+        if self.should_know:
+            self.expected_reward += 1
+        if (is_correct and self.question in string.ascii_lowercase) or self.remaining_options == 0:
+            self.should_know = True
+
     def _get_mapping(self):
         correct_answer = random.choice(string.ascii_lowercase)
         mapping = {x: correct_answer for x in string.ascii_lowercase}
@@ -148,6 +224,10 @@ class Micro2Task(MicroMappingTask):
 
 class Micro3Task(MicroMappingTask):
 
+    def _get_all_mapping_options(self):
+        result = {x: string.ascii_lowercase for x in string.ascii_lowercase}
+        return result
+
     def _get_mapping(self):
         permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
         mapping = dict(zip(string.ascii_lowercase, permutation))
@@ -156,7 +236,7 @@ class Micro3Task(MicroMappingTask):
         return mapping
 
 
-class Micro4Task(MicroMappingTask):
+class Micro4Task(TransparentTaskMixin, MicroMappingTask):
 
     def _get_mapping(self):
         alphabet = string.ascii_lowercase + ' !":?.,;'
