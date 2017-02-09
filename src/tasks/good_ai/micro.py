@@ -611,8 +611,7 @@ class Micro13Task(MicroBase):
     @on_start()
     def give_instructions(self, event):
         self.tasker = self.get_task_generator()
-        self.question, self.check_answer = self.tasker.get_task_instance()
-        self.set_message(self.question)
+        super(Micro13Task).give_instructions(self, event)
 
     def get_task_generator(self):
         tasks = [self.m9, self.m10, self.m11]
@@ -640,6 +639,7 @@ class Micro15Sub1Task(MicroBase):
                 question = ' say: {} and {}.'.format(word1, word2)
                 sentence1 = '{}{}.'.format(word1, word2)
                 sentence2 = '{}{}.'.format(word2, word1)
+                sentence = random.choice([sentence1, sentence2])
                 return question, [sentence1, sentence2], micro15_feedback
             # or
             elif action == 2:
@@ -672,11 +672,53 @@ class Micro15Sub1Task(MicroBase):
                 words.remove(word2)
                 word3 = random.choice([word1, word2, random.choice(words)])
                 question = ' say: {} or {} but not {}.'.format(word1, word2, word3)
-                sentence = random.choice(words)
+                correct_word = [word1, word2]
+                if word3 in correct_word:
+                    correct_word.remove(word3)
+                sentence = random.choice(correct_word)
 
                 def or_but_not_reward(answer, question=''):
                     correct = answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
                     return correct, 1 if correct else -1
                 return question, or_but_not_reward, micro15_feedback
-
         return TaskGenerator(micro15_question, '', None, ';')
+
+
+class Micro15Sub2Task(MicroBase):
+    reg_answer_end = r'\.'
+
+    def get_task_generator(self):
+        def micro15sub2_question(self):
+            def micro15sub2_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                if not is_correct:
+                    return reaction + '! ' + sentence
+                else:
+                    return reaction + '! '
+            alphabet = 'abcdefghi'
+            actions = ['or', 'and']
+            action = random.choice(actions)
+            operands = random.randint(2, 4)
+            words = []
+            for i in range(operands):
+                word_length = random.randint(1, 3)
+                words.append(''.join(random.sample(alphabet, word_length)))
+            clause = (' ' + action + ' ').join(words)
+            if action == 'or':
+                no_words = random.sample(words, random.randint(1, operands - 1))
+                sentence = random.choice([item for item in words if item not in no_words])
+                sentence += '.'
+
+                def or_but_not_reward(answer, question=''):
+                    correct = any(answer.find(word) >= 0 for word in words) \
+                              and all(answer.find(no_word) < 0 for no_word in no_words)
+                    return correct, 1 if correct else -1
+                question = 'say: ' + clause + ' and not ' + ' and '.join(no_words) + '.'
+                return question, or_but_not_reward, micro15sub2_feedback
+            else:
+                sentence = ''.join(words)
+                sentence += '.'
+                question = 'say: ' + clause + '.'
+                return question, sentence, micro15sub2_feedback
+
+        return TaskGenerator(micro15sub2_question, '', None, ';')
