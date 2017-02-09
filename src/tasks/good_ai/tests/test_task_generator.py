@@ -17,22 +17,22 @@ class TestTaskGenerator(unittest.TestCase):
         check_normal_answer = tasker.check_answer(' ')
         check_wrong_answer = tasker.check_answer('/')
 
-        self.assertTrue(check_correct_answer[0])
-        self.assertEqual(check_correct_answer[1], 1)
-        self.assertFalse(check_normal_answer[0])
-        self.assertEqual(check_normal_answer[1], -1)
-        self.assertFalse(check_wrong_answer[0])
-        self.assertEqual(check_wrong_answer[1], -1)
+        self.assertTrue(check_correct_answer[1])
+        self.assertEqual(check_correct_answer[2], 1)
+        self.assertFalse(check_normal_answer[1])
+        self.assertEqual(check_normal_answer[2], -1)
+        self.assertFalse(check_wrong_answer[1])
+        self.assertEqual(check_wrong_answer[2], -1)
 
     def test_instancer_function(self):
         def micro1_question(self):
             def micro1_reward(answer, question=''):
                 if answer in string.ascii_lowercase:
-                    return True
+                    return True, 1
                 elif answer == ' ':
-                    return None
+                    return None, 0
                 else:
-                    return False
+                    return False, -1
             return random.choice(string.ascii_lowercase + ' '), micro1_reward
         tasker = TaskGenerator(micro1_question)
 
@@ -41,12 +41,12 @@ class TestTaskGenerator(unittest.TestCase):
         check_normal_answer = tasker.check_answer(' ')
         check_wrong_answer = tasker.check_answer('/')
 
-        self.assertTrue(check_correct_answer[0])
-        self.assertEqual(check_correct_answer[1], 1)
-        self.assertFalse(check_normal_answer[0])
-        self.assertEqual(check_normal_answer[1], 0)
-        self.assertFalse(check_wrong_answer[0])
-        self.assertEqual(check_wrong_answer[1], -1)
+        self.assertTrue(check_correct_answer[1])
+        self.assertEqual(check_correct_answer[2], 1)
+        self.assertFalse(check_normal_answer[1])
+        self.assertEqual(check_normal_answer[2], 0)
+        self.assertFalse(check_wrong_answer[1])
+        self.assertEqual(check_wrong_answer[2], -1)
 
     def test_input_separator_single_char(self):
         def micro1_question(self):

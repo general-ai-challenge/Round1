@@ -16,7 +16,6 @@ class EnvironmentByteMessenger:
         self._serializer = serializer
         self._input_channel = ByteInputChannel(serializer)
         self._output_channel = ByteOutputChannel(serializer)
-        self.cum_reward = 0
         self.init()
 
     def init(self):
@@ -25,23 +24,17 @@ class EnvironmentByteMessenger:
         self._input_channel.get_text()
 
     def send(self, msg=None):
-        if msg is None:
-            msg = self._serializer.SILENCE_TOKEN
+        msg = msg or ' '
         nbits = 0
         self._output_channel.set_message(msg)
         while not self._output_channel.is_empty():
             env_bit, reward = self._env.next(self._output_channel.consume())
             self._input_channel.consume(env_bit)
-            if reward is not None:
-                self.cum_reward += reward
             nbits += 1
         return reward
 
     def get_text(self):
         return self._input_channel.get_text()
-
-    def get_cumulative_reward(self):
-        return self.cum_reward
 
 
 def task_messenger(task):
