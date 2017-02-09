@@ -861,12 +861,14 @@ class Micro15Sub2Task(MicroBase):
 class Micro17Task(MicroBase):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
+    FILE_NAME = 'res/dict_gsl.txt'
+    failed_task_tolerance = 20.0
 
     def get_task_generator(self):
-        import pickle
-        with open('res\\vocabulary', 'rb') as fp:
-            vocabulary = pickle.load(fp)
-        vocabulary = vocabulary[:1000]
+        with open(self.FILE_NAME) as f:
+            content = f.readlines()
+        content = [x.strip() for x in content]
+        vocabulary = content[:200]
         mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
                            random.sample(vocabulary, self.MAPPING_SIZE)))
 
@@ -894,6 +896,7 @@ class Micro17Task(MicroBase):
 class Micro18Task(MicroBase):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
+    failed_task_tolerance = 20.0
 
     def get_task_generator(self):
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
