@@ -17,7 +17,6 @@ class MicroBase(Task):
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
         self.skip_task_separator = True
-        self.new_task_instance()
 
     @staticmethod
     def get_task_generator():
@@ -32,12 +31,15 @@ class MicroBase(Task):
     def get_original_question(self, question):
         return self.tasker.get_original_question(question)
 
-    def new_task_instance(self):
+    @on_start()
+    def new_task_instance(self, event):
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
         self.task_instance_successful = True
         self.max_questions_nr = None
+        self.agent_answer = ''
+        self.give_instructions()
 
     def check_if_task_instance_solved(self):
         solved = self.agent_solved_instance()
@@ -45,9 +47,9 @@ class MicroBase(Task):
             self.task_instance_successful = False
             self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
         elif solved is True:    # agent managed to solve the task instance
-            self.new_task_instance()
+            self.set_result(self.task_instance_successful)
         if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:  # agent used up all the extra time
-            self.new_task_instance()
+            self.set_result(self.task_instance_successful)
 
     def provide_reward(self, reward):
         if reward > 0:
@@ -60,14 +62,13 @@ class MicroBase(Task):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_message(feedback_text)
 
-    def preprocess_answer(self, answer):
-        answer = answer.strip()
-        if answer == '':
-            answer = ' '
-        return answer
+    def preprocess_answer(self, message):
+        self.agent_answer += message[-1]    # add the newest char
+        self.agent_answer = self.agent_answer.strip()
+        if self.agent_answer == '':
+            self.agent_answer = ' '
 
-    @on_start()
-    def give_instructions(self, event):
+    def give_instructions(self):
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
 
@@ -80,8 +81,11 @@ class MicroBase(Task):
         if not self._answer_ended(event.message):
             return
 
-        answer = self.preprocess_answer(event.message)
-        finished, correct, reward = self.tasker.check_answer(answer, self.question)
+        self.preprocess_answer(event.message)
+        finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
+        if finished:
+            self.give_instructions()
+            self.agent_answer = ''
         self.provide_reward(reward)
         self.provide_feedback(correct)
         self.question_answered(correct)
@@ -90,7 +94,6 @@ class MicroBase(Task):
     @on_timeout()
     def end_task_instance(self, event):
         self.set_result(self.task_instance_successful, provide_result_as_reward=False)
-        self.new_task_instance()
 
     @staticmethod
     def is_prefix(answer, correct_answer):
