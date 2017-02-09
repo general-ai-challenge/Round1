@@ -91,7 +91,7 @@ class MicroBase(Task):
             self.give_instructions()
             self.agent_answer = ''
 
-    @on_timeout()
+    @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
     def end_task_instance(self, event):
         self.set_result(self.task_instance_successful, provide_result_as_reward=False)
 
@@ -115,26 +115,39 @@ class TransparentTaskMixin(object):
             return self.consecutive_reward == self.questions_asked
 
 
-class Micro1Task(MicroBase):
+class EnlightenmentTaskMixin(object):
+    '''
+    Mixin for Micro tasks which contain a precisely defined moment, from which on, agent should answer perfectly.
+    Micro tasks only has to set self.should_know to True at that enlightenment moment
+    '''
 
     def __init__(self):
-        self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
-        super(Micro1Task, self).__init__()
-        self.expected_reward = 0
+        super(EnlightenmentTaskMixin, self).__init__()
         self.should_know = False
-        self.remaining_options = len(self.alphabet)
+        self.expected_reward = 0
 
     def question_answered(self, is_correct):
-        super(Micro1Task, self).question_answered(is_correct)
+        super(EnlightenmentTaskMixin, self).question_answered(is_correct)
         if self.should_know:
             self.expected_reward += 1
-        if is_correct or self.remaining_options == 0:
-            self.should_know = True
-        self.remaining_options -= 1
 
     def agent_solved_instance(self):
         if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
             return self.consecutive_reward >= self.expected_reward
+
+
+class Micro1Task(EnlightenmentTaskMixin, MicroBase):
+
+    def __init__(self):
+        self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
+        super(Micro1Task, self).__init__()
+        self.remaining_options = len(self.alphabet)
+
+    def question_answered(self, is_correct):
+        super(Micro1Task, self).question_answered(is_correct)
+        if is_correct or self.remaining_options == 0:
+            self.should_know = True
+        self.remaining_options -= 1
 
     def get_task_generator(self):
         alphabet = self.alphabet
@@ -159,7 +172,7 @@ def random_strings_from(charset, nr_of_strings, string_len_options=None, append=
     return result
 
 
-class MicroMappingTask(MicroBase):
+class MicroMappingTask(EnlightenmentTaskMixin, MicroBase):
 
     task_gen_kwargs = {}
 
@@ -167,8 +180,6 @@ class MicroMappingTask(MicroBase):
         super(MicroMappingTask, self).__init__()
         all_options = self._get_mapping_options()
         self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
-        self.should_know = False
-        self.expected_reward = 0
 
     def _get_mapping_options(self):
         '''
@@ -188,10 +199,6 @@ class MicroMappingTask(MicroBase):
         result = {x: random.choice(y) for x, y in mapping_options.items()}
         return result
 
-    def agent_solved_instance(self):
-        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.consecutive_reward >= self.expected_reward
-
     def question_answered(self, is_correct):
         super(MicroMappingTask, self).question_answered(is_correct)
         if len(self.known_mapping) == 0:    # not all Mapping tasks use the all_mapping_options concept
@@ -200,8 +207,6 @@ class MicroMappingTask(MicroBase):
             self.known_mapping[self.question] = 1
         else:
             self.known_mapping[self.question] = max(self.known_mapping[self.question] - 1, 1)
-        if self.should_know:
-            self.expected_reward += 1
         if all(x == 1 for x in self.known_mapping.values()):
             self.should_know = True
 
@@ -248,18 +253,10 @@ class Micro2Task(MicroMappingTask):
 
     def __init__(self):
         super(Micro2Task, self).__init__()
-        self.should_know = False
-        self.expected_reward = 0
         self.remaining_options = len(string.ascii_lowercase)
-
-    def agent_solved_instance(self):
-        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.consecutive_reward >= self.expected_reward
 
     def question_answered(self, is_correct):
         super(Micro2Task, self).question_answered(is_correct)
-        if self.should_know:
-            self.expected_reward += 1
         if (is_correct and self.question in string.ascii_lowercase) or self.remaining_options == 0:
             self.should_know = True
 

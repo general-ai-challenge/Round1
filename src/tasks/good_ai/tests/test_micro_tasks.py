@@ -117,6 +117,13 @@ class TestMicroTask(unittest.TestCase):
             if task.agent_solved_instance() is not None:
                 break
 
+    def test_stupid_agent(self):
+        task = micro.Micro1Task()
+        learner = BaseLearner()
+        messenger = task_messenger(task)
+        self.basic_run(messenger, learner, task)
+        self.assertFalse(task.agent_solved_instance())
+
     def test_micro1(self):
         for _ in range(10):
             task = micro.Micro1Task()
@@ -150,7 +157,7 @@ class TestMicroTask(unittest.TestCase):
             self.assertTrue(task.agent_solved_instance())
 
     def test_micro5sub1(self):
-        for _ in range(1):
+        for _ in range(10):
             task = micro.Micro5Sub1Task()
             learner = TestMicro5Sub1Learner()
             messenger = task_messenger(task)
