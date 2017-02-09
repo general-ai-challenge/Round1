@@ -54,7 +54,7 @@ def main():
                   ' a given task.')
     op.add_option('--use-standard-output', action='store_true', default=False,
                   help='Uses standard output instead of curses library.')
-    op.add_option('-y', '--byte-mode', action='store_true', default=False,
+    op.add_option('--bit-mode', action='store_true', default=False,
                   help='Environment receives input in bytes.')
     opt, args = op.parse_args()
     if len(args) == 0:
@@ -68,18 +68,18 @@ def main():
     serializer = StandardSerializer()
     # create a learner (the human learner takes the serializer)
     learner = create_learner(opt.learner, serializer, opt.learner_cmd,
-                                opt.learner_port, opt.byte_mode)
+                                opt.learner_port, not opt.bit_mode)
     # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     # construct an environment
 
     env = Environment(serializer, task_scheduler, opt.scramble,
-                      opt.max_reward_per_task, opt.byte_mode)
+                      opt.max_reward_per_task, not opt.bit_mode)
     # a learning session
     session = Session(env, learner, opt.time_delay)
     # setup view
     view = create_view(opt.view, opt.learner, env, session, serializer, opt.show_world,
-                       opt.use_standard_output, opt.byte_mode)
+                       opt.use_standard_output, not opt.bit_mode)
     try:
         # send the interface to the human learner
         learner.set_view(view)
