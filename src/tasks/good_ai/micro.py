@@ -27,7 +27,7 @@ class MicroBase(Task):
         return False
 
     def question_answered(self, is_correct):
-        pass
+        self.questions_asked += 1
 
     def get_original_question(self, question):
         return self.tasker.get_original_question(question)
@@ -38,6 +38,33 @@ class MicroBase(Task):
         self.consecutive_reward = 0
         self.task_instance_successful = True
         self.max_questions_nr = None
+
+    def check_if_task_instance_solved(self):
+        solved = self.agent_solved_instance()
+        if solved is False:  # agent failed the task instance
+            self.task_instance_successful = False
+            self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
+        elif solved is True:    # agent managed to solve the task instance
+            self.new_task_instance()
+        if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:  # agent used up all the extra time
+            self.new_task_instance()
+
+    def provide_reward(self, reward):
+        if reward > 0:
+            self.consecutive_reward += 1
+        else:
+            self.consecutive_reward = 0
+        self.set_immediate_reward(reward)
+
+    def provide_feedback(self, correct):
+        feedback_text = self.tasker.get_feedback_text(correct, self.question)
+        self.set_message(feedback_text)
+
+    def preprocess_answer(self, answer):
+        answer = answer.strip()
+        if answer == '':
+            answer = ' '
+        return answer
 
     @on_start()
     def give_instructions(self, event):
@@ -52,32 +79,17 @@ class MicroBase(Task):
             return
         if not self._answer_ended(event.message):
             return
-        message = event.message.strip()
-        if message == '':
-            message = ' '
-        finished, correct, reward = self.tasker.check_answer(message, self.question)
-        self.questions_asked += 1
-        if correct:
-            self.consecutive_reward += 1
-        else:
-            self.consecutive_reward = 0
+
+        answer = self.preprocess_answer(event.message)
+        finished, correct, reward = self.tasker.check_answer(answer, self.question)
+        self.provide_reward(reward)
+        self.provide_feedback(correct)
         self.question_answered(correct)
-        self.set_immediate_reward(reward)
-        solved = self.agent_solved_instance()
-        if solved is False:  # agent failed the task instance
-            self.task_instance_successful = False
-            self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
-        elif solved is True:    # agent managed to solve the task instance
-            self.new_task_instance()
-        if finished:
-            feedback_text = self.tasker.get_feedback_text(correct, self.question)
-            self.set_result(correct, feedback_text, provide_result_as_reward=False)
-        if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:
-            self.new_task_instance()
+        self.check_if_task_instance_solved()
 
     @on_timeout()
-    def on_timeout(self, event):
-        self.set_result(0)
+    def end_task_instance(self, event):
+        self.set_result(self.task_instance_successful, provide_result_as_reward=False)
         self.new_task_instance()
 
     @staticmethod
@@ -110,6 +122,7 @@ class Micro1Task(MicroBase):
         self.remaining_options = len(self.alphabet)
 
     def question_answered(self, is_correct):
+        super(Micro1Task, self).question_answered(is_correct)
         if self.should_know:
             self.expected_reward += 1
         if is_correct or self.remaining_options == 0:
@@ -178,6 +191,7 @@ class MicroMappingTask(MicroBase):
             return self.consecutive_reward >= self.expected_reward
 
     def question_answered(self, is_correct):
+        super(MicroMappingTask, self).question_answered(is_correct)
         if len(self.known_mapping) == 0:    # not all Mapping tasks use the all_mapping_options concept
             return
         if is_correct:
@@ -241,6 +255,7 @@ class Micro2Task(MicroMappingTask):
             return self.consecutive_reward >= self.expected_reward
 
     def question_answered(self, is_correct):
+        super(Micro2Task, self).question_answered(is_correct)
         if self.should_know:
             self.expected_reward += 1
         if (is_correct and self.question in string.ascii_lowercase) or self.remaining_options == 0:
