@@ -84,10 +84,10 @@ class MicroBase(Task):
         self.preprocess_answer(event.message)
         finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
         self.provide_reward(reward)
-        self.provide_feedback(correct)
         self.question_answered(correct)
         self.check_if_task_instance_solved()
         if finished:
+            self.provide_feedback(correct)
             self.give_instructions()
             self.agent_answer = ''
 
