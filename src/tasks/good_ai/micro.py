@@ -83,13 +83,13 @@ class MicroBase(Task):
 
         self.preprocess_answer(event.message)
         finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
-        if finished:
-            self.give_instructions()
-            self.agent_answer = ''
         self.provide_reward(reward)
         self.provide_feedback(correct)
         self.question_answered(correct)
         self.check_if_task_instance_solved()
+        if finished:
+            self.give_instructions()
+            self.agent_answer = ''
 
     @on_timeout()
     def end_task_instance(self, event):
@@ -200,7 +200,7 @@ class MicroMappingTask(MicroBase):
         if is_correct:
             self.known_mapping[self.question] = 1
         else:
-            self.known_mapping[self.question] -= 1
+            self.known_mapping[self.question] = max(self.known_mapping[self.question] - 1, 1)
         if self.should_know:
             self.expected_reward += 1
         if all(x == 1 for x in self.known_mapping.values()):
@@ -295,6 +295,10 @@ class Micro4Task(TransparentTaskMixin, MicroMappingTask):
 
 class Micro5Sub1Task(MicroMappingTask):
     task_gen_kwargs = {}
+
+    def _get_mapping_options(self):
+        numbers = '0123456789'
+        return {x: list(numbers) for x in numbers}
 
     def _get_mapping(self):
         numbers = '0123456789'
