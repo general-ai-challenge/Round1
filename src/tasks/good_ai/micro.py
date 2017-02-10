@@ -6,7 +6,7 @@ from core.task import on_message, on_start, on_timeout
 from core.task import Task
 from tasks.good_ai.task_generator import TaskGenerator
 
-ARBITRARY_SUCCESS_NUMBER = 20
+ARBITRARY_SUCCESS_NUMBER = 10
 
 
 class MicroBase(Task):
@@ -182,36 +182,25 @@ class MicroMappingTask(MicroBase):
 
     task_gen_kwargs = {}
 
-    def __init__(self):
-        super(MicroMappingTask, self).__init__()
-        all_options = self._get_mapping_options()
-        self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
-
     @on_start()
     def mapping_on_start(self, event):
+        self.known_mapping = self._get_mapping_options()
         self.should_know = False
 
     def agent_should_know_answers(self):
         return self.should_know
 
-    # todo: this should only return number of possibilities
     def _get_mapping_options(self):
         '''
-        If the mapping task is standard mapping (one element to some other element), it only has to implement this method.
-        MicroMappingTask then handles the creation of mapping and implementing the mechanism for checking the agent performance.
-        But if the mapping task has some special needs (e.g. mapping each element to unique thing) it has to implement _get_mapping by itself
+        This method is optional but if implemented, it should return dictionary where keys are all possible questions for agent and value is number of possible
+        answers on that question from which agent has to find the right one.
+        If mapping does not want to implement "agent_should_know_answers" it can implement this method and MicroMapping will use its "agent_should_know_answers"
+        mechanism.
         '''
         return {}
 
-    # todo: delete this method - nobody uses it from get_mapping_options
     def _get_mapping(self):
-        '''
-        This just picks one of the possible mappings from _get_mapping_options
-        By default, there can be more elements mapped onto the same thing
-        '''
-        mapping_options = self._get_mapping_options()
-        result = {x: random.choice(y) for x, y in mapping_options.items()}
-        return result
+        pass
 
     def question_answered(self, is_correct):
         super(MicroMappingTask, self).question_answered(is_correct)
@@ -287,7 +276,7 @@ class Micro2Task(MicroMappingTask):
 class Micro3Task(MicroMappingTask):
 
     def _get_mapping_options(self):
-        return {x: list(string.ascii_lowercase) for x in string.ascii_lowercase}
+        return {x: len(string.ascii_lowercase) for x in string.ascii_lowercase}
 
     def _get_mapping(self):
         permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
@@ -310,7 +299,7 @@ class Micro5Sub1Task(MicroMappingTask):
 
     def _get_mapping_options(self):
         numbers = '0123456789'
-        return {x: list(numbers) for x in numbers}
+        return {x: len(numbers) for x in numbers}
 
     def _get_mapping(self):
         numbers = '0123456789'
