@@ -24,9 +24,6 @@ class MicroBase(Task):
     def agent_solved_instance(self):
         return False
 
-    def question_answered(self, is_correct):
-        self.questions_asked += 1
-
     def get_original_question(self, question):
         return self.tasker.get_original_question(question)
 
@@ -40,6 +37,23 @@ class MicroBase(Task):
         self.agent_answer = ''
         self.give_instructions()
 
+    def preprocess_answer(self, message):
+        self.agent_answer += message[-1]    # add the newest char
+        self.agent_answer = self.agent_answer.strip()
+        if self.agent_answer == '':
+            self.agent_answer = ' '
+
+    def provide_reward(self, reward):
+        if reward > 0:
+            self.consecutive_reward += 1
+        else:
+            self.consecutive_reward = 0
+        if reward != 0:
+            self.set_immediate_reward(reward)
+
+    def question_answered(self, is_correct):
+        self.questions_asked += 1
+
     def check_if_task_instance_solved(self):
         solved = self.agent_solved_instance()
         if solved is False:  # agent failed the task instance
@@ -50,27 +64,15 @@ class MicroBase(Task):
         if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:  # agent used up all the extra time
             self.set_result(self.task_instance_successful)
 
-    def provide_reward(self, reward):
-        if reward > 0:
-            self.consecutive_reward += 1
-        else:
-            self.consecutive_reward = 0
-        if reward != 0:
-            self.set_immediate_reward(reward)
-
     def provide_feedback(self, correct):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_message(feedback_text)
 
-    def preprocess_answer(self, message):
-        self.agent_answer += message[-1]    # add the newest char
-        self.agent_answer = self.agent_answer.strip()
-        if self.agent_answer == '':
-            self.agent_answer = ' '
-
     def give_instructions(self):
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
+        # internal buffer reset
+        self.agent_answer = ''
 
     @on_message(r'.')
     def check_response(self, event):
@@ -82,7 +84,7 @@ class MicroBase(Task):
         self.preprocess_answer(event.message)
 
         if not self._answer_ended(self.agent_answer):
-            return
+            return      # agent is still speaking - do not check it yet
 
         finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
         self.provide_reward(reward)
@@ -93,8 +95,6 @@ class MicroBase(Task):
             self.provide_feedback(correct)
             # give next instruction
             self.give_instructions()
-            # internal buffer reset
-            self.agent_answer = ''
 
     @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
     def end_task_instance(self, event):
@@ -264,6 +264,8 @@ class Micro2Task(MicroMappingTask):
         super(Micro2Task, self).question_answered(is_correct)
         if (is_correct and self.question in string.ascii_lowercase) or self.remaining_options == 0:
             self.should_know = True
+        if not is_correct:
+            self.remaining_options -= 1
 
     def _get_mapping(self):
         correct_answer = random.choice(string.ascii_lowercase)
