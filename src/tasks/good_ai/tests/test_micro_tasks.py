@@ -106,6 +106,49 @@ class TestMicro5Sub1Learner(BaseLearner):
             self.is_feedback = not self.is_feedback
             return self.answer
 
+class TestMicro6Sub1Learner(BaseLearner):
+
+    def __init__(self):
+        self.buffer = []
+        self.mapping = {}
+        self.is_feedback = False
+        self.is_output = False
+        self.is_assignment = True
+        self.assignment = []
+        self.response_buffer = []
+
+    def next(self, input):
+        self.buffer.append(input)
+
+        if self.is_feedback:
+            if input != ';':
+                return ' '
+            self.buffer.pop()  # remove the ';'
+            dot_index = self.buffer.index('.')
+            self.mapping[str(self.assignment)] = self.buffer[dot_index+2:]  # +2 to remove the dot and the ensuing space
+            self.buffer.clear()
+            self.is_feedback = False
+            self.is_assignment = True
+            return ' '
+
+        if self.is_assignment:
+            if input == '.':
+                colon_index = self.buffer.index(':')
+                self.assignment = self.buffer[colon_index + 2:]  # +2 to remove the colon and the ensuing space
+
+                self.assignment.reverse()
+                self.is_output = True
+                self.is_assignment = False
+
+        if self.is_output:
+            self.answer = self.assignment.pop()
+            if self.answer == '.':
+                self.is_output = False
+                self.is_feedback = True
+            return self.answer
+
+        return ' '
+
 
 def basic_task_run(messenger, learner, task):
     while True:
@@ -199,6 +242,14 @@ class TestMicroTask(unittest.TestCase):
         for _ in range(10):
             task = micro.Micro5Sub1Task()
             learner = TestMicro5Sub1Learner()
+            messenger = task_messenger(task)
+            basic_task_run(messenger, learner, task)
+            self.assertTrue(task.agent_solved_instance())
+
+    def test_micro6(self):
+        for _ in range(10):
+            task = micro.Micro6Sub1Task()
+            learner = TestMicro6Sub1Learner()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
