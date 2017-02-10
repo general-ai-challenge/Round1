@@ -60,9 +60,6 @@ class MicroBase(Task):
 
     def preprocess_answer(self, message):
         self.agent_answer += message[-1]    # add the newest char
-        self.agent_answer = self.agent_answer.strip()
-        if self.agent_answer == '':
-            self.agent_answer = ' '
 
     def provide_reward(self, reward):
         if reward > 0:
@@ -110,7 +107,11 @@ class MicroBase(Task):
         if not self._answer_ended(self.agent_answer):
             return      # agent is still speaking - do not check it yet
 
-        finished, correct, reward = self.tasker.check_answer(self.agent_answer, self.question)
+        answer = self.agent_answer.strip()
+        if answer == '':
+            answer = ' '
+
+        finished, correct, reward = self.tasker.check_answer(answer, self.question)
         self.provide_reward(reward)
         self.question_answered(correct)
         self.check_if_task_instance_solved()
@@ -624,10 +625,8 @@ class Micro9Task(MicroBase):
                 word = random.choice(valid_words)
                 words.append(word)
                 questions.append('say: {}'.format(word))
-            question = ' '.join(questions)
-            question += '.'
-            sentence = ' '.join(words)
-            sentence += '.'
+            question = ' '.join(questions) + '.'
+            sentence = ' '.join(words) + '.'
 
             def micro9_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
@@ -653,10 +652,7 @@ class Micro10Task(MicroBase):
                 word = random.choice(valid_words)
                 words.append(word)
                 questions.append('say: {}'.format(word))
-            question = ' '.join(questions)
-            question += ' '
-            question += action
-            question += ':.'
+            question = ' '.join(questions) + ' ' + action + ':.'
             if action == 'reverse':
                 words.reverse()
                 sentence = ' '.join(words)
