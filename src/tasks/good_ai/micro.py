@@ -12,6 +12,7 @@ ARBITRARY_SUCCESS_NUMBER = 20
 class MicroBase(Task):
     reg_answer_end = r'.'
     failed_task_tolerance = 1.0
+    success_tolerance = 1.0
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
@@ -23,24 +24,39 @@ class MicroBase(Task):
 
     def agent_solved_instance(self):
         '''
-        Method which checks wether the agent solved the instance. It has to return True, False or None
-            - True - agent solved the instance
-            - False - agent already could solved the instance (there was enough information for him to solve it) but it did not
-            - None - agent could not solve the instance till this time (there was not enough information presented yet)
+        Checks wether the agent solved task instance successfully
         '''
-        return False
+        return self.solved_on_time() and self.consecutive_reward >= ARBITRARY_SUCCESS_NUMBER
+
+    def agent_should_know_answers(self):
+        '''
+        Checks wether the information provided to agent was sufficient for it to know the correct solution to task instance
+        Tasks may override this method - this is equal to knowing all the correct answers from first step
+        '''
+        return True
+
+    def solved_on_time(self):
+        '''
+        Checks wether the task is still in stage, where agent can successfully solve the task.
+        This method does not check wether agent actually solved the task! Only if the time for the solution ran up or not!
+        '''
+        print("max {} asked {}".format(self.max_questions_for_success, self.questions_asked))
+        if self.max_questions_for_success:
+            return self.questions_asked <= self.max_questions_for_success
+        else:
+            return True
 
     def get_original_question(self, question):
         return self.tasker.get_original_question(question)
 
     @on_start()
     def new_task_instance(self, event):
-        print("new instance")
+        print("new instance of {}".format(self.__class__))
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
-        self.task_instance_successful = True
         self.max_questions_nr = None
+        self.max_questions_for_success = None
         self.agent_answer = ''
         self.give_instructions()
 
@@ -53,7 +69,7 @@ class MicroBase(Task):
     def provide_reward(self, reward):
         if reward > 0:
             self.consecutive_reward += 1
-        else:
+        elif reward < 0:
             self.consecutive_reward = 0
         if reward != 0:
             self.set_immediate_reward(reward)
@@ -62,15 +78,21 @@ class MicroBase(Task):
         self.questions_asked += 1
 
     def check_if_task_instance_solved(self):
-        solved = self.agent_solved_instance()
-        if solved is False:  # agent failed the task instance
-            self.task_instance_successful = False
-            if not self.max_questions_nr:   # set it only once!
-                self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
-        elif solved is True:    # agent managed to solve the task instance
-            self.set_result(self.task_instance_successful)
+        if self.agent_solved_instance():    # agent solved instance
+            print("agent solved")
+            self.set_result(True)
+
+        if self.agent_should_know_answers() and not self.max_questions_for_success:  # agent did not solve it but should know answers from now on
+            print("agent should know answers")
+            self.max_questions_for_success = self.questions_asked + ARBITRARY_SUCCESS_NUMBER * (1.0 + self.success_tolerance)
+
+        if not self.solved_on_time() and not self.max_questions_nr:  # agent failed but give him some time to learn task
+            print("just giving time")
+            self.max_questions_nr = self.questions_asked * (1.0 + self.failed_task_tolerance)
+
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
-            self.set_result(self.task_instance_successful)
+            print("extra time is up")
+            self.set_result(False)
 
     def provide_feedback(self, correct):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
@@ -106,7 +128,7 @@ class MicroBase(Task):
 
     @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
     def end_task_instance(self, event):
-        self.set_result(self.task_instance_successful, provide_result_as_reward=False)
+        self.set_result(False, provide_result_as_reward=False)
 
     @staticmethod
     def is_prefix(answer, correct_answer):
@@ -118,41 +140,7 @@ class MicroBase(Task):
         return not (re.search(self.reg_answer_end, message) is None)
 
 
-class TransparentTaskMixin(object):
-    '''
-    Mixin for Micro tasks, which - once understood - can be solved perfectly from the 1st step
-    '''
-
-    def agent_solved_instance(self):
-        if self.questions_asked >= ARBITRARY_SUCCESS_NUMBER:
-            return self.consecutive_reward == self.questions_asked
-
-
-class EnlightenmentTaskMixin(object):
-    '''
-    Mixin for Micro tasks which contain a precisely defined moment, from which on, agent should answer perfectly.
-    Micro tasks only has to set self.should_know to True at that enlightenment moment
-    '''
-
-    def __init__(self):
-        super(EnlightenmentTaskMixin, self).__init__()
-
-    def question_answered(self, is_correct):
-        super(EnlightenmentTaskMixin, self).question_answered(is_correct)
-        if self.should_know:
-            self.expected_reward += 1
-
-    def agent_solved_instance(self):
-        if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
-            return self.consecutive_reward >= self.expected_reward
-
-    @on_start()
-    def enlightenment_on_start(self, event):
-        self.expected_reward = 0
-        self.should_know = False
-
-
-class Micro1Task(EnlightenmentTaskMixin, MicroBase):
+class Micro1Task(MicroBase):
 
     def __init__(self):
         self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
@@ -161,6 +149,10 @@ class Micro1Task(EnlightenmentTaskMixin, MicroBase):
     @on_start()
     def micro1_on_start(self, event):
         self.remaining_options = len(self.alphabet)
+        self.should_know = False
+
+    def agent_should_know_answers(self):
+        return self.should_know
 
     def question_answered(self, is_correct):
         super(Micro1Task, self).question_answered(is_correct)
@@ -192,7 +184,7 @@ def random_strings_from(charset, nr_of_strings, string_len_options=None, append=
     return result
 
 
-class MicroMappingTask(EnlightenmentTaskMixin, MicroBase):
+class MicroMappingTask(MicroBase):
 
     task_gen_kwargs = {}
 
@@ -201,6 +193,14 @@ class MicroMappingTask(EnlightenmentTaskMixin, MicroBase):
         all_options = self._get_mapping_options()
         self.known_mapping = {x: len(all_options[x]) for x in all_options.keys()}
 
+    @on_start()
+    def mapping_on_start(self, event):
+        self.should_know = False
+
+    def agent_should_know_answers(self):
+        return self.should_know
+
+    # todo: this should only return number of possibilities
     def _get_mapping_options(self):
         '''
         If the mapping task is standard mapping (one element to some other element), it only has to implement this method.
@@ -209,6 +209,7 @@ class MicroMappingTask(EnlightenmentTaskMixin, MicroBase):
         '''
         return {}
 
+    # todo: delete this method - nobody uses it from get_mapping_options
     def _get_mapping(self):
         '''
         This just picks one of the possible mappings from _get_mapping_options
@@ -302,7 +303,7 @@ class Micro3Task(MicroMappingTask):
         return mapping
 
 
-class Micro4Task(TransparentTaskMixin, MicroMappingTask):
+class Micro4Task(MicroMappingTask):
 
     def _get_mapping(self):
         alphabet = string.ascii_lowercase + ' !":?.,;'
