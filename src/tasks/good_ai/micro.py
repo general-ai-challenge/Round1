@@ -22,6 +22,12 @@ class MicroBase(Task):
         pass
 
     def agent_solved_instance(self):
+        '''
+        Method which checks wether the agent solved the instance. It has to return True, False or None
+            - True - agent solved the instance
+            - False - agent already could solved the instance (there was enough information for him to solve it) but it did not
+            - None - agent could not solve the instance till this time (there was not enough information presented yet)
+        '''
         return False
 
     def get_original_question(self, question):
@@ -199,8 +205,7 @@ class MicroMappingTask(EnlightenmentTaskMixin, MicroBase):
         '''
         If the mapping task is standard mapping (one element to some other element), it only has to implement this method.
         MicroMappingTask then handles the creation of mapping and implementing the mechanism for checking the agent performance.
-        But if the mapping task has some special needs (e.g. mapping each element to unique thing) it has to implement _get_mapping
-        and agent_solved_instance by itself
+        But if the mapping task has some special needs (e.g. mapping each element to unique thing) it has to implement _get_mapping by itself
         '''
         return {}
 

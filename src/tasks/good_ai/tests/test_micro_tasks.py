@@ -143,6 +143,7 @@ class TestMicroTaskFlow(unittest.TestCase):
         # first instance
         learner = TestMicro1Learner(first_task.alphabet)
         basic_task_run(self.messenger, learner, first_task)
+        self.assertEqual(self.scheduler.reward_count, 1)
         # second instance
         learner = TestMicro1Learner(first_task.alphabet)
         basic_task_run(self.messenger, learner, first_task)
@@ -182,21 +183,13 @@ class TestMicroTask(unittest.TestCase):
         basic_task_run(messenger, learner, task)
         self.assertFalse(task.agent_solved_instance())
 
-    def test_micro1(self):
-        for _ in range(10):
-            task = micro.Micro1Task()
-            learner = TestMicro1Learner(task.alphabet)
-            messenger = task_messenger(task)
-            basic_task_run(messenger, learner, task)
-            self.assertTrue(task.agent_solved_instance(), True)
-
     def test_micro2(self):
         for _ in range(10):
             learner = TestMicro1Learner(string.ascii_lowercase, True)
             task = micro.Micro2Task()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
-            self.assertTrue(task.agent_solved_instance(), 0)
+            self.assertTrue(task.agent_solved_instance())
 
     def test_micro3(self):
         for _ in range(10):
@@ -221,3 +214,91 @@ class TestMicroTask(unittest.TestCase):
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
+
+
+class TestMicroTaskBase(unittest.TestCase):
+
+    task = None
+
+    @classmethod
+    def setUpClass(cls):
+        if cls is TestMicroTaskBase:
+            raise unittest.SkipTest("Skip MicroTaskBase tests, it's a base class")
+        super(TestMicroTaskBase, cls).setUpClass()
+
+    def _get_learner(self):
+        pass
+
+    def init_env(self, success_threshold=2):
+        slzr = serializer.StandardSerializer()
+        scheduler = ConsecutiveTaskScheduler([self.task], success_threshold)
+        env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
+        messenger = EnvironmentByteMessenger(env, slzr)
+        return (scheduler, messenger)
+
+    def test_task(self):
+        for _ in range(10):
+            learner = self._get_learner()
+            messenger = task_messenger(self.task)
+            basic_task_run(messenger, learner, self.task)
+            self.assertTrue(self.task.agent_solved_instance())
+
+    def test_successful_evaluation(self):
+        '''
+        Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
+        '''
+        scheduler, messenger = self.init_env()
+        # first run
+        learner = TestMicro1Learner(self.task.alphabet)
+        basic_task_run(messenger, learner, self.task)
+        self.assertTrue(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 1)
+
+        messenger.send()
+        # second run
+        learner = TestMicro1Learner(self.task.alphabet)
+        basic_task_run(messenger, learner, self.task)
+        self.assertTrue(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 2)
+
+    def test_failed_evaluation(self):
+        '''
+        Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
+        '''
+        scheduler, messenger = self.init_env()
+        # first run
+        learner = BaseLearner()
+        basic_task_run(messenger, learner, self.task)
+        self.assertFalse(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 0)
+
+        messenger.send()
+        # second run
+        basic_task_run(messenger, learner, self.task)
+        self.assertFalse(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 0)
+
+    def test_failed_then_successful_evaluation(self):
+        '''
+        Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
+        '''
+        scheduler, messenger = self.init_env()
+        # first run
+        learner = BaseLearner()
+        basic_task_run(messenger, learner, self.task)
+        self.assertFalse(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 0)
+
+        messenger.send()
+        # second run
+        learner = TestMicro1Learner(self.task.alphabet)
+        basic_task_run(messenger, learner, self.task)
+        self.assertTrue(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 1)
+
+
+class TestMicro1(TestMicroTaskBase):
+    task = micro.Micro1Task()
+
+    def _get_learner(self):
+        return TestMicro1Learner(self.task.alphabet)
