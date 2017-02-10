@@ -74,6 +74,7 @@ class Environment:
         # reward that is to be given at the learner at the end of the task
         self._reward = None
         self._result = None
+        self._last_result = None
         # reward that is to be given immediately
         self._immediate_reward = None
         # Current task time
@@ -115,6 +116,8 @@ class Environment:
                 # record the input from the learner and deserialize it
                 # TODO this bit is dropped otherwise on a timeout...
                 self._input_channel.consume(learner_input)
+                # switch to next task immediately if this input caused the task to end
+                # and there is no feedback to output (output_channel is empty)
                 if self._current_task.has_ended() and self._output_channel.is_empty():
                     self._switch_new_task()
             # We are in the middle of the task, so no rewards are given
@@ -155,9 +158,10 @@ class Environment:
         if reward is not None:
             # process the reward (clearing it if it's not allowed)
             reward = self._allowable_reward(reward)
-        if self._result is not None:
-            self._task_scheduler.reward(self._result)
-            self._result = None
+
+        self._last_result = self._result
+        self._result = None
+
         return output, reward
 
     def get_reward_per_task(self):
@@ -271,6 +275,8 @@ class Environment:
             self._deregister_task_triggers(self._current_task)
 
         # pick a new task
+        if self._result != None:
+            self._task_scheduler.reward(self._result)
         self._current_task = self._task_scheduler.get_next_task()
         try:
             # This is to check whether the user didn't mess up in instantiating
