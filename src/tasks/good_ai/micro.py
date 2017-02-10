@@ -74,7 +74,8 @@ class MicroBase(Task):
 
     def check_if_task_instance_solved(self):
         if self.agent_solved_instance():    # agent solved instance
-            self.set_result(True)
+            self.set_result(True, provide_result_as_reward=False)
+            return False
 
         if not self.max_questions_for_success and self.agent_should_know_answers():  # agent did not solve it but should know answers from now on
             self.max_questions_for_success = self.questions_asked + ARBITRARY_SUCCESS_NUMBER * (1.0 + self.success_tolerance)
@@ -83,7 +84,9 @@ class MicroBase(Task):
             self.max_questions_nr = self.questions_asked * (1.0 + self.failed_task_tolerance)
 
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
-            self.set_result(False)
+            self.set_result(False, provide_result_as_reward=False)
+            return False
+        return True
 
     def provide_feedback(self, correct):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
@@ -114,12 +117,14 @@ class MicroBase(Task):
         finished, correct, reward = self.tasker.check_answer(answer, self.question)
         self.provide_reward(reward)
         self.question_answered(correct)
-        self.check_if_task_instance_solved()
+
         # if one task sub-instance solved
         if finished:
             self.provide_feedback(correct)
-            # give next instruction
-            self.give_instructions()
+            if self.check_if_task_instance_solved():
+                # give next instruction
+                self.give_instructions()
+
 
     @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
     def end_task_instance(self, event):
