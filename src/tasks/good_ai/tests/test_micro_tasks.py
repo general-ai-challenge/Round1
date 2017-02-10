@@ -249,14 +249,14 @@ class TestMicroTaskBase(unittest.TestCase):
         '''
         scheduler, messenger = self.init_env()
         # first run
-        learner = TestMicro1Learner(self.task.alphabet)
+        learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
         self.assertTrue(self.task.agent_solved_instance())
         self.assertEqual(scheduler.reward_count, 1)
 
         messenger.send()
         # second run
-        learner = TestMicro1Learner(self.task.alphabet)
+        learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
         self.assertTrue(self.task.agent_solved_instance())
         self.assertEqual(scheduler.reward_count, 2)
@@ -291,7 +291,7 @@ class TestMicroTaskBase(unittest.TestCase):
 
         messenger.send()
         # second run
-        learner = TestMicro1Learner(self.task.alphabet)
+        learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
         self.assertTrue(self.task.agent_solved_instance())
         self.assertEqual(scheduler.reward_count, 1)
