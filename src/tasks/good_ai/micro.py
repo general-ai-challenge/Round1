@@ -526,6 +526,7 @@ class Micro5Sub18Task(MicroMappingTask):
 
 
 class Micro6Sub1Task(MicroBase):
+    reg_answer_end = r'\.'
 
     def get_task_generator(self):
         def micro6_1_question(self):
@@ -540,6 +541,7 @@ class Micro6Sub1Task(MicroBase):
 
 
 class Micro6Sub2Task(MicroBase):
+    reg_answer_end = r'\.'
 
     def get_task_generator(self):
         valid_words = ["hello", "hi", "ahoy"]
@@ -556,6 +558,7 @@ class Micro6Sub2Task(MicroBase):
 
 
 class Micro6Sub3Task(MicroBase):
+    reg_answer_end = r'\.'
 
     def get_task_generator(self):
         valid_words = ["hello", "hi", "ahoy", "world", "agent", "ai"]
