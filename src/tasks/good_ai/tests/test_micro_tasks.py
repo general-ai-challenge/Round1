@@ -126,7 +126,7 @@ class TestMicro6Sub1Learner(BaseLearner):
             self.buffer.pop()  # remove the ';'
             dot_index = self.buffer.index('.')
             self.mapping[str(self.assignment)] = self.buffer[dot_index+2:]  # +2 to remove the dot and the ensuing space
-            self.buffer.clear()
+            del self.buffer[:]  # same as self.buffer.clear() in python 3.5
             self.is_feedback = False
             self.is_assignment = True
             return ' '
@@ -156,7 +156,7 @@ def basic_task_run(messenger, learner, task):
         answer = learner.next(question)
         reward = messenger.send(answer)
         learner.reward(reward)
-        if task.agent_solved_instance():    # agent succeeded
+        if task._env._last_result == 1:    # agent succeeded  agent_solved_instance()
             break
         if not task.solved_on_time():   # agent is overtime
             break
@@ -191,9 +191,11 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.scheduler.reward_count, 1)
         # second instance
         learner = TestMicro1Learner(first_task.alphabet)
-        basic_task_run(self.messenger, learner, first_task)
-        # I should have two rewards now
-        self.assertEqual(self.scheduler.reward_count, 2)
+        consecutive_successes = first_task._env._task_scheduler.success_threshold
+        for _ in range(consecutive_successes-1):
+            basic_task_run(self.messenger, learner, first_task)
+        # I should have 0 rewards now, because I switched to next task
+        self.assertEqual(self.scheduler.reward_count, 0)
         self.messenger.send()  # force the control loop to enter next task
         self.assertNotEqual(self.env._current_task, first_task)
         # scheduler moved onto the next task
@@ -227,7 +229,7 @@ class TestMicroTask(unittest.TestCase):
         learner = BaseLearner()
         messenger = task_messenger(task)
         basic_task_run(messenger, learner, task)
-        self.assertFalse(task.agent_solved_instance())
+        self.assertFalse(task._env._last_result)
 
     # just this test because the test suite in TestMicroTaskBase uses BaseLearner as the "stupid" one. But it actually solves the task
     def test_micro4(self):
@@ -236,7 +238,7 @@ class TestMicroTask(unittest.TestCase):
             learner = BaseLearner()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
-            self.assertTrue(task.agent_solved_instance())
+            self.assertTrue(task._env._last_result)
 
     def test_micro5sub1(self):
         for _ in range(10):
@@ -244,15 +246,16 @@ class TestMicroTask(unittest.TestCase):
             learner = TestMicro5Sub1Learner()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
-            self.assertTrue(task.agent_solved_instance())
+            self.assertTrue(task._env._last_result)
 
     def test_micro6(self):
         for _ in range(10):
             task = micro.Micro6Sub1Task()
             learner = TestMicro6Sub1Learner()
             messenger = task_messenger(task)
-            basic_task_run(messenger, learner, task)
-            self.assertTrue(task.agent_solved_instance())
+            for _ in range(10):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task._env._last_result)
 
 
 class TestMicroTaskBase(unittest.TestCase):
@@ -280,7 +283,7 @@ class TestMicroTaskBase(unittest.TestCase):
             learner = self._get_learner()
             messenger = task_messenger(self.task)
             basic_task_run(messenger, learner, self.task)
-            self.assertTrue(self.task.agent_solved_instance())
+            self.assertTrue(self.task._env._last_result)
 
     def test_successful_evaluation(self):
         '''
@@ -290,15 +293,15 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task.agent_solved_instance())
+        self.assertTrue(self.task._env._last_result)
         self.assertEqual(scheduler.reward_count, 1)
 
         messenger.send()
         # second run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task.agent_solved_instance())
-        self.assertEqual(scheduler.reward_count, 2)
+        self.assertTrue(self.task._env._last_result)
+        self.assertEqual(scheduler.reward_count, 0)  # 2 % 2 = 0, because the scheduler switched to next task
 
     def test_failed_evaluation(self):
         '''
@@ -308,14 +311,14 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = BaseLearner()
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task.agent_solved_instance())
+        self.assertFalse(self.task._env._last_result)
         self.assertEqual(scheduler.reward_count, 0)
 
         messenger.send()   # now the task is overdue
         messenger.send()   # force the control loop to enter next task
         # second run
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task.agent_solved_instance())
+        self.assertFalse(self.task._env._last_result)
         self.assertEqual(scheduler.reward_count, 0)
 
     def test_failed_then_successful_evaluation(self):
@@ -327,7 +330,7 @@ class TestMicroTaskBase(unittest.TestCase):
         learner = BaseLearner()
         self.task.failed_task_tolerance = 0    # make the task really strict
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task.agent_solved_instance())
+        self.assertFalse(self.task._env._last_result)
         self.assertEqual(scheduler.reward_count, 0)
 
         messenger.send()   # now the task is overdue
@@ -335,7 +338,7 @@ class TestMicroTaskBase(unittest.TestCase):
         # second run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task.agent_solved_instance())
+        self.assertTrue(self.task._env._last_result)
         self.assertEqual(scheduler.reward_count, 1)
 
 
