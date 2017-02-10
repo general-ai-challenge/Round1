@@ -862,7 +862,7 @@ class Micro17Task(MicroBase):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
     FILE_NAME = 'res/dict_gsl.txt'
-    failed_task_tolerance = 20.0
+    failed_task_tolerance = 2.0
 
     def get_task_generator(self):
         with open(self.FILE_NAME) as f:
@@ -871,6 +871,9 @@ class Micro17Task(MicroBase):
         vocabulary = content[:200]
         mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
                            random.sample(vocabulary, self.MAPPING_SIZE)))
+        keys = list(mapping.keys())
+        self.control_list = [False for i in keys]
+        self.not_used_total = len(keys)
 
         def micro17_question(self):
             def micro17_feedback(is_correct, question):
@@ -879,7 +882,8 @@ class Micro17Task(MicroBase):
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            word1 = random.choice(list(mapping.keys()))
+            self.key_idx = random.randint(0, len(keys) - 1)
+            word1 = mapping[keys[self.key_idx]]
             word2 = mapping[word1]
             question = 'random_mapping: ' + word1 + '.'
             sentence = word2 + '.'
@@ -893,10 +897,10 @@ class Micro17Task(MicroBase):
         # close_words = [word for pydi. in sample]
 
 
-class Micro18Task(MicroBase):
+class Micro18Task(MicroMappingTask):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
-    failed_task_tolerance = 20.0
+    failed_task_tolerance = 2.0
 
     def get_task_generator(self):
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
@@ -923,3 +927,82 @@ class Micro18Task(MicroBase):
             return question, [sentence], micro18_feedback
 
         return TaskGenerator(micro18_question, '', None, ';')
+
+
+class Micro19Task(MicroBase):
+    reg_answer_end = r'\.'
+    m9 = Micro9Task()
+    m10 = Micro10Task()
+    m11 = Micro11Task()
+    m12 = Micro12Task()
+    MAPPING_SIZE = 8
+    failed_task_tolerance = 20.0
+    synonyms = {'say:': ['say:', 'print:', 'write:'],
+                'and': ['and', 'together with', '&', 'also'],
+                'after': ['after', 'behind', 'next'],
+                'union': ['union', 'consolidate', 'joint'],
+                'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
+    synonym_list = ["say", 'and', 'after', 'union', 'exclude']
+
+    @on_start()
+    def give_instructions(self, event):
+        self.tasker = self.get_task_generator()
+        super(Micro19Task).give_instructions(self, event)
+
+    def get_task_generator(self):
+        tasks = [self.m9, self.m10, self.m11, self.m12]
+        task = random.choice(tasks)
+        task_generator = task.get_task_generator()
+        func_inner = task_generator.instancer
+
+        def func_outer(self):
+            question, a, b = func_inner(self)
+            for synonym in self.synonym_list:
+                question = question.replace(synonym, self.get_random_synonym(synonym))
+            return question, a, b
+        task_generator.instancer = func_outer
+        return task_generator
+
+    def get_random_synonym(self, word):
+        return random.choice(self.synonyms[word])
+
+
+class Micro20Task(MicroBase):
+    reg_answer_end = r'\.'
+    m9 = Micro9Task()
+    m10 = Micro10Task()
+    m11 = Micro11Task()
+    m12 = Micro12Task()
+    MAPPING_SIZE = 8
+    failed_task_tolerance = 20.0
+    synonym_list = ["say", 'and', 'after', 'union', 'exclude']
+
+    @on_start()
+    def give_instructions(self, event):
+        self.tasker = self.get_task_generator()
+        super(Micro19Task).give_instructions(self, event)
+
+    def get_task_generator(self):
+        with open(self.FILE_NAME) as f:
+            content = f.readlines()
+        content = [x.strip() for x in content]
+        vocabulary = content[200:400]
+        self.synonyms = {o: s for (o, s) in zip(self.synonym_list, random.sample(vocabulary, len(self.synonym_list)))}
+
+        tasks = [self.m9, self.m10, self.m11, self.m12]
+        task = random.choice(tasks)
+        task_generator = task.get_task_generator()
+        func_inner = task_generator.instancer
+
+        def func_outer(self):
+            question, a, b = func_inner(self)
+            synonym = random.choice(self.synonym_list)
+            new_synonym = self.get_random_synonym(synonym)
+            question = question.replace(synonym, new_synonym)
+            question = new_synonym + " is as " + synonym + question
+            return question, a, b
+        task_generator.instancer = func_outer
+        return task_generator
+
+    def get_random_synonym(self, word):
+        return random.choice(self.synonyms[word])
