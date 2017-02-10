@@ -40,7 +40,6 @@ class MicroBase(Task):
         Checks wether the task is still in stage, where agent can successfully solve the task.
         This method does not check wether agent actually solved the task! Only if the time for the solution ran up or not!
         '''
-        print("max {} asked {}".format(self.max_questions_for_success, self.questions_asked))
         if self.max_questions_for_success:
             return self.questions_asked <= self.max_questions_for_success
         else:
@@ -51,7 +50,6 @@ class MicroBase(Task):
 
     @on_start()
     def new_task_instance(self, event):
-        print("new instance of {}".format(self.__class__))
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
@@ -79,19 +77,15 @@ class MicroBase(Task):
 
     def check_if_task_instance_solved(self):
         if self.agent_solved_instance():    # agent solved instance
-            print("agent solved")
             self.set_result(True)
 
-        if self.agent_should_know_answers() and not self.max_questions_for_success:  # agent did not solve it but should know answers from now on
-            print("agent should know answers")
+        if not self.max_questions_for_success and self.agent_should_know_answers():  # agent did not solve it but should know answers from now on
             self.max_questions_for_success = self.questions_asked + ARBITRARY_SUCCESS_NUMBER * (1.0 + self.success_tolerance)
 
-        if not self.solved_on_time() and not self.max_questions_nr:  # agent failed but give him some time to learn task
-            print("just giving time")
+        if not self.max_questions_nr and not self.solved_on_time():  # agent failed but give him some time to learn task
             self.max_questions_nr = self.questions_asked * (1.0 + self.failed_task_tolerance)
 
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
-            print("extra time is up")
             self.set_result(False)
 
     def provide_feedback(self, correct):

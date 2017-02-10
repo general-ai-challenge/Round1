@@ -267,28 +267,25 @@ class TestMicroTaskBase(unittest.TestCase):
         self.assertFalse(self.task.agent_solved_instance())
         self.assertEqual(scheduler.reward_count, 0)
 
-    # def test_failed_then_successful_evaluation(self):
-    #     '''
-    #     Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
-    #     '''
-    #     scheduler, messenger = self.init_env()
-    #     print("first run")
-    #     # first run
-    #     learner = BaseLearner()
-    #     basic_task_run(messenger, learner, self.task)
-    #     self.assertFalse(self.task.agent_solved_instance())
-    #     self.assertEqual(scheduler.reward_count, 0)
+    def test_failed_then_successful_evaluation(self):
+        '''
+        Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
+        '''
+        scheduler, messenger = self.init_env()
+        # first run
+        learner = BaseLearner()
+        self.task.failed_task_tolerance = 0    # make the task really strict
+        basic_task_run(messenger, learner, self.task)
+        self.assertFalse(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 0)
 
-    #     print("alpha")
-    #     messenger.send()   # now the task is overdue
-    #     print("pre")
-    #     messenger.send()   # force the control loop to enter next task
-    #     print("second run")
-    #     # second run
-    #     learner = self._get_learner()
-    #     basic_task_run(messenger, learner, self.task)
-    #     self.assertTrue(self.task.agent_solved_instance())
-    #     self.assertEqual(scheduler.reward_count, 1)
+        messenger.send()   # now the task is overdue
+        messenger.send()   # force the control loop to enter next task
+        # second run
+        learner = self._get_learner()
+        basic_task_run(messenger, learner, self.task)
+        self.assertTrue(self.task.agent_solved_instance())
+        self.assertEqual(scheduler.reward_count, 1)
 
 
 class TestMicro1(TestMicroTaskBase):
