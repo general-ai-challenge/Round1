@@ -35,6 +35,7 @@ class Environment:
     :param max_reward_per_task: maximum amount of reward that a learner can
         receive for a given task.
     '''
+
     def __init__(self, serializer, task_scheduler, scramble=False,
                  max_reward_per_task=10, byte_mode=False):
         # save parameters into member variables
@@ -150,7 +151,7 @@ class Environment:
 
         if self._immediate_reward is not None and reward is None:
             reward = self._immediate_reward
-            self._immediate_reward = None;
+            self._immediate_reward = None
         if reward is not None:
             # process the reward (clearing it if it's not allowed)
             reward = self._allowable_reward(reward)
@@ -227,7 +228,7 @@ class Environment:
         '''
         if self._output_channel.is_empty() or priority >= self._output_priority:
             self.logger.debug('Setting message "{0}" with priority {1}'
-                               .format(message, priority))
+                              .format(message, priority))
             self._output_channel.set_message(message)
             self._output_priority = priority
         else:

@@ -29,6 +29,7 @@ class MicroBase(Task):
 
     @on_start()
     def new_task_instance(self, event):
+        print("new instance")
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
@@ -58,10 +59,11 @@ class MicroBase(Task):
         solved = self.agent_solved_instance()
         if solved is False:  # agent failed the task instance
             self.task_instance_successful = False
-            self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
+            if not self.max_questions_nr:   # set it only once!
+                self.max_questions_nr = self.questions_asked * self.failed_task_tolerance
         elif solved is True:    # agent managed to solve the task instance
             self.set_result(self.task_instance_successful)
-        if self.max_questions_nr and self.questions_asked >= self.max_questions_nr:  # agent used up all the extra time
+        if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
             self.set_result(self.task_instance_successful)
 
     def provide_feedback(self, correct):
@@ -128,8 +130,6 @@ class EnlightenmentTaskMixin(object):
 
     def __init__(self):
         super(EnlightenmentTaskMixin, self).__init__()
-        self.should_know = False
-        self.expected_reward = 0
 
     def question_answered(self, is_correct):
         super(EnlightenmentTaskMixin, self).question_answered(is_correct)
@@ -140,19 +140,28 @@ class EnlightenmentTaskMixin(object):
         if self.expected_reward >= ARBITRARY_SUCCESS_NUMBER:
             return self.consecutive_reward >= self.expected_reward
 
+    @on_start()
+    def enlightenment_on_start(self, event):
+        self.expected_reward = 0
+        self.should_know = False
+
 
 class Micro1Task(EnlightenmentTaskMixin, MicroBase):
 
     def __init__(self):
         self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
         super(Micro1Task, self).__init__()
+
+    @on_start()
+    def micro1_on_start(self, event):
         self.remaining_options = len(self.alphabet)
 
     def question_answered(self, is_correct):
         super(Micro1Task, self).question_answered(is_correct)
         if is_correct or self.remaining_options == 0:
             self.should_know = True
-        self.remaining_options -= 1
+        if not is_correct:
+            self.remaining_options -= 1
 
     def get_task_generator(self):
         alphabet = self.alphabet

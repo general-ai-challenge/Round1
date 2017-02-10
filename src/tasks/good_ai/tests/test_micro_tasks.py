@@ -2,6 +2,7 @@ import string
 import unittest
 
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
+from core.scheduler import ConsecutiveTaskScheduler
 import core.environment as environment
 import core.serializer as serializer
 from learners.base import BaseLearner
@@ -106,22 +107,79 @@ class TestMicro5Sub1Learner(BaseLearner):
             return self.answer
 
 
-class TestMicroTask(unittest.TestCase):
+def basic_task_run(messenger, learner, task):
+    while True:
+        question = messenger.get_text()[-1]
+        answer = learner.next(question)
+        reward = messenger.send(answer)
+        learner.reward(reward)
+        if task.agent_solved_instance() is not None:
+            break
 
-    def basic_run(self, messenger, learner, task):
-        while True:
-            question = messenger.get_text()[-1]
-            answer = learner.next(question)
-            reward = messenger.send(answer)
-            learner.reward(reward)
-            if task.agent_solved_instance() is not None:
-                break
+
+class TestMicroTaskFlow(unittest.TestCase):
+
+    def perform_setup(self, success_threshold=2):
+        slzr = serializer.StandardSerializer()
+        self.tasks = [micro.Micro1Task(), micro.Micro2Task(), micro.Micro3Task(), micro.Micro4Task(), micro.Micro5Sub1Task()]
+        self.scheduler = ConsecutiveTaskScheduler(self.tasks, success_threshold)
+        self.env = environment.Environment(slzr, self.scheduler, max_reward_per_task=float("inf"), byte_mode=True)
+        self.messenger = EnvironmentByteMessenger(self.env, slzr)
+
+    def test_same_task_after_solving_first_instance(self):
+        self.perform_setup()
+        first_task = self.env._current_task
+        self.assertIsNotNone(first_task)
+        learner = TestMicro1Learner(first_task.alphabet)
+        basic_task_run(self.messenger, learner, first_task)
+        # I am still in the first task
+        self.assertEqual(self.env._current_task, first_task)
+        # and scheduler obtained one reward
+        self.assertEqual(self.scheduler.reward_count, 1)
+
+    def test_different_task_after_two_instances(self):
+        self.perform_setup()
+        first_task = self.env._current_task
+        # first instance
+        learner = TestMicro1Learner(first_task.alphabet)
+        basic_task_run(self.messenger, learner, first_task)
+        # second instance
+        learner = TestMicro1Learner(first_task.alphabet)
+        basic_task_run(self.messenger, learner, first_task)
+        # I should have two rewards now
+        self.assertEqual(self.scheduler.reward_count, 2)
+        self.messenger.send()  # force the control loop to enter next task
+        self.assertNotEqual(self.env._current_task, first_task)
+        # scheduler moved onto the next task
+        self.assertEqual(self.env._current_task, self.tasks[1])
+        # scheduler restarted the reward counter
+        self.assertEqual(self.scheduler.reward_count, 0)
+
+    def test_task_instance_change_for_stupid_agent(self):
+        self.perform_setup(1)
+        task_changed = [False]  # use list, which I can mutate from within the closure
+
+        def on_task_change(*args):
+            task_changed[0] = True
+        first_task = self.env._current_task
+        self.assertIsNotNone(first_task)
+        learner = BaseLearner()
+        self.env.task_updated.register(on_task_change)
+        basic_task_run(self.messenger, learner, first_task)     # failure should be issued now
+        self.messenger.send()   # now the task is overdue
+        self.messenger.send()   # force the control loop to enter next task
+        self.assertTrue(task_changed[0])
+        self.assertEqual(self.env._current_task, first_task)
+        self.assertEqual(self.scheduler.reward_count, 0)
+
+
+class TestMicroTask(unittest.TestCase):
 
     def test_stupid_agent(self):
         task = micro.Micro1Task()
         learner = BaseLearner()
         messenger = task_messenger(task)
-        self.basic_run(messenger, learner, task)
+        basic_task_run(messenger, learner, task)
         self.assertFalse(task.agent_solved_instance())
 
     def test_micro1(self):
@@ -129,7 +187,7 @@ class TestMicroTask(unittest.TestCase):
             task = micro.Micro1Task()
             learner = TestMicro1Learner(task.alphabet)
             messenger = task_messenger(task)
-            self.basic_run(messenger, learner, task)
+            basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance(), True)
 
     def test_micro2(self):
@@ -137,7 +195,7 @@ class TestMicroTask(unittest.TestCase):
             learner = TestMicro1Learner(string.ascii_lowercase, True)
             task = micro.Micro2Task()
             messenger = task_messenger(task)
-            self.basic_run(messenger, learner, task)
+            basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance(), 0)
 
     def test_micro3(self):
@@ -145,7 +203,7 @@ class TestMicroTask(unittest.TestCase):
             learner = TestMicro3Learner()
             task = micro.Micro3Task()
             messenger = task_messenger(task)
-            self.basic_run(messenger, learner, task)
+            basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
 
     def test_micro4(self):
@@ -153,7 +211,7 @@ class TestMicroTask(unittest.TestCase):
             task = micro.Micro4Task()
             learner = BaseLearner()
             messenger = task_messenger(task)
-            self.basic_run(messenger, learner, task)
+            basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
 
     def test_micro5sub1(self):
@@ -161,5 +219,5 @@ class TestMicroTask(unittest.TestCase):
             task = micro.Micro5Sub1Task()
             learner = TestMicro5Sub1Learner()
             messenger = task_messenger(task)
-            self.basic_run(messenger, learner, task)
+            basic_task_run(messenger, learner, task)
             self.assertTrue(task.agent_solved_instance())
