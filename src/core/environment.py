@@ -160,7 +160,6 @@ class Environment:
             reward = self._allowable_reward(reward)
 
         self._last_result = self._result
-        self._result = None
 
         return output, reward
 
@@ -277,6 +276,7 @@ class Environment:
         # pick a new task
         if self._result != None:
             self._task_scheduler.reward(self._result)
+            self._result = None
         self._current_task = self._task_scheduler.get_next_task()
         try:
             # This is to check whether the user didn't mess up in instantiating
