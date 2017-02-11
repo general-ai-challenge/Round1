@@ -548,6 +548,12 @@ class Micro5Sub18Task(FeedbackMappingTaskMixin, MicroMappingTask):
         return mapping
 
 
+def load_dictionary(file_name):
+    with open(file_name) as f:
+        content = f.readlines()
+    return [x.strip() for x in content]
+
+
 class Micro6Sub1Task(MicroBase):
     reg_answer_end = r'\.'
 
@@ -558,16 +564,17 @@ class Micro6Sub1Task(MicroBase):
 
             def micro6_1_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
-                return reaction + '. ' + correct_answer
+                return reaction + '! ' + correct_answer
             return question, [correct_answer], micro6_1_feedback
         return TaskGenerator(micro6_1_question, '', None, ';')
 
 
 class Micro6Sub2Task(MicroBase):
     reg_answer_end = r'\.'
+    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        valid_words = ["hello", "hi", "ahoy"]
+        valid_words = load_dictionary(self.FILE_NAME)
 
         def micro6_2_question(self):
             word = random.choice(valid_words) + '.'
@@ -575,24 +582,25 @@ class Micro6Sub2Task(MicroBase):
 
             def micro6_2_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
-                return reaction + '. ' + word
+                return reaction + '! ' + word
             return question, [word], micro6_2_feedback
         return TaskGenerator(micro6_2_question, '', None, ';')
 
 
 class Micro6Sub3Task(MicroBase):
     reg_answer_end = r'\.'
+    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        valid_words = ["hello", "hi", "ahoy", "world", "agent", "ai"]
+        valid_words = load_dictionary(self.FILE_NAME)
 
         def micro6_3_question(self):
-            sentence = random.choice(valid_words) + random.choice(valid_words) + '.'
+            sentence = random.choice(valid_words) + ' ' + random.choice(valid_words) + '.'
             question = "say: {}".format(sentence)
 
             def micro6_3_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
-                return reaction + '. ' + sentence
+                return reaction + '! ' + sentence
             return question, [sentence], micro6_3_feedback
         return TaskGenerator(micro6_3_question, '', None, ';')
 
@@ -617,12 +625,12 @@ class Micro7Task(MicroBase):
         return TaskGenerator(micro7_question, '', None, ';')
 
 
-class Micro8Task(MicroBase):
+class Micro8Sub1Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
         def micro8_question(self):
-            valid_words = ["hello", "hi", "ahoy", "mono"]
+            valid_words = string.ascii_lowercase
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
@@ -634,12 +642,54 @@ class Micro8Task(MicroBase):
         return TaskGenerator(micro8_question, '', None, ';')
 
 
+class Micro8Sub2Task(MicroBase):
+    reg_answer_end = r'\.'
+    FILE_NAME = 'res/dict_gsl.txt'
+
+    def get_task_generator(self):
+        def micro8_question(self):
+            valid_words = load_dictionary('res/dict_gsl.txt')
+            word = random.choice(valid_words) + '.'
+            question = "spell: {}".format(word)
+            sentence = " ".join(word)
+
+            def micro8_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                return reaction + '! ' + sentence
+
+            return question, [sentence], micro8_feedback
+
+        return TaskGenerator(micro8_question, '', None, ';')
+
+
+class Micro8Sub3Task(MicroBase):
+    reg_answer_end = r'\.'
+    FILE_NAME = 'res/dict_gsl.txt'
+
+    def get_task_generator(self):
+        def micro8_question(self):
+            valid_words = load_dictionary('res/dict_gsl.txt')
+            word = random.choice(valid_words)
+            joint = random.choice(['-', '#', ','])
+            question = "interleave: " + word + ' by ' + joint + '.'
+            sentence = joint.join(word) + '.'
+
+            def micro8_feedback(is_correct, question):
+                reaction = "good job" if is_correct else "wrong"
+                return reaction + '! ' + sentence
+
+            return question, [sentence], micro8_feedback
+
+        return TaskGenerator(micro8_question, '', None, ';')
+
+
 class Micro9Task(MicroBase):
     reg_answer_end = r'\.'
+    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
         def micro9_question(self):
-            valid_words = ["hello", "hi", "ahoy", "mono"]
+            valid_words = load_dictionary('res/dict_gsl.txt')
             n = random.randint(2, 3)
             questions = []
             words = []
@@ -904,18 +954,13 @@ class Micro17Task(MicroBase):
                 else:
                     return reaction + '! '
             self.key_idx = random.randint(0, len(keys) - 1)
-            word1 = mapping[keys[self.key_idx]]
+            word1 = keys[self.key_idx]
             word2 = mapping[word1]
             question = 'random_mapping: ' + word1 + '.'
             sentence = word2 + '.'
             return question, [sentence], micro17_feedback
 
         return TaskGenerator(micro17_question, '', None, ';')
-
-        # from PyDictionary import PyDictionary
-        # pydi = PyDictionary()
-        # sample = random.sample(vocabulary, self.MAPPING_SIZE)
-        # close_words = [word for pydi. in sample]
 
 
 class Micro18Task(MicroMappingTask):
@@ -995,9 +1040,7 @@ class Micro20Task(Micro19Task):
     tasks = []
 
     def get_task_generator(self):
-        with open(self.FILE_NAME) as f:
-            content = f.readlines()
-        content = [x.strip() for x in content]
+        content = load_dictionary(self.FILE_NAME)
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonym_list, random.sample(vocabulary, len(self.synonym_list)))}
 
