@@ -141,9 +141,11 @@ class MicroBase(Task):
 
 
 class Micro1Task(MicroBase):
+    ALPHABET_SIZE = 10
 
     def __init__(self):
         self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
+        self.alphabet = random.sample(self.alphabet, self.ALPHABET_SIZE)
         super(Micro1Task, self).__init__()
 
     @on_start()
@@ -212,10 +214,14 @@ class MicroMappingTask(MicroBase):
         super(MicroMappingTask, self).question_answered(is_correct)
         if len(self.known_mapping) == 0:    # not all Mapping tasks use the all_mapping_options concept
             return
-        if is_correct:
-            self.known_mapping[self.question] = 1
+        if self.question[-1] == '.' and len(self.question) > 1:
+            question = self.question[:-1]
         else:
-            self.known_mapping[self.question] = max(self.known_mapping[self.question] - 1, 1)
+            question = self.question
+        if is_correct:
+            self.known_mapping[question] = 1
+        else:
+            self.known_mapping[question] = max(self.known_mapping[question] - 1, 1)
         if all(x == 1 for x in self.known_mapping.values()):
             self.should_know = True
 
@@ -259,43 +265,46 @@ class MicroMappingTask(MicroBase):
 
 
 class Micro2Task(MicroMappingTask):
+    alphabet = random.sample(string.ascii_lowercase, 4)
 
     def __init__(self):
         super(Micro2Task, self).__init__()
-        self.remaining_options = len(string.ascii_lowercase)
+        self.remaining_options = len(self.alphabet)
 
     def question_answered(self, is_correct):
         super(Micro2Task, self).question_answered(is_correct)
-        if (is_correct and self.question in string.ascii_lowercase) or self.remaining_options == 0:
+        if (is_correct and self.question in self.alphabet) or self.remaining_options == 0:
             self.should_know = True
         if not is_correct:
             self.remaining_options -= 1
 
     def _get_mapping(self):
-        correct_answer = random.choice(string.ascii_lowercase)
-        mapping = {x: correct_answer for x in string.ascii_lowercase}
+        correct_answer = random.choice(self.alphabet)
+        mapping = {x: correct_answer for x in self.alphabet}
         for c in ' !":?.,;':
             mapping[c] = c
         return mapping
 
 
 class Micro3Task(MicroMappingTask):
+    alphabet = random.sample(string.ascii_lowercase, 4)
 
     def _get_mapping_options(self):
-        return {x: len(string.ascii_lowercase) for x in string.ascii_lowercase}
+        return {x: len(self.alphabet) for x in self.alphabet}
 
     def _get_mapping(self):
-        permutation = ''.join(random.sample(string.ascii_lowercase, len(string.ascii_lowercase)))
-        mapping = dict(zip(string.ascii_lowercase, permutation))
+        permutation = ''.join(random.sample(self.alphabet, len(self.alphabet)))
+        mapping = dict(zip(self.alphabet, permutation))
         for c in ' !":?.,;':
             mapping[c] = c
         return mapping
 
 
 class Micro4Task(MicroMappingTask):
+    alphabet = random.sample(string.ascii_lowercase + ' !":?.,;', 4)
 
     def _get_mapping(self):
-        alphabet = string.ascii_lowercase + ' !":?.,;'
+        alphabet = self.alphabet
         mapping = dict(zip(alphabet, alphabet))
         return mapping
 
@@ -321,14 +330,15 @@ class Micro5Sub2Task(Micro5Sub1Task):
 
 
 class Micro5Sub3Task(Micro5Sub1Task):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
 
-# TODO: example (also 5.5 and 5.6) shows one space between question and
-# the feedback, but the description does not mention it - this is version
-# without the space
 class Micro5Sub4Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
+
+    def _get_mapping_options(self):
+        numbers = '0123456789'
+        return {x: len(numbers)**2 for x in numbers}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -339,7 +349,7 @@ class Micro5Sub4Task(MicroMappingTask):
 
 
 class Micro5Sub5Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -350,7 +360,7 @@ class Micro5Sub5Task(MicroMappingTask):
 
 
 class Micro5Sub6Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -366,7 +376,7 @@ class Micro5Sub6Task(MicroMappingTask):
 
 
 class Micro5Sub7Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -378,7 +388,7 @@ class Micro5Sub7Task(MicroMappingTask):
 
 
 class Micro5Sub8Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -391,7 +401,7 @@ class Micro5Sub8Task(MicroMappingTask):
 
 
 class Micro5Sub9Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
