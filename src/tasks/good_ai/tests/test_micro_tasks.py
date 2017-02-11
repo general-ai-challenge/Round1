@@ -300,8 +300,6 @@ class TestMicroTask(unittest.TestCase):
                 self.assertTrue(task_solved_successfuly(task))
 
     def test_micro6_1_fail(self):
-        #import logging
-        #logging.basicConfig(level=logging.DEBUG)
         for _ in range(3):
             task = micro.Micro6Sub1Task()
             learner = FixedLearner('.')
@@ -320,8 +318,6 @@ class TestMicroTask(unittest.TestCase):
                 self.assertTrue(task_solved_successfuly(task))
 
     def test_micro6_2_fail(self):
-        #import logging
-        #logging.basicConfig(level=logging.DEBUG)
         for _ in range(3):
             task = micro.Micro6Sub2Task()
             learner = FixedLearner('.')
@@ -340,8 +336,6 @@ class TestMicroTask(unittest.TestCase):
                 self.assertTrue(task_solved_successfuly(task))
 
     def test_micro6_3_fail(self):
-        #import logging
-        #logging.basicConfig(level=logging.DEBUG)
         for _ in range(3):
             task = micro.Micro6Sub3Task()
             learner = FixedLearner('.')
@@ -351,8 +345,6 @@ class TestMicroTask(unittest.TestCase):
                 self.assertFalse(task_solved_successfuly(task))
 
     def test_micro7_pass(self):
-        # import logging  # useful to uncomment when you want to see logs during test runs
-        # logging.basicConfig(level=logging.DEBUG)
         for _ in range(3):
             task = micro.Micro7Task()
             learner = TestMicro7Learner()
@@ -361,6 +353,14 @@ class TestMicroTask(unittest.TestCase):
                 basic_task_run(messenger, learner, task)
                 self.assertTrue(task_solved_successfuly(task))
 
+    def test_micro7_fail(self):
+        for _ in range(3):
+            task = micro.Micro7Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
 
 
 class TestMicroTaskBase(unittest.TestCase):
