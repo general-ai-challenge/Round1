@@ -934,17 +934,26 @@ class Micro17Task(MicroBase):
     MAPPING_SIZE = 8
     FILE_NAME = 'res/dict_gsl.txt'
     failed_task_tolerance = 2.0
+    should_know = False
+    actual_key = ''
+
+    def agent_should_know_answers(self):
+        return self.should_know
+
+    def question_answered(self, is_correct):
+        super(Micro17Task, self).question_answered(is_correct)
+        key = self.question.split()[-1].split('.')[0]
+        self.mapping_check[key] = True
+        if all(self.mapping_check.values()):
+            self.should_know = True
 
     def get_task_generator(self):
-        with open(self.FILE_NAME) as f:
-            content = f.readlines()
-        content = [x.strip() for x in content]
+        content = load_dictionary(self.FILE_NAME)
         vocabulary = content[:200]
         mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
                            random.sample(vocabulary, self.MAPPING_SIZE)))
         keys = list(mapping.keys())
-        self.control_list = [False for i in keys]
-        self.not_used_total = len(keys)
+        self.mapping_check = {key: False for key in keys}
 
         def micro17_question(self):
             def micro17_feedback(is_correct, question):
