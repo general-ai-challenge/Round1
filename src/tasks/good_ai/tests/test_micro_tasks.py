@@ -270,7 +270,9 @@ class TestMicroTask(unittest.TestCase):
             basic_task_run(messenger, learner, task)
             self.assertTrue(task_solved_successfuly(task))
 
-    def test_micro6(self):
+    def test_micro6_pass(self):
+        # import logging  # useful to uncomment when you want to see logs during test runs
+        # logging.basicConfig(level=logging.DEBUG)
         for _ in range(10):
             task = micro.Micro6Sub1Task()
             learner = TestMicro6Sub1Learner()
@@ -278,6 +280,19 @@ class TestMicroTask(unittest.TestCase):
             for _ in range(10):
                 basic_task_run(messenger, learner, task)
                 self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro6_fail(self):
+        import logging
+        logging.basicConfig(level=logging.DEBUG)
+        for _ in range(10):
+            task = micro.Micro6Sub1Task()
+            learner = FixedLearner('.')
+            messenger = task_messenger(task)
+            for _v in range(10):
+                print(_v)
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
 
 
 class TestMicroTaskBase(unittest.TestCase):
