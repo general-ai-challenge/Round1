@@ -110,6 +110,7 @@ class MicroBase(Task):
         if not self._answer_ended(self.agent_answer):
             return      # agent is still speaking - do not check it yet
 
+        # in case the message is not complete self.agent_answer should not be stripped
         answer = self.agent_answer.strip()
         if answer == '':
             answer = ' '
@@ -190,15 +191,10 @@ class MicroMappingTask(MicroBase):
 
     task_gen_kwargs = {}
 
-    @on_start()
-    def mapping_on_start(self, event):
-        self.known_mapping = self._get_mapping_options()
-        self.should_know = False
-
     def agent_should_know_answers(self):
         return self.should_know
 
-    def _get_mapping_options(self):
+    def _get_mapping_options(self, mapping):
         '''
         This method is optional but if implemented, it should return dictionary where keys are all possible questions for agent and value is number of possible
         answers on that question from which agent has to find the right one.
@@ -227,6 +223,8 @@ class MicroMappingTask(MicroBase):
 
     def get_task_generator(self):
         mapping = self._get_mapping()
+        self.known_mapping = self._get_mapping_options(mapping)
+        self.should_know = False
 
         def multigen(d):
             while True:
@@ -289,7 +287,7 @@ class Micro2Task(MicroMappingTask):
 class Micro3Task(MicroMappingTask):
     alphabet = random.sample(string.ascii_lowercase, 4)
 
-    def _get_mapping_options(self):
+    def _get_mapping_options(self, mapping):
         return {x: len(self.alphabet) for x in self.alphabet}
 
     def _get_mapping(self):
@@ -312,7 +310,7 @@ class Micro4Task(MicroMappingTask):
 class Micro5Sub1Task(MicroMappingTask):
     task_gen_kwargs = {}
 
-    def _get_mapping_options(self):
+    def _get_mapping_options(self, mapping):
         numbers = '0123456789'
         return {x: len(numbers) for x in numbers}
 
