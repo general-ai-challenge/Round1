@@ -282,8 +282,8 @@ class TestMicroTask(unittest.TestCase):
                 self.assertTrue(task_solved_successfuly(task))
 
     def test_micro6_fail(self):
-        import logging
-        logging.basicConfig(level=logging.DEBUG)
+        #import logging
+        #logging.basicConfig(level=logging.DEBUG)
         for _ in range(10):
             task = micro.Micro6Sub1Task()
             learner = FixedLearner('.')
