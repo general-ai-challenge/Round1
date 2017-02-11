@@ -949,19 +949,13 @@ class Micro19Task(MicroBase):
     m10 = Micro10Task()
     m11 = Micro11Task()
     m12 = Micro12Task()
-    MAPPING_SIZE = 8
-    failed_task_tolerance = 20.0
+    failed_task_tolerance = 2.0
     synonyms = {'say:': ['say:', 'print:', 'write:'],
                 'and': ['and', 'together with', '&', 'also'],
                 'after': ['after', 'behind', 'next'],
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
-    synonym_list = ["say", 'and', 'after', 'union', 'exclude']
-
-    @on_start()
-    def give_instructions(self, event):
-        self.tasker = self.get_task_generator()
-        super(Micro19Task).give_instructions(self, event)
+    synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
 
     def get_task_generator(self):
         tasks = [self.m9, self.m10, self.m11, self.m12]
@@ -969,10 +963,13 @@ class Micro19Task(MicroBase):
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
 
+        synonym_list = self.synonym_list
+        get_random_synonym = self.get_random_synonym
+
         def func_outer(self):
             question, a, b = func_inner(self)
-            for synonym in self.synonym_list:
-                question = question.replace(synonym, self.get_random_synonym(synonym))
+            for synonym in synonym_list:
+                question = question.replace(synonym, get_random_synonym(synonym))
             return question, a, b
         task_generator.instancer = func_outer
         return task_generator
@@ -981,20 +978,9 @@ class Micro19Task(MicroBase):
         return random.choice(self.synonyms[word])
 
 
-class Micro20Task(MicroBase):
-    reg_answer_end = r'\.'
-    m9 = Micro9Task()
-    m10 = Micro10Task()
-    m11 = Micro11Task()
-    m12 = Micro12Task()
-    MAPPING_SIZE = 8
-    failed_task_tolerance = 20.0
-    synonym_list = ["say", 'and', 'after', 'union', 'exclude']
-
-    @on_start()
-    def give_instructions(self, event):
-        self.tasker = self.get_task_generator()
-        super(Micro19Task).give_instructions(self, event)
+class Micro20Task(Micro19Task):
+    FILE_NAME = 'res/dict_gsl.txt'
+    tasks = []
 
     def get_task_generator(self):
         with open(self.FILE_NAME) as f:
@@ -1003,20 +989,29 @@ class Micro20Task(MicroBase):
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonym_list, random.sample(vocabulary, len(self.synonym_list)))}
 
-        tasks = [self.m9, self.m10, self.m11, self.m12]
-        task = random.choice(tasks)
+        # choose task randomly, but all n tasks in n tries
+        if len(self.tasks) == 0:
+            self.tasks = [self.m9, self.m10, self.m11, self.m12]
+        task = random.choice(self.tasks)
+        self.tasks.remove(task)
+
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
 
+        synonym_list = self.synonym_list
+        get_synonym = self.get_synonym
+
         def func_outer(self):
             question, a, b = func_inner(self)
-            synonym = random.choice(self.synonym_list)
-            new_synonym = self.get_random_synonym(synonym)
+            synonym_present = [synonym for synonym in synonym_list if question.find(synonym) >= 0]
+            synonym = random.choice(synonym_present)
+            new_synonym = get_synonym(synonym)
             question = question.replace(synonym, new_synonym)
-            question = new_synonym + " is as " + synonym + question
+            question = new_synonym + " is as " + synonym + ' - ' + question
             return question, a, b
         task_generator.instancer = func_outer
         return task_generator
 
-    def get_random_synonym(self, word):
-        return random.choice(self.synonyms[word])
+    def get_synonym(self, word):
+        return self.synonyms[word]
+
