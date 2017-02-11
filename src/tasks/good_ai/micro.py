@@ -13,6 +13,8 @@ class MicroBase(Task):
     reg_answer_end = r'.'
     failed_task_tolerance = 1.0
     success_tolerance = 1.0
+    success_tolerance = 4.0
+    tasker = None
 
     def __init__(self, world=None):
         super(MicroBase, self).__init__(world=world, max_time=3000)
@@ -332,12 +334,18 @@ class Micro5Sub3Task(Micro5Sub1Task):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
 
-class Micro5Sub4Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
+class FeedbackMappingTaskMixin(MicroMappingTask):
+    '''
+    This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
+    The only one occurrence is needed for every key from mapping.
+    '''
+    def _get_mapping_options(self, mapping):
+        keys = mapping.keys()
+        return {x: 2 for x in keys}
 
-    def _get_mapping_options(self):
-        numbers = '0123456789'
-        return {x: len(numbers)**2 for x in numbers}
+
+class Micro5Sub4Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -347,7 +355,7 @@ class Micro5Sub4Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub5Task(MicroMappingTask):
+class Micro5Sub5Task(FeedbackMappingTaskMixin, MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
@@ -358,7 +366,7 @@ class Micro5Sub5Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub6Task(MicroMappingTask):
+class Micro5Sub6Task(FeedbackMappingTaskMixin, MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
@@ -374,7 +382,7 @@ class Micro5Sub6Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub7Task(MicroMappingTask):
+class Micro5Sub7Task(FeedbackMappingTaskMixin, MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
@@ -386,7 +394,7 @@ class Micro5Sub7Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub8Task(MicroMappingTask):
+class Micro5Sub8Task(FeedbackMappingTaskMixin, MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
@@ -399,7 +407,7 @@ class Micro5Sub8Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub9Task(MicroMappingTask):
+class Micro5Sub9Task(FeedbackMappingTaskMixin, MicroMappingTask):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
@@ -413,8 +421,8 @@ class Micro5Sub9Task(MicroMappingTask):
 
 
 # TODO: should be the ignored part be always the same for the same inputs or can it change? - this version changes it
-class Micro5Sub10Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub10Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -424,8 +432,8 @@ class Micro5Sub10Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub11Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub11Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -448,8 +456,8 @@ class Micro5Sub11Task(MicroMappingTask):
 # chars". So will it be always the same size of feedback for on task
 # instance? Or can it be mixed? - this version is mixed
 # same question for 5.13, 5.14, 5.15, 5.16, 5.17 and 5.18
-class Micro5Sub12Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub12Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -461,8 +469,8 @@ class Micro5Sub12Task(MicroMappingTask):
 
 
 # stems from 5.9
-class Micro5Sub13Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub13Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -475,8 +483,8 @@ class Micro5Sub13Task(MicroMappingTask):
 
 
 # stems from 5.12
-class Micro5Sub14Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub14Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -486,8 +494,8 @@ class Micro5Sub14Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub15Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub15Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -498,8 +506,8 @@ class Micro5Sub15Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub16Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub16Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -511,8 +519,8 @@ class Micro5Sub16Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub17Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub17Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -526,8 +534,8 @@ class Micro5Sub17Task(MicroMappingTask):
 
 
 # stems from 5.17
-class Micro5Sub18Task(MicroMappingTask):
-    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': '!'}
+class Micro5Sub18Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -951,14 +959,19 @@ class Micro19Task(MicroBase):
     failed_task_tolerance = 2.0
     synonyms = {'say:': ['say:', 'print:', 'write:'],
                 'and': ['and', 'together with', '&', 'also'],
+                'or': ['or', 'alternative', '/'],
                 'after': ['after', 'behind', 'next'],
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
     synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
+    tasks = []
 
     def get_task_generator(self):
-        tasks = [self.m9, self.m10, self.m11, self.m12]
-        task = random.choice(tasks)
+        # choose task randomly, but provide all n tasks in n tries
+        if len(self.tasks) == 0:
+            self.tasks = [self.m9, self.m10, self.m11, self.m12]
+        task = random.choice(self.tasks)
+        self.tasks.remove(task)
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
 
@@ -988,7 +1001,7 @@ class Micro20Task(Micro19Task):
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonym_list, random.sample(vocabulary, len(self.synonym_list)))}
 
-        # choose task randomly, but all n tasks in n tries
+        # choose task randomly, but provide all n tasks in n tries
         if len(self.tasks) == 0:
             self.tasks = [self.m9, self.m10, self.m11, self.m12]
         task = random.choice(self.tasks)
