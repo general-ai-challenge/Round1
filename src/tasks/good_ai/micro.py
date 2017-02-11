@@ -12,7 +12,6 @@ ARBITRARY_SUCCESS_NUMBER = 10
 class MicroBase(Task):
     reg_answer_end = r'.'
     failed_task_tolerance = 1.0
-    success_tolerance = 1.0
     success_tolerance = 4.0
     tasker = None
 
@@ -806,20 +805,13 @@ class Micro12Task(MicroBase):
 
 class Micro13Task(MicroBase):
     reg_answer_end = r'\.'
-    m7 = Micro7Task()
-    m8 = Micro8Task()
+    m8 = Micro8Sub2Task()
     m9 = Micro9Task()
     m10 = Micro10Task()
     m11 = Micro11Task()
-    m12 = Micro12Task()
-
-    @on_start()
-    def give_instructions(self, event):
-        self.tasker = self.get_task_generator()
-        super(Micro13Task).give_instructions(self, event)
 
     def get_task_generator(self):
-        tasks = [self.m9, self.m10, self.m11]
+        tasks = [self.m8, self.m9, self.m10, self.m11]
         task = random.choice(tasks)
         return task.get_task_generator()
 
@@ -972,10 +964,20 @@ class Micro17Task(MicroBase):
         return TaskGenerator(micro17_question, '', None, ';')
 
 
-class Micro18Task(MicroMappingTask):
+class Micro18Task(MicroBase):
     reg_answer_end = r'\.'
-    MAPPING_SIZE = 8
     failed_task_tolerance = 2.0
+    should_know = False
+
+    def agent_should_know_answers(self):
+        return self.should_know
+
+    def question_answered(self, is_correct):
+        super(Micro18Task, self).question_answered(is_correct)
+        key = self.question.split()[-1].split('.')[0]
+        self.mapping_check[key] = True
+        if all(self.mapping_check.values()):
+            self.should_know = True
 
     def get_task_generator(self):
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
@@ -987,6 +989,8 @@ class Micro18Task(MicroMappingTask):
         chosen_sequence = random.choice([sequence1, sequence2, sequence3, sequence4])
         if random.randint(0, 2) > 0:
             chosen_sequence.reverse()
+
+        self.mapping_check = {key: False for key in chosen_sequence[0:-1]}
 
         def micro18_question(self):
             def micro18_feedback(is_correct, question):
@@ -1019,6 +1023,7 @@ class Micro19Task(MicroBase):
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
     synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
     tasks = []
+    should_know = False
 
     def get_task_generator(self):
         # choose task randomly, but provide all n tasks in n tries
