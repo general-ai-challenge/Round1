@@ -127,7 +127,6 @@ class MicroBase(Task):
                 # give next instruction
                 self.give_instructions()
 
-
     @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
     def end_task_instance(self, event):
         self.set_result(False, provide_result_as_reward=False)
@@ -193,7 +192,10 @@ class MicroMappingTask(MicroBase):
     task_gen_kwargs = {}
 
     def agent_should_know_answers(self):
-        return self.should_know
+        if len(self.known_mapping) > 0:
+            return self.should_know
+        else:
+            return True
 
     def _get_mapping_options(self, mapping):
         '''
@@ -269,7 +271,13 @@ class Micro2Task(MicroMappingTask):
 
     def __init__(self):
         super(Micro2Task, self).__init__()
+
+    @on_start()
+    def micro2_on_start(self, event):
         self.remaining_options = len(self.alphabet)
+
+    def agent_should_know_answers(self):
+        return self.should_know
 
     def question_answered(self, is_correct):
         super(Micro2Task, self).question_answered(is_correct)
@@ -1083,4 +1091,3 @@ class Micro20Task(Micro19Task):
 
     def get_synonym(self, word):
         return self.synonyms[word]
-

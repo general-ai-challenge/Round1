@@ -19,6 +19,7 @@ class RandomTaskScheduler:
     A Scheduler provides new tasks every time is asked.
     This is a random scheduler
     '''
+
     def __init__(self, tasks):
         self.tasks = tasks
 
@@ -36,6 +37,7 @@ class SequentialTaskScheduler:
     A Scheduler provides new tasks every time is asked.
     This is a random scheduler
     '''
+
     def __init__(self, tasks):
         self.tasks = tasks
         self.i = 0
@@ -89,7 +91,7 @@ class ConsecutiveTaskScheduler:
         self.task_ptr = 0
         self.reward_count = 0
         self.success_threshold = success_threshold
-        self.logger = logging.getLogger(__name_)
+        self.logger = logging.getLogger(__name__)
 
     def get_next_task(self):
         if self.reward_count >= self.success_threshold:
