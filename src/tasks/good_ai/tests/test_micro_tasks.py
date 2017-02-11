@@ -187,6 +187,43 @@ class TestMicro7Learner(TestMicro6Sub1Learner):
             self.buffer.pop()  # trimming white spaces to a single one
         TestMicro6Sub1Learner._handle_assignment(self, input)
 
+class TestMicro8Learner(TestMicro6Sub1Learner):
+
+    def __init__(self):
+        self.interleave_char = ' '
+        TestMicro6Sub1Learner.__init__(self)
+
+    def _handle_assignment(self, input):
+        if len(self.buffer) >= 2 and self.buffer[-1] == ' ' and self.buffer[-2] == ' ':
+            self.buffer.pop()  # trimming white spaces to a single one
+        if input == '.':
+
+            remove_last_interleave_char = False
+
+            colon_index = self.buffer.index(':')
+            self.assignment = self.buffer[colon_index + 2:]  # +2 to remove the colon and the ensuing space
+            if len(self.assignment) > 5 and "".join(self.assignment[-6:-2]) == " by ":  # to handle interleave: abc by -.
+                self.interleave_char = self.assignment[-2]
+                self.assignment = self.assignment[0:-6]
+                remove_last_interleave_char = True
+            else:
+                self.interleave_char = ' '
+                self.assignment.pop()  # remove the trailing period
+
+            # add the interleave character to the string which will be output
+            assignment_len = len(self.assignment)
+            for index in reversed(range(assignment_len)):
+                self.assignment.insert(index+1,self.interleave_char)
+
+            if remove_last_interleave_char:
+                self.assignment.pop()
+
+            self.assignment.append('.')
+
+            self.assignment.reverse()
+            self.is_output = True
+            self.is_assignment = False
+
 def task_solved_successfuly(task):
     return task._env._last_result == 1 and task.solved_on_time()
 
@@ -356,6 +393,60 @@ class TestMicroTask(unittest.TestCase):
     def test_micro7_fail(self):
         for _ in range(3):
             task = micro.Micro7Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro8_1_pass(self):
+        for _ in range(3):
+            task = micro.Micro8Sub1Task()
+            learner = TestMicro8Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro8_1_fail(self):
+        for _ in range(3):
+            task = micro.Micro8Sub1Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro8_2_pass(self):
+        for _ in range(3):
+            task = micro.Micro8Sub2Task()
+            learner = TestMicro8Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro8_2_fail(self):
+        for _ in range(3):
+            task = micro.Micro8Sub2Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro8_3_pass(self):
+        for _ in range(3):
+            task = micro.Micro8Sub3Task()
+            learner = TestMicro8Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro8_3_fail(self):
+        for _ in range(3):
+            task = micro.Micro8Sub3Task()
             learner = TestMicro6Sub1Learner()
             messenger = task_messenger(task)
             for _ in range(3):
