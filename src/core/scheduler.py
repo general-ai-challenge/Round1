@@ -11,6 +11,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 from collections import defaultdict
 import random
+import logging
 
 
 class RandomTaskScheduler:
@@ -88,11 +89,15 @@ class ConsecutiveTaskScheduler:
         self.task_ptr = 0
         self.reward_count = 0
         self.success_threshold = success_threshold
+        self.logger = logging.getLogger(__name_)
 
     def get_next_task(self):
         if self.reward_count >= self.success_threshold:
             self.reward_count = 0
-            self.task_ptr = (self.task_ptr + 1) % len(self.tasks)
+            self.task_ptr += 1
+            if self.task_ptr >= len(self.tasks):
+                self.logger.info("Learning finished successfully!")
+                return None
         return self.tasks[self.task_ptr]
 
     def reward(self, reward):
