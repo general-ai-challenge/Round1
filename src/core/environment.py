@@ -37,7 +37,7 @@ class Environment:
     '''
 
     def __init__(self, serializer, task_scheduler, scramble=False,
-                 max_reward_per_task=10, byte_mode=False):
+                 max_reward_per_task=10000, byte_mode=False):
         # save parameters into member variables
         self._task_scheduler = task_scheduler
         self._serializer = serializer
