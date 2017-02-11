@@ -101,6 +101,9 @@ class Environment:
     def next(self, learner_input):
         '''Main loop of the Environment. Receives one bit from the learner and
         produces a response (also one bit)'''
+
+        self._last_result = None  # will be set while execution is inside this function or its child tree
+
         # Make sure we have a task
         if not self._current_task:
             self._switch_new_task()
@@ -158,8 +161,6 @@ class Environment:
         if reward is not None:
             # process the reward (clearing it if it's not allowed)
             reward = self._allowable_reward(reward)
-
-        self._last_result = self._result
 
         return output, reward
 
@@ -275,8 +276,10 @@ class Environment:
 
         # pick a new task
         if self._result != None:
+            self._last_result = self._result
             self._task_scheduler.reward(self._result)
             self._result = None
+
         self._current_task = self._task_scheduler.get_next_task()
         try:
             # This is to check whether the user didn't mess up in instantiating

@@ -218,6 +218,7 @@ class MicroMappingTask(MicroBase):
             self.known_mapping[question] = 1
         else:
             self.known_mapping[question] = max(self.known_mapping[question] - 1, 1)
+
         if all(x == 1 for x in self.known_mapping.values()):
             self.should_know = True
 
@@ -287,8 +288,8 @@ class Micro2Task(MicroMappingTask):
 class Micro3Task(MicroMappingTask):
     alphabet = random.sample(string.ascii_lowercase, 4)
 
-    def _get_mapping_options(self, mapping):
-        return {x: len(self.alphabet) for x in self.alphabet}
+    #def _get_mapping_options(self, mapping):
+    #    return {x: len(self.alphabet) for x in self.alphabet}
 
     def _get_mapping(self):
         permutation = ''.join(random.sample(self.alphabet, len(self.alphabet)))

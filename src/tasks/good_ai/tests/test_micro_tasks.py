@@ -1,3 +1,4 @@
+import random
 import string
 import unittest
 
@@ -8,6 +9,25 @@ import core.serializer as serializer
 from learners.base import BaseLearner
 from tasks.competition.tests.helpers import SingleTaskScheduler
 import tasks.good_ai.micro as micro
+
+
+class FixedLearner:
+    def __init__(self, fixed_output=' '):
+        self.fixed_output = fixed_output
+        return
+
+    def try_reward(self, reward):
+        if reward is not None:
+            self.reward(reward)
+
+    def reward(self, reward):
+        # YEAH! Reward!!! Whatever...
+        pass
+
+    def next(self, input):
+        # do super fancy computations
+        # return our guess
+        return self.fixed_output
 
 
 class EnvironmentByteMessenger:
@@ -149,6 +169,8 @@ class TestMicro6Sub1Learner(BaseLearner):
 
         return ' '
 
+def task_solved_successfuly(task):
+    return task._env._last_result == 1 and task.solved_on_time()
 
 def basic_task_run(messenger, learner, task):
     while True:
@@ -156,7 +178,7 @@ def basic_task_run(messenger, learner, task):
         answer = learner.next(question)
         reward = messenger.send(answer)
         learner.reward(reward)
-        if task._env._last_result == 1:    # agent succeeded  agent_solved_instance()
+        if task._env._last_result != None:    # agent succeeded  agent_solved_instance()
             break
         if not task.solved_on_time():   # agent is overtime
             break
@@ -229,7 +251,7 @@ class TestMicroTask(unittest.TestCase):
         learner = BaseLearner()
         messenger = task_messenger(task)
         basic_task_run(messenger, learner, task)
-        self.assertFalse(task._env._last_result)
+        self.assertFalse(task_solved_successfuly(task))
 
     # just this test because the test suite in TestMicroTaskBase uses BaseLearner as the "stupid" one. But it actually solves the task
     def test_micro4(self):
@@ -238,7 +260,7 @@ class TestMicroTask(unittest.TestCase):
             learner = BaseLearner()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
-            self.assertTrue(task._env._last_result)
+            self.assertTrue(task_solved_successfuly(task))
 
     def test_micro5sub1(self):
         for _ in range(10):
@@ -246,7 +268,7 @@ class TestMicroTask(unittest.TestCase):
             learner = TestMicro5Sub1Learner()
             messenger = task_messenger(task)
             basic_task_run(messenger, learner, task)
-            self.assertTrue(task._env._last_result)
+            self.assertTrue(task_solved_successfuly(task))
 
     def test_micro6(self):
         for _ in range(10):
@@ -255,7 +277,7 @@ class TestMicroTask(unittest.TestCase):
             messenger = task_messenger(task)
             for _ in range(10):
                 basic_task_run(messenger, learner, task)
-                self.assertTrue(task._env._last_result)
+                self.assertTrue(task_solved_successfuly(task))
 
 
 class TestMicroTaskBase(unittest.TestCase):
@@ -283,7 +305,7 @@ class TestMicroTaskBase(unittest.TestCase):
             learner = self._get_learner()
             messenger = task_messenger(self.task)
             basic_task_run(messenger, learner, self.task)
-            self.assertTrue(self.task._env._last_result)
+            self.assertTrue(task_solved_successfuly(self.task))
 
     def test_successful_evaluation(self):
         '''
@@ -293,14 +315,14 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task._env._last_result)
+        self.assertTrue(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 1)
 
         messenger.send()
         # second run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task._env._last_result)
+        self.assertTrue(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 0)  # 2 % 2 = 0, because the scheduler switched to next task
 
     def test_failed_evaluation(self):
@@ -309,16 +331,16 @@ class TestMicroTaskBase(unittest.TestCase):
         '''
         scheduler, messenger = self.init_env()
         # first run
-        learner = BaseLearner()
+        learner = FixedLearner(random.sample(set(string.ascii_lowercase) - set(self.task.alphabet),1)[0])
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task._env._last_result)
+        self.assertFalse(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 0)
 
         messenger.send()   # now the task is overdue
         messenger.send()   # force the control loop to enter next task
         # second run
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task._env._last_result)
+        self.assertFalse(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 0)
 
     def test_failed_then_successful_evaluation(self):
@@ -327,10 +349,10 @@ class TestMicroTaskBase(unittest.TestCase):
         '''
         scheduler, messenger = self.init_env()
         # first run
-        learner = BaseLearner()
+        learner = FixedLearner(random.sample(set(string.ascii_lowercase) - set(self.task.alphabet),1)[0])
         self.task.failed_task_tolerance = 0    # make the task really strict
         basic_task_run(messenger, learner, self.task)
-        self.assertFalse(self.task._env._last_result)
+        self.assertFalse(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 0)
 
         messenger.send()   # now the task is overdue
@@ -338,7 +360,7 @@ class TestMicroTaskBase(unittest.TestCase):
         # second run
         learner = self._get_learner()
         basic_task_run(messenger, learner, self.task)
-        self.assertTrue(self.task._env._last_result)
+        self.assertTrue(task_solved_successfuly(self.task))
         self.assertEqual(scheduler.reward_count, 1)
 
 
@@ -355,12 +377,12 @@ class TestMicro2(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro1Learner(string.ascii_lowercase, True)
 
-
-class TestMicro3(TestMicroTaskBase):
-    task = micro.Micro2Task()
-
-    def _get_learner(self):
-        return TestMicro1Learner(string.ascii_lowercase, True)
+# commented out, not finished yet
+#class TestMicro3(TestMicroTaskBase):
+#    task = micro.Micro3Task()
+#
+#    def _get_learner(self):
+#        return TestMicro1Learner(string.ascii_lowercase, True)
 
 
 # class TestMicro5Sub1(TestMicroTaskBase):
