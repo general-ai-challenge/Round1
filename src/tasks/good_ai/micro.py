@@ -24,21 +24,21 @@ class MicroBase(Task):
 
     def agent_solved_instance(self):
         '''
-        Checks wether the agent solved task instance successfully
+        Checks whether the agent solved task instance successfully
         '''
         return self.solved_on_time() and self.consecutive_reward >= ARBITRARY_SUCCESS_NUMBER
 
     def agent_should_know_answers(self):
         '''
-        Checks wether the information provided to agent was sufficient for it to know the correct solution to task instance
+        Checks whether the information provided to agent was sufficient for it to know the correct solution to task instance
         Tasks may override this method - this is equal to knowing all the correct answers from first step
         '''
         return True
 
     def solved_on_time(self):
         '''
-        Checks wether the task is still in stage, where agent can successfully solve the task.
-        This method does not check wether agent actually solved the task! Only if the time for the solution ran up or not!
+        Checks whether the task is still in stage, where agent can successfully solve the task.
+        This method does not check whether agent actually solved the task! Only if the time for the solution ran up or not!
         '''
         if self.max_questions_for_success:
             return self.questions_asked <= self.max_questions_for_success
