@@ -137,37 +137,55 @@ class TestMicro6Sub1Learner(BaseLearner):
         self.assignment = []
         self.response_buffer = []
 
+    def _handle_feedback(self, input):
+        if input != ';':
+            return ' '
+        self.buffer.pop()  # remove the ';'
+        dot_index = self.buffer.index('.')
+        self.mapping[str(self.assignment)] = self.buffer[dot_index + 2:]  # +2 to remove the dot and the ensuing space
+        del self.buffer[:]  # same as self.buffer.clear() in python 3.5
+        self.is_feedback = False
+        self.is_assignment = True
+        return ' '
+
+    def _handle_assignment(self, input):
+        if input == '.':
+            colon_index = self.buffer.index(':')
+            self.assignment = self.buffer[colon_index + 2:]  # +2 to remove the colon and the ensuing space
+
+            self.assignment.reverse()
+            self.is_output = True
+            self.is_assignment = False
+
+    def _handle_output(self, input):
+        self.answer = self.assignment.pop()
+        if self.answer == '.':
+            self.is_output = False
+            self.is_feedback = True
+        return self.answer
+
     def next(self, input):
         self.buffer.append(input)
 
         if self.is_feedback:
-            if input != ';':
-                return ' '
-            self.buffer.pop()  # remove the ';'
-            dot_index = self.buffer.index('.')
-            self.mapping[str(self.assignment)] = self.buffer[dot_index+2:]  # +2 to remove the dot and the ensuing space
-            del self.buffer[:]  # same as self.buffer.clear() in python 3.5
-            self.is_feedback = False
-            self.is_assignment = True
-            return ' '
+            return self._handle_feedback(input)
 
         if self.is_assignment:
-            if input == '.':
-                colon_index = self.buffer.index(':')
-                self.assignment = self.buffer[colon_index + 2:]  # +2 to remove the colon and the ensuing space
-
-                self.assignment.reverse()
-                self.is_output = True
-                self.is_assignment = False
+            self._handle_assignment(input)
+            # the return is intentionally missing here - because of the need to immediately switch from
+            # assignment to output when the '.' character is read.
 
         if self.is_output:
-            self.answer = self.assignment.pop()
-            if self.answer == '.':
-                self.is_output = False
-                self.is_feedback = True
-            return self.answer
+            return self._handle_output(input)
 
         return ' '
+
+class TestMicro7Learner(TestMicro6Sub1Learner):
+
+    def _handle_assignment(self, input):
+        if len(self.buffer) >= 2 and self.buffer[-1] == ' ' and self.buffer[-2] == ' ':
+            self.buffer.pop()  # trimming white spaces to a single one
+        TestMicro6Sub1Learner._handle_assignment(self, input)
 
 def task_solved_successfuly(task):
     return task._env._last_result == 1 and task.solved_on_time()
@@ -270,28 +288,78 @@ class TestMicroTask(unittest.TestCase):
             basic_task_run(messenger, learner, task)
             self.assertTrue(task_solved_successfuly(task))
 
-    def test_micro6_pass(self):
+    def test_micro6_1_pass(self):
         # import logging  # useful to uncomment when you want to see logs during test runs
         # logging.basicConfig(level=logging.DEBUG)
-        for _ in range(10):
+        for _ in range(3):
             task = micro.Micro6Sub1Task()
             learner = TestMicro6Sub1Learner()
             messenger = task_messenger(task)
-            for _ in range(10):
+            for _ in range(3):
                 basic_task_run(messenger, learner, task)
                 self.assertTrue(task_solved_successfuly(task))
 
-    def test_micro6_fail(self):
+    def test_micro6_1_fail(self):
         #import logging
         #logging.basicConfig(level=logging.DEBUG)
-        for _ in range(10):
+        for _ in range(3):
             task = micro.Micro6Sub1Task()
             learner = FixedLearner('.')
             messenger = task_messenger(task)
-            for _v in range(10):
-                print(_v)
+            for _ in range(3):
                 basic_task_run(messenger, learner, task)
                 self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro6_2_pass(self):
+        for _ in range(3):
+            task = micro.Micro6Sub2Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro6_2_fail(self):
+        #import logging
+        #logging.basicConfig(level=logging.DEBUG)
+        for _ in range(3):
+            task = micro.Micro6Sub2Task()
+            learner = FixedLearner('.')
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro6_3_pass(self):
+        for _ in range(3):
+            task = micro.Micro6Sub3Task()
+            learner = TestMicro6Sub1Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_micro6_3_fail(self):
+        #import logging
+        #logging.basicConfig(level=logging.DEBUG)
+        for _ in range(3):
+            task = micro.Micro6Sub3Task()
+            learner = FixedLearner('.')
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertFalse(task_solved_successfuly(task))
+
+    def test_micro7_pass(self):
+        # import logging  # useful to uncomment when you want to see logs during test runs
+        # logging.basicConfig(level=logging.DEBUG)
+        for _ in range(3):
+            task = micro.Micro7Task()
+            learner = TestMicro7Learner()
+            messenger = task_messenger(task)
+            for _ in range(3):
+                basic_task_run(messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
 
 
 
