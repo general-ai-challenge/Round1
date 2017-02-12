@@ -145,13 +145,13 @@ class Micro1Task(MicroBase):
     ALPHABET_SIZE = 10
 
     def __init__(self):
-        self.alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
-        self.alphabet = random.sample(self.alphabet, self.ALPHABET_SIZE)
+        self.base_alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
+        self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         super(Micro1Task, self).__init__()
 
     @on_start()
     def micro1_on_start(self, event):
-        self.remaining_options = len(self.alphabet)
+        self.remaining_options = len(self.base_alphabet)
         self.should_know = False
 
     def agent_should_know_answers(self):
@@ -267,14 +267,15 @@ class MicroMappingTask(MicroBase):
 
 
 class Micro2Task(MicroMappingTask):
-    alphabet = random.sample(string.ascii_lowercase, 4)
+    base_alphabet = string.ascii_lowercase
+    alphabet = random.sample(base_alphabet, 4)
 
     def __init__(self):
         super(Micro2Task, self).__init__()
 
     @on_start()
     def micro2_on_start(self, event):
-        self.remaining_options = len(self.alphabet)
+        self.remaining_options = len(self.base_alphabet)
 
     def agent_should_know_answers(self):
         return self.should_know
@@ -295,10 +296,14 @@ class Micro2Task(MicroMappingTask):
 
 
 class Micro3Task(MicroMappingTask):
-    alphabet = random.sample(string.ascii_lowercase, 4)
+    base_alphabet = string.ascii_lowercase
+    alphabet = random.sample(base_alphabet, 4)
 
-    #def _get_mapping_options(self, mapping):
-    #    return {x: len(self.alphabet) for x in self.alphabet}
+    def _get_mapping_options(self, mapping):
+        result = {x: len(self.base_alphabet) for x in self.alphabet}
+        for c in ' !":?.,;':
+            result[c] = 1
+        return result
 
     def _get_mapping(self):
         permutation = ''.join(random.sample(self.alphabet, len(self.alphabet)))
@@ -346,6 +351,7 @@ class FeedbackMappingTaskMixin(MicroMappingTask):
     This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
     The only one occurrence is needed for every key from mapping.
     '''
+
     def _get_mapping_options(self, mapping):
         keys = mapping.keys()
         return {x: 2 for x in keys}
