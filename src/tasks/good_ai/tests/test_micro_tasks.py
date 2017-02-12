@@ -307,30 +307,6 @@ class TestMicroTaskFlow(unittest.TestCase):
 
 class TestMicroTask(unittest.TestCase):
 
-    def test_stupid_agent(self):
-        task = micro.Micro1Task()
-        learner = BaseLearner()
-        messenger = task_messenger(task)
-        basic_task_run(messenger, learner, task)
-        self.assertFalse(task_solved_successfuly(task))
-
-    # just this test because the test suite in TestMicroTaskBase uses BaseLearner as the "stupid" one. But it actually solves the task
-    def test_micro4(self):
-        for _ in range(10):
-            task = micro.Micro4Task()
-            learner = BaseLearner()
-            messenger = task_messenger(task)
-            basic_task_run(messenger, learner, task)
-            self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro5sub1(self):
-        for _ in range(10):
-            task = micro.Micro5Sub1Task()
-            learner = TestMicro5Sub1Learner()
-            messenger = task_messenger(task)
-            basic_task_run(messenger, learner, task)
-            self.assertTrue(task_solved_successfuly(task))
-
     def test_micro6_1_pass(self):
         # import logging  # useful to uncomment when you want to see logs during test runs
         # logging.basicConfig(level=logging.DEBUG)
@@ -575,6 +551,13 @@ class TestMicro3(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro3Learner()
+
+
+class TestMicro4(TestMicroTaskBase):
+    task = micro.Micro4Task
+
+    def _get_learner(self):
+        return BaseLearner()
 
 
 class TestMicro5Sub1(TestMicroTaskBase):
