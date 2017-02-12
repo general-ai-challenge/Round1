@@ -304,6 +304,8 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.env._current_task, first_task)
         self.assertEqual(self.scheduler.reward_count, 0)
 
+# all tests in TestMicroTask should be also fulfilled by classes inheriting from TestMicroTaskBase at the bottom
+
 
 class TestMicroTask(unittest.TestCase):
 
@@ -471,9 +473,7 @@ class TestMicroTaskBase(unittest.TestCase):
                 learner = self._get_learner()
                 messenger = task_messenger(task)
                 basic_task_run(messenger, learner, task)
-                # print(task_solved_successfuly(task))
                 self.assertTrue(task_solved_successfuly(task))
-            # self.assertTrue(False)
 
     def test_successful_evaluation(self):
         '''
@@ -505,8 +505,6 @@ class TestMicroTaskBase(unittest.TestCase):
         self.assertFalse(task_solved_successfuly(task))
         self.assertEqual(scheduler.reward_count, 0)
 
-        # messenger.send()   # now the task is overdue
-        # messenger.send()   # force the control loop to enter next task
         # second run
         basic_task_run(messenger, learner, task)
         self.assertFalse(task_solved_successfuly(task))
@@ -565,3 +563,52 @@ class TestMicro5Sub1(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro5Sub1Learner()
+
+
+class TestMicro6Sub1(TestMicroTaskBase):
+    task = micro.Micro6Sub1Task
+
+    def _get_learner(self):
+        return TestMicro6Sub1Learner()
+
+
+class TestMicro6Sub2(TestMicroTaskBase):
+    task = micro.Micro6Sub2Task
+
+    def _get_learner(self):
+        return TestMicro6Sub1Learner()
+
+
+class TestMicro6Sub3(TestMicroTaskBase):
+    task = micro.Micro6Sub3Task
+
+    def _get_learner(self):
+        return TestMicro6Sub1Learner()
+
+
+class TestMicro7(TestMicroTaskBase):
+    task = micro.Micro7Task
+
+    def _get_learner(self):
+        return TestMicro7Learner()
+
+
+class TestMicro8Sub1(TestMicroTaskBase):
+    task = micro.Micro8Sub1Task
+
+    def _get_learner(self):
+        return TestMicro8Learner()
+
+
+class TestMicro8Sub2(TestMicroTaskBase):
+    task = micro.Micro8Sub2Task
+
+    def _get_learner(self):
+        return TestMicro8Learner()
+
+
+class TestMicro8Sub3(TestMicroTaskBase):
+    task = micro.Micro8Sub3Task
+
+    def _get_learner(self):
+        return TestMicro8Learner()
