@@ -169,6 +169,52 @@ class TestMicro5Sub3Learner(BaseLearner):
                 return self.answer
 
 
+class TestMicro5Sub4Learner(BaseLearner):
+
+    def __init__(self):
+        self.awaiting_question = True
+        self.awaiting_feedback = False
+        self.question_separator = '.'
+        self.feedback_separator = ';'
+        self.mapping = {}
+        self.question = None
+        self.buffer = []
+
+    @property
+    def is_question(self):
+        return self.awaiting_question and self.buffer[-1] == self.question_separator
+
+    @property
+    def is_feedback(self):
+        return self.awaiting_feedback and self.buffer[-1] == self.feedback_separator
+
+    def process_question(self):
+        self.question = ''.join(self.buffer[:-len(self.question_separator)])
+        del self.buffer[:]
+        self.awaiting_question = False
+        self.awaiting_feedback = True
+
+    def process_feedback(self):
+        feedback = self.buffer[:-len(self.feedback_separator)]
+        self.mapping[self.question] = ''.join(feedback)
+        del self.buffer[:]
+        self.awaiting_question = True
+        self.awaiting_feedback = False
+
+    def answer_question(self):
+        print("answer on {} is {}".format(self.question, self.mapping.get(self.question, ' ')))
+        return self.mapping.get(self.question, ' ')
+
+    def next(self, input):
+        self.buffer.append(input)
+
+        if self.is_question:
+            self.process_question()
+            return self.answer_question()
+        elif self.is_feedback:
+            self.process_feedback()
+
+
 class TestMicro6Sub1Learner(BaseLearner):
 
     def __init__(self):
@@ -743,6 +789,13 @@ class TestMicro5Sub3(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro5Sub3Learner()
+
+
+class TestMicro5Sub4(TestMicroTaskBase):
+    task = micro.Micro5Sub4Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
 
 
 class TestMicro6Sub1(TestMicroTaskBase):

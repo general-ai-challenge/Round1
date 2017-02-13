@@ -118,10 +118,10 @@ class MicroBase(Task):
 
         finished, correct, reward = self.tasker.check_answer(answer, self.question)
         self.provide_reward(reward)
-        self.question_answered(correct)
 
         # if one task sub-instance solved
         if finished:
+            self.question_answered(correct)
             self.provide_feedback(correct)
             if self.check_if_task_instance_solved():
                 # give next instruction
