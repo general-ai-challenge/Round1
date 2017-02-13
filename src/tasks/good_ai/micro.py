@@ -1,6 +1,7 @@
 import random
 import re
 import string
+from contextlib import contextmanager
 
 from core.task import on_message, on_start, on_timeout
 from core.task import Task
@@ -19,8 +20,7 @@ class MicroBase(Task):
         super(MicroBase, self).__init__(world=world, max_time=10000)
         self.skip_task_separator = True
 
-    @staticmethod
-    def get_task_generator():
+    def get_task_generator(self):
         pass
 
     def agent_solved_instance_under_time_limit(self):
@@ -561,7 +561,19 @@ class Micro5Sub18Task(FeedbackMappingTaskMixin, MicroMappingTask):
 def load_dictionary(file_name):
     with open(file_name) as f:
         content = f.readlines()
-    return [x.strip() for x in content]
+
+    print(load_dictionary.forbidden_strings)
+    return [x.strip() for x in content
+            if not any(map(lambda forbidden: forbidden in x.strip(), load_dictionary.forbidden_strings))]
+
+load_dictionary.forbidden_strings = []
+
+
+@contextmanager
+def forbid_dictionary_strings(words):
+    load_dictionary.forbidden_strings = words
+    yield
+    load_dictionary.forbidden_strings = []
 
 
 class Micro6Sub1Task(MicroBase):
@@ -1031,14 +1043,20 @@ class Micro19Task(MicroBase):
     m11 = Micro11Task()
     m12 = Micro12Task()
     failed_task_tolerance = 2.0
-    synonyms = {'say:': ['say:', 'print:', 'write:'],
+    synonyms = {'say': ['say', 'print', 'write'],
                 'and': ['and', 'together with', '&', 'also'],
                 'or': ['or', 'alternative', '/'],
                 'after': ['after', 'behind', 'next'],
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
-    synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
-    tasks = []
+    synonym_list = list(synonyms.keys())
+
+    def __init__(self):
+        super().__init__()
+        self.tasks = []
+        self._forbidden_strings = []
+        for original, synonyms in self.synonyms.items():
+            self._forbidden_strings.extend(synonyms)
 
     @on_start()
     def new_task_instance(self, event):
@@ -1057,10 +1075,13 @@ class Micro19Task(MicroBase):
         synonym_list = self.synonym_list
         get_random_synonym = self.get_random_synonym
 
-        def func_outer(self):
-            question, a, b = func_inner(self)
+        def func_outer(_self):
+            with forbid_dictionary_strings(self._forbidden_strings):
+                question, a, b = func_inner(_self)
+
             for synonym in synonym_list:
-                question = question.replace(synonym, get_random_synonym(synonym))
+                question = question.replace(synonym+' ', get_random_synonym(synonym)+' ')
+                question = question.replace(synonym+':', get_random_synonym(synonym)+':')
             return question, a, b
         task_generator.instancer = func_outer
         return task_generator

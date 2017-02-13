@@ -351,6 +351,7 @@ class TestMicroMultipleCommandsBase(BaseLearner):
     def __init__(self):
         self._buffer = []
         self._read_assignment = True
+        self._output = []
 
         commands = '|'.join(self._viable_commands)
 
@@ -622,6 +623,94 @@ class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
             return self.mapping[output]
         else:
             return ' '
+
+
+class TestMicro19Learner(BaseLearner):
+    _synonyms = {'say': ['say', 'print', 'write'],
+                 'and': ['and', 'together with', '&', 'also'],
+                 'or': ['or', 'alternative', '/'],
+                 'after': ['after', 'behind', 'next'],
+                 'union': ['union', 'consolidate', 'joint'],
+                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
+
+    def __init__(self):
+        self._buffer = []
+        self._response = []
+        self._read_assignment = True
+
+    def next(self, input_char):
+        if self._read_assignment:
+            # Read an assignment from env.
+            if input_char == '.' or input_char == ';':
+                question = ''.join(self._buffer)
+                print(question)
+                self._buffer = []
+
+                for synonym in self._synonyms['say']:
+                    question = question.replace(synonym, 'say')
+
+                learner = None
+
+                if 'what' in question:
+                    for synonym in self._synonyms['after']:
+                        question = question.replace(synonym, 'after')
+                        question = question.replace(synonym, 'after')
+                    learner = TestMicro12Learner()
+
+                if 'concatenate:' in question or 'reverse:' in question or 'interleave:' in question:
+                    learner = TestMicro10Learner()
+
+                is_learner_11 = False
+                for synonym in self._synonyms['union']:
+                    if synonym in question:
+                        question = question.replace(synonym, 'union')
+                        learner = TestMicro11Learner()
+                        is_learner_11 = True
+                for synonym in self._synonyms['exclude']:
+                    if synonym in question:
+                        question = question.replace(synonym, 'exclude')
+                        learner = TestMicro11Learner()
+                        is_learner_11 = True
+                if is_learner_11:
+                    for synonym in self._synonyms['and']:
+                        question = question.replace(synonym, 'and')
+                    for synonym in self._synonyms['or']:
+                        question = question.replace(synonym, 'or')
+
+                if learner is None:
+                    if 'say:' in question:
+                        learner = TestMicro9Learner()
+                    else:
+                        return ' '
+
+                # Feed the learner the question.
+                for c in question:
+                    learner.next(c)
+
+                # Get response back from learner.
+                self._response = [learner.next('.')]
+                while self._response[-1] != '.':
+                    self._response.append(learner.next(' '))
+
+                # Remove the dot, it will be sent later.
+                self._response = self._response[:-1]
+                self._read_assignment = False
+
+                print('response# ' + ''.join(self._response))
+
+            else:
+                # Waiting for the question to finish.
+                self._buffer.append(input_char)
+                return ' '
+
+        if not self._read_assignment:
+            # Provide the answer from the selected learner.
+            if len(self._response) > 0:
+                return self._response.pop(0)
+            else:
+                self._read_assignment = True
+                # The answer is complete, finalize with a dot.
+                return '.'
 
 
 def task_solved_successfuly(task):
@@ -1115,3 +1204,14 @@ class TestMicro18(TestMicroTaskBase):
 
     def _get_failing_learner(self):
         return FixedLearner('.')
+
+
+class TestMicro19(TestMicroTaskBase):
+    task = micro.Micro19Task
+
+    def _get_learner(self):
+        return TestMicro19Learner()
+
+    def _get_failing_learner(self):
+        return FixedLearner('.')
+
