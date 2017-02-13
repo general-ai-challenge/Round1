@@ -643,7 +643,7 @@ def basic_task_run(test, messenger, learner, task):
         learner.reward(reward)
         if task._env._last_result is not None:    # agent succeeded
             if temp_max_questions_nr is not None:
-                task.max_questions_nr = temp_max_questions_nr
+                task.max_questions_nr = None  # not strictly necessary, but is here for clarity.
                 temp_max_questions_nr = None
             break
         if not task.under_time_limit_for_successfull_solution():   # agent is overtime
@@ -713,138 +713,6 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.scheduler.reward_count, 0)
 
 # all tests in TestMicroTask should be also fulfilled by classes inheriting from TestMicroTaskBase at the bottom
-
-
-class TestMicroTask(unittest.TestCase):
-
-    def test_micro6_1_pass(self):
-        # import logging  # useful to uncomment when you want to see logs during test runs
-        # logging.basicConfig(level=logging.DEBUG)
-        for _ in range(3):
-            task = micro.Micro6Sub1Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro6_1_fail(self):
-        for _ in range(3):
-            task = micro.Micro6Sub1Task()
-            learner = FixedLearner('.')
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro6_2_pass(self):
-        for _ in range(3):
-            task = micro.Micro6Sub2Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro6_2_fail(self):
-        for _ in range(3):
-            task = micro.Micro6Sub2Task()
-            learner = FixedLearner('.')
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro6_3_pass(self):
-        for _ in range(3):
-            task = micro.Micro6Sub3Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro6_3_fail(self):
-        for _ in range(3):
-            task = micro.Micro6Sub3Task()
-            learner = FixedLearner('.')
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro7_pass(self):
-        for _ in range(3):
-            task = micro.Micro7Task()
-            learner = TestMicro7Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro7_fail(self):
-        for _ in range(3):
-            task = micro.Micro7Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro8_1_pass(self):
-        for _ in range(3):
-            task = micro.Micro8Sub1Task()
-            learner = TestMicro8Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro8_1_fail(self):
-        for _ in range(3):
-            task = micro.Micro8Sub1Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro8_2_pass(self):
-        for _ in range(3):
-            task = micro.Micro8Sub2Task()
-            learner = TestMicro8Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro8_2_fail(self):
-        for _ in range(3):
-            task = micro.Micro8Sub2Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
-    def test_micro8_3_pass(self):
-        for _ in range(3):
-            task = micro.Micro8Sub3Task()
-            learner = TestMicro8Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
-
-    def test_micro8_3_fail(self):
-        for _ in range(3):
-            task = micro.Micro8Sub3Task()
-            learner = TestMicro6Sub1Learner()
-            messenger = task_messenger(task)
-            for _ in range(3):
-                basic_task_run(self, messenger, learner, task)
-                self.assertFalse(task_solved_successfuly(task))
-
 
 class TestMicroTaskBase(unittest.TestCase):
 
@@ -917,11 +785,9 @@ class TestMicroTaskBase(unittest.TestCase):
         self.assertFalse(task_solved_successfuly(task))
         self.assertEqual(scheduler.reward_count, 0)
 
-    # this test fails - beacuse during the second run - env.last_result is already set to False from first run -> task run ends immediately
     def test_failed_then_successful_evaluation(self):
-        '''
-        Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
-        '''
+        # Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
+
         task = self._get_task()
         scheduler, messenger = self.init_env(task)
         # first run
@@ -929,6 +795,7 @@ class TestMicroTaskBase(unittest.TestCase):
         basic_task_run(self, messenger, learner, task)
         self.assertFalse(task_solved_successfuly(task))
         self.assertEqual(scheduler.reward_count, 0)
+
 
         # second run
         learner = self._get_learner()
