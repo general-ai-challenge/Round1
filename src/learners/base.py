@@ -12,7 +12,8 @@ from __future__ import unicode_literals
 import subprocess
 
 
-class BaseLearner:
+class BaseLearner(object):
+
     def try_reward(self, reward):
         if reward is not None:
             self.reward(reward)
@@ -28,6 +29,7 @@ class BaseLearner:
 
 
 class RemoteLearner(BaseLearner):
+
     def __init__(self, cmd, port):
         try:
             import zmq
