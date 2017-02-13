@@ -513,6 +513,26 @@ class TestMicro13Learner(BaseLearner):
                 return '.'
 
 
+class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_feedback = re.compile('! (.+)\. ?;')
+    matcher_output = re.compile('say next after: (.+)\.')
+
+    previous_symbol = ''
+    mapping = {}
+
+    def generate_response(self, feedback_match, output_match):
+        output = output_match[0]
+        if len(feedback_match) > 0:
+            feedback = feedback_match[0]
+            self.mapping[self.previous_symbol] = feedback
+
+        self.previous_symbol = output
+        if output in self.mapping.keys():
+            return self.mapping[output]
+        else:
+            return ' '
+
+
 def task_solved_successfuly(task):
     return task._env._last_result and task.solved_on_time()
 
@@ -963,3 +983,10 @@ class TestMicro13(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro13Learner()
+
+
+class TestMicro18(TestMicroTaskBase):
+    task = micro.Micro18Task
+
+    def _get_learner(self):
+        return TestMicro18Learner()
