@@ -358,6 +358,44 @@ class TestMicro11Learner(TestMicroMultipleCommandsBase):
             return set1.replace(set2, '')
 
 
+class TestMicro12Learner(BaseLearner):
+    def __init__(self):
+        self._buffer = []
+        self._read_assignment = True
+        self._output = []
+
+        self._matcher = re.compile('after (.) comes what:')
+
+    def next(self, input_char):
+        self._buffer.append(input_char)
+
+        if self._read_assignment:
+            if input_char == '.':
+                # Commands received.
+
+                # Get the whole assignment, remove dot.
+                received_sentence = ''.join(self._buffer)
+                self._buffer = []
+
+                char = self._matcher.findall(received_sentence)[0]
+
+                idx = string.ascii_letters.find(char)
+                response = string.ascii_letters[idx + 1]
+
+                self._output = [response]
+
+                self._read_assignment = False
+
+        if not self._read_assignment:
+            if len(self._output) > 0:
+                return self._output.pop(0)
+            else:
+                self._read_assignment = True
+                return '.'
+
+        return ' '
+
+
 def task_solved_successfuly(task):
     return task._env._last_result and task.solved_on_time()
 
@@ -787,3 +825,12 @@ class TestMicro11(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro11Learner()
+
+
+class TestMicro12(TestMicroTaskBase):
+    task = micro.Micro12Task
+
+    def _get_learner(self):
+        return TestMicro12Learner()
+
+
