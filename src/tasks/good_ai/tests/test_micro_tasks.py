@@ -1219,10 +1219,13 @@ class TestMicro15(TestMicroTaskBase):
 
 
 class TestMicro17(TestMicroTaskBase):
-    task = micro.Micro18Task
+    task = micro.Micro17Task
 
     def _get_learner(self):
-        return TestMicro18Learner()
+        return TestMicro17Learner()
+
+    def _get_failing_learner(self):
+        return FixedLearner('.')
 
 
 class TestMicro18(TestMicroTaskBase):

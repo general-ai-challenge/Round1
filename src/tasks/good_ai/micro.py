@@ -999,7 +999,6 @@ class Micro18Task(MicroBase):
             self.should_know = True
 
     def get_task_generator(self):
-        print("new mapping")
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
         sequence2 = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
         sequence3 = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
