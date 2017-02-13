@@ -325,7 +325,7 @@ class TestMicroMultipleCommandsBase(BaseLearner):
 
         commands = '|'.join(self._viable_commands)
 
-        self._matcher = re.compile('(' + commands + '):(?: (\w*)|.)')
+        self._matcher = re.compile('(' + commands + '):(?: ([\w\-]*)|.)')
 
     @classmethod
     def _generate_response(cls, commands):
@@ -440,6 +440,64 @@ class TestMicro12Learner(BaseLearner):
                 return '.'
 
         return ' '
+
+
+class TestMicro13Learner(BaseLearner):
+    def __init__(self):
+        self._buffer = []
+        self._response = []
+        self._read_assignment = True
+
+    def next(self, input_char):
+        import sys
+        sys.stdout.write(input_char)
+        if self._read_assignment:
+            # Read an assignment from env.
+            if input_char == '.' or input_char == ';':
+                question = ''.join(self._buffer)
+                self._buffer = []
+
+                # Depending on the question, choose a learner.
+                if 'spell' in question:
+                    learner = TestMicro8Learner()
+                elif 'reverse' in question or 'concatenate' in question or 'interleave' in question:
+                    learner = TestMicro10Learner()
+                elif 'union' in question or 'exclude' in question:
+                    learner = TestMicro11Learner()
+                elif 'say' in question:
+                    learner = TestMicro9Learner()
+                else:
+                    learner = None
+
+                if learner is None:
+                    return ' '
+
+                # Feed the learner the question.
+                for c in question:
+                    learner.next(c)
+
+                # Get response back from learner.
+                self._response = [learner.next('.')]
+                while self._response[-1] != '.':
+                    self._response.append(learner.next(' '))
+
+                # Remove the dot, it will be sent later.
+                self._response = self._response[:-1]
+                self._read_assignment = False
+
+            else:
+                # Waiting for the question to finish.
+                self._buffer.append(input_char)
+                return ' '
+
+        if not self._read_assignment:
+            # Provide the answer from the selected learner.
+            if len(self._response) > 0:
+                return self._response.pop(0)
+            else:
+                self._read_assignment = True
+                # The answer is complete, finalize with a dot.
+                return '.'
 
 
 def task_solved_successfuly(task):
@@ -887,3 +945,8 @@ class TestMicro12(TestMicroTaskBase):
         return TestMicro12Learner()
 
 
+class TestMicro13(TestMicroTaskBase):
+    task = micro.Micro13Task
+
+    def _get_learner(self):
+        return TestMicro13Learner()
