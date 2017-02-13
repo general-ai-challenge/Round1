@@ -6,7 +6,7 @@ from core.task import on_message, on_start, on_timeout
 from core.task import Task
 from tasks.good_ai.task_generator import TaskGenerator
 
-ARBITRARY_SUCCESS_NUMBER = 10
+REQUIRED_CONSECUTIVE_REWARDS = 10   # more or less arbitrary constant; high enough to prevent random solutions
 
 
 class MicroBase(Task):
@@ -16,18 +16,18 @@ class MicroBase(Task):
     tasker = None
 
     def __init__(self, world=None):
-        super(MicroBase, self).__init__(world=world, max_time=3000)
+        super(MicroBase, self).__init__(world=world, max_time=10000)
         self.skip_task_separator = True
 
     @staticmethod
     def get_task_generator():
         pass
 
-    def agent_solved_instance(self):
+    def agent_solved_instance_under_time_limit(self):
         '''
         Checks whether the agent solved task instance successfully
         '''
-        return self.solved_on_time() and self.consecutive_reward >= ARBITRARY_SUCCESS_NUMBER
+        return self.under_time_limit_for_successfull_solution() and self.consecutive_reward >= REQUIRED_CONSECUTIVE_REWARDS
 
     def agent_should_know_answers(self):
         '''
@@ -36,7 +36,7 @@ class MicroBase(Task):
         '''
         return True
 
-    def solved_on_time(self):
+    def under_time_limit_for_successfull_solution(self):
         '''
         Checks whether the task is still in stage, where agent can successfully solve the task.
         This method does not check whether agent actually solved the task! Only if the time for the solution ran up or not!
@@ -73,21 +73,22 @@ class MicroBase(Task):
     def question_answered(self, is_correct):
         self.questions_asked += 1
 
-    def check_if_task_instance_solved(self):
-        if self.agent_solved_instance():    # agent solved instance
+    def check_if_task_instance_finished(self):
+        if self.agent_solved_instance_under_time_limit():    # agent solved instance
             self.set_result(True, provide_result_as_reward=False)
-            return False
+            return True
 
         if not self.max_questions_for_success and self.agent_should_know_answers():  # agent did not solve it but should know answers from now on
-            self.max_questions_for_success = self.questions_asked + ARBITRARY_SUCCESS_NUMBER * (1.0 + self.success_tolerance)
+            self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (1.0 + self.success_tolerance)
 
-        if not self.max_questions_nr and not self.solved_on_time():  # agent failed but give him some time to learn task
+        if not self.max_questions_nr and not self.under_time_limit_for_successfull_solution():  # agent failed but give him some time to learn task
             self.max_questions_nr = self.questions_asked * (1.0 + self.failed_task_tolerance)
 
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
             self.set_result(False, provide_result_as_reward=False)
-            return False
-        return True
+            self._raise_timeout()
+            return True
+        return False
 
     def provide_feedback(self, correct):
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
@@ -123,7 +124,7 @@ class MicroBase(Task):
         if finished:
             self.question_answered(correct)
             self.provide_feedback(correct)
-            if self.check_if_task_instance_solved():
+            if not self.check_if_task_instance_finished():
                 # give next instruction
                 self.give_instructions()
 

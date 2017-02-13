@@ -444,10 +444,13 @@ class Task(ScriptSet):
         # if we are still in the process of outputting a message,
         # let it finish
         if t >= self._max_time and self._env._output_channel.is_empty():
-            self._env.event_manager.raise_event(Timeout())
+            self._raise_timeout()
             self._ended = True
             return True
         return False
+
+    def _raise_timeout(self):
+        self._env.event_manager.raise_event(Timeout())
 
     def start(self, env):
         super(Task, self).start(env)
