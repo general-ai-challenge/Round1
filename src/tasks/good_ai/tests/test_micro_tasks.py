@@ -276,7 +276,6 @@ class TestMicroMultipleCommandsBase(BaseLearner):
     def __init__(self):
         self._buffer = []
         self._read_assignment = True
-        self._output = []
 
         commands = '|'.join(self._viable_commands)
 
@@ -336,7 +335,7 @@ class TestMicro10Learner(TestMicroMultipleCommandsBase):
         elif operation == 'concatenate':
             return ''.join(words)
         elif operation == 'interleave':
-            return (''.join(word) for word in zip(*words))
+            return ''.join((''.join(word) for word in zip(*words)))
 
 
 def task_solved_successfuly(task):
