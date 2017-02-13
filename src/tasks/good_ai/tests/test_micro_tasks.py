@@ -555,11 +555,10 @@ class TestMicro15Learner(BaseLearner):
 
             if command == 'say:':
                 if words[1] == 'and' and words[2] != 'not':
-                    self._result = words[0] + words[2]
+                    self._result = ''.join(words[::2])
                 elif words[1] == 'or':
-                    if len(words) > 3:
-                        if words[3] == 'but' and words[4] == 'not':
-                            self._result = words[0] if words[0] != words[5] else words[2]
+                    if len(words) > 3 and words[3] == 'but' and words[4] == 'not':
+                        self._result = words[0] if words[0] != words[5] else words[2]
                     else:
                         self._result = words[0]
                 elif words[0] == 'anything':
@@ -1211,8 +1210,15 @@ class TestMicro13(TestMicroTaskBase):
         return FixedLearner('.')
 
 
-class TestMicro15(TestMicroTaskBase):
+class TestMicro15Sub1(TestMicroTaskBase):
     task = micro.Micro15Sub1Task
+
+    def _get_learner(self):
+        return TestMicro15Learner()
+
+
+class TestMicro15Sub2(TestMicroTaskBase):
+    task = micro.Micro15Sub2Task
 
     def _get_learner(self):
         return TestMicro15Learner()

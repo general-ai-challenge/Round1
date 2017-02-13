@@ -913,15 +913,12 @@ class Micro15Sub2Task(MicroBase):
                 words.append(''.join(random.sample(alphabet, word_length)))
             clause = (' ' + action + ' ').join(words)
             if action == 'or':
-                no_words = random.sample(words, random.randint(1, operands - 1))
-                sentence = random.choice([item for item in words if item not in no_words])
-                sentence += '.'
+                sentence = random.choice([item for item in words])
 
                 def or_but_not_reward(answer, question=''):
-                    correct = any(answer.find(word) >= 0 for word in words) \
-                        and all(answer.find(no_word) < 0 for no_word in no_words)
+                    correct = any(answer.find(word) >= 0 for word in words)
                     return correct, 1 if correct else -1
-                question = 'say: ' + clause + ' and not ' + ' and '.join(no_words) + '.'
+                question = 'say: ' + clause + '.'
                 return question, or_but_not_reward, micro15sub2_feedback
             else:
                 sentence = ''.join(words)
