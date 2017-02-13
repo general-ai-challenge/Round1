@@ -282,6 +282,7 @@ def basic_task_run(messenger, learner, task):
         if task._env._last_result is not None:    # agent succeeded
             break
         if not task.solved_on_time():   # agent is overtime
+            messenger.send(' ')  # to force a switch of task and correct setting of _env._last_result
             break
 
 
