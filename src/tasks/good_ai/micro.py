@@ -936,8 +936,12 @@ class Micro17Task(MicroBase):
     MAPPING_SIZE = 8
     FILE_NAME = 'res/dict_gsl.txt'
     failed_task_tolerance = 2.0
-    should_know = False
-    actual_key = ''
+
+    @on_start()
+    def new_task_instance(self, event):
+        super(Micro17Task, self).new_task_instance(event)
+        self.should_know = False
+        self.actual_key = ''
 
     def agent_should_know_answers(self):
         return self.should_know
@@ -977,7 +981,11 @@ class Micro17Task(MicroBase):
 class Micro18Task(MicroBase):
     reg_answer_end = r'\.'
     failed_task_tolerance = 2.0
-    should_know = False
+
+    @on_start()
+    def new_task_instance(self, event):
+        super(Micro18Task, self).new_task_instance(event)
+        self.should_know = False
 
     def agent_should_know_answers(self):
         return self.should_know
@@ -990,6 +998,7 @@ class Micro18Task(MicroBase):
             self.should_know = True
 
     def get_task_generator(self):
+        print("new mapping")
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
         sequence2 = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
         sequence3 = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
@@ -1032,8 +1041,12 @@ class Micro19Task(MicroBase):
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
     synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
-    tasks = []
-    should_know = False
+
+    @on_start()
+    def new_task_instance(self, event):
+        super(Micro19Task, self).new_task_instance(event)
+        self.tasks = []
+        self.should_know = False
 
     def get_task_generator(self):
         # choose task randomly, but provide all n tasks in n tries
@@ -1061,7 +1074,11 @@ class Micro19Task(MicroBase):
 
 class Micro20Task(Micro19Task):
     FILE_NAME = 'res/dict_gsl.txt'
-    tasks = []
+
+    @on_start()
+    def new_task_instance(self, event):
+        super(Micro20Task, self).new_task_instance(event)
+        self.tasks = []
 
     def get_task_generator(self):
         content = load_dictionary(self.FILE_NAME)
