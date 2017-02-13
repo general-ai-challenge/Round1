@@ -338,6 +338,27 @@ class TestMicro10Learner(TestMicroMultipleCommandsBase):
             return ''.join((''.join(word) for word in zip(*words)))
 
 
+class TestMicro11Learner(TestMicroMultipleCommandsBase):
+    _viable_commands = ['say', 'union', 'exclude']
+
+    @classmethod
+    def _generate_response(cls, commands):
+        words = [command[1] for command in commands[:-1]]
+        operation = commands[-1][0]
+
+        set1 = words[0]
+        set2 = words[1]
+
+        if operation == 'union':
+            if set1.find(set2) >= 0:
+                return set1
+            else:
+                return set1 + set2
+        elif operation == 'exclude':
+            return set1.replace(set2, '')
+
+
+
 def task_solved_successfuly(task):
     return task._env._last_result and task.solved_on_time()
 
@@ -752,3 +773,10 @@ class TestMicro10(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro10Learner()
+
+
+class TestMicro11(TestMicroTaskBase):
+    task = micro.Micro11Task
+
+    def _get_learner(self):
+        return TestMicro11Learner()
