@@ -592,6 +592,9 @@ class TestMicroTaskBase(unittest.TestCase):
     def _get_learner(self):
         pass
 
+    def _get_failing_learner(self):
+        return FixedLearner('*')
+
     def init_env(self, task, success_threshold=2):
         slzr = serializer.StandardSerializer()
         scheduler = ConsecutiveTaskScheduler([task], success_threshold)
@@ -633,7 +636,7 @@ class TestMicroTaskBase(unittest.TestCase):
         task = self.task()
         scheduler, messenger = self.init_env(task)
         # first run
-        learner = FixedLearner('*')
+        learner = self._get_failing_learner()
         basic_task_run(messenger, learner, task)
         self.assertFalse(task_solved_successfuly(task))
         self.assertEqual(scheduler.reward_count, 0)
@@ -651,7 +654,7 @@ class TestMicroTaskBase(unittest.TestCase):
     #     task = self._get_task()
     #     scheduler, messenger = self.init_env(task)
     #     # first run
-    #     learner = FixedLearner('*')
+    #     learner = self._get_failing_learner()
     #     basic_task_run(messenger, learner, task)
     #     self.assertFalse(task_solved_successfuly(task))
     #     self.assertEqual(scheduler.reward_count, 0)
@@ -739,12 +742,18 @@ class TestMicro7(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro7Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro6Sub1Learner()
+
 
 class TestMicro8Sub1(TestMicroTaskBase):
     task = micro.Micro8Sub1Task
 
     def _get_learner(self):
         return TestMicro8Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro7Learner()
 
 
 class TestMicro8Sub2(TestMicroTaskBase):
@@ -753,12 +762,18 @@ class TestMicro8Sub2(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro8Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro7Learner()
+
 
 class TestMicro8Sub3(TestMicroTaskBase):
     task = micro.Micro8Sub3Task
 
     def _get_learner(self):
         return TestMicro8Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro7Learner()
 
 
 class TestMicro9(TestMicroTaskBase):
