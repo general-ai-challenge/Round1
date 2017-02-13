@@ -643,7 +643,6 @@ class TestMicro19Learner(BaseLearner):
             # Read an assignment from env.
             if input_char == '.' or input_char == ';':
                 question = ''.join(self._buffer)
-                print(question)
                 self._buffer = []
 
                 for synonym in self._synonyms['say']:
@@ -695,8 +694,6 @@ class TestMicro19Learner(BaseLearner):
                 # Remove the dot, it will be sent later.
                 self._response = self._response[:-1]
                 self._read_assignment = False
-
-                print('response# ' + ''.join(self._response))
 
             else:
                 # Waiting for the question to finish.
