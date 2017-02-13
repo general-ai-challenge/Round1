@@ -541,6 +541,46 @@ class TestMicro13Learner(BaseLearner):
                 return '.'
 
 
+class TestMicro15Learner(BaseLearner):
+    def __init__(self):
+        self._buffer = []
+        self._result = []
+        self._read_assignment = True
+
+    def next(self, input_char):
+        if input_char == '.' or input_char == ';':
+            words = ''.join(self._buffer).strip().split(' ')
+            command, words = words[0], words[1:]
+            self._buffer = []
+
+            if command == 'say:':
+                if words[1] == 'and' and words[2] != 'not':
+                    self._result = words[0] + words[2]
+                elif words[1] == 'or':
+                    if len(words) > 3:
+                        if words[3] == 'but' and words[4] == 'not':
+                            self._result = words[0] if words[0] != words[5] else words[2]
+                    else:
+                        self._result = words[0]
+                elif words[0] == 'anything':
+                    self._result = 'a' if 'a' != words[3] else 'b'
+
+                self._result = list(self._result)
+                self._read_assignment = False
+            else:
+                return ' '
+
+        if not self._read_assignment:
+            if len(self._result) > 0:
+                return self._result.pop(0)
+            else:
+                self._read_assignment = True
+                return '.'
+
+        self._buffer.append(input_char)
+        return ' '
+
+
 class TestMicro17Learner(TestMatchQuestionAndFeedbackBase):
     matcher_feedback = re.compile('! (.+)\. ?;')
     matcher_output = re.compile('random_map: (.+)\.')
@@ -1169,6 +1209,13 @@ class TestMicro13(TestMicroTaskBase):
 
     def _get_failing_learner(self):
         return FixedLearner('.')
+
+
+class TestMicro15(TestMicroTaskBase):
+    task = micro.Micro15Sub1Task
+
+    def _get_learner(self):
+        return TestMicro15Learner()
 
 
 class TestMicro17(TestMicroTaskBase):
