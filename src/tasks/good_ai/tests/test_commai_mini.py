@@ -1,5 +1,7 @@
 import unittest
 
+import re
+
 from tasks.competition.tests.helpers import task_messenger
 from tasks.good_ai.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
 import tasks.good_ai.comm_ai_mini as comm_ai_mini
@@ -195,3 +197,61 @@ class TestCommAIMiniNewTS1(TestMicroTaskBase):
 
     def _get_learner(self):
         return BaseLearner()
+
+
+class TestMatchQuestionAndFeedbackBase(BaseLearner):
+    matcher_feedback = None
+    matcher_output = None
+
+    def __init__(self):
+        self._buffer = []
+        self._read_assignment = True
+        self._output = []
+
+    def next(self, input_char):
+        self._buffer.append(input_char)
+
+        if self._read_assignment:
+            if input_char == '.':
+                # Commands received.
+
+                # Get the whole assignment, remove dot.
+                received_sentence = ''.join(self._buffer)
+
+                if self.matcher_feedback is None:
+                    feedback_match = ['']
+                else:
+                    feedback_match = self.matcher_feedback.findall(received_sentence)
+                output_match = self.matcher_output.findall(received_sentence)
+                if len(output_match) > 0:
+                    self._output = list(self.generate_response(feedback_match, output_match))
+                    self._buffer = []
+                    self._read_assignment = False
+
+        if not self._read_assignment:
+            if len(self._output) > 0:
+                return self._output.pop(0)
+            else:
+                self._read_assignment = True
+                return '.'
+
+        return ' '
+
+    def generate_response(self, feedback_match, output_match):
+        raise NotImplementedError()
+
+
+def verify_description(verify, description):
+    pass
+
+
+class Mini1Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_output = re.compile('description: (.+); verify: (.+)\.')
+
+    def generate_response(self, feedback_match, output_match):
+        description = output_match[0]
+        verify = output_match[1]
+        if verify_description(verify, description):
+            return 'true'
+        else:
+            return 'false'
