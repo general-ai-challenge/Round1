@@ -270,17 +270,21 @@ class TestMicro8Learner(TestMicro6Sub1Learner):
             self.is_assignment = False
 
 
-class TestMicro9Learner(BaseLearner):
+class TestMicroMultipleCommandsBase(BaseLearner):
+    _viable_commands = []
+
     def __init__(self):
         self._buffer = []
         self._read_assignment = True
         self._output = []
 
-        self._viable_commands = ['say']
-
         commands = '|'.join(self._viable_commands)
 
         self._matcher = re.compile('('+commands+'):(?: (\w*)|.)')
+
+    @classmethod
+    def _generate_response(cls, commands):
+        raise NotImplementedError()
 
     def next(self, input_char):
         self._buffer.append(input_char)
@@ -296,19 +300,43 @@ class TestMicro9Learner(BaseLearner):
                 # Get a list of pairs: [(command, argument), ...], argument can be ''.
                 commands = self._matcher.findall(received_sentence)
 
-                response = ' '.join(command[1] for command in commands)
-                self._output = (c for c in response)
+                response = self._generate_response(commands)
+                self._output = [c for c in response]
 
                 self._read_assignment = False
 
         if not self._read_assignment:
-            try:
-                return self._output.__next__()
-            except StopIteration:
+            if len(self._output) > 0:
+                return self._output.pop(0)
+            else:
                 self._read_assignment = True
                 return '.'
 
         return ' '
+
+
+class TestMicro9Learner(TestMicroMultipleCommandsBase):
+    _viable_commands = ['say']
+
+    @classmethod
+    def _generate_response(cls, commands):
+        return ' '.join(command[1] for command in commands)
+
+
+class TestMicro10Learner(TestMicroMultipleCommandsBase):
+    _viable_commands = ['say', 'reverse', 'concatenate', 'interleave']
+
+    @classmethod
+    def _generate_response(cls, commands):
+        words = [command[1] for command in commands[:-1]]
+        operation = commands[-1][0]
+
+        if operation == 'reverse':
+            return ' '.join(reversed(words))
+        elif operation == 'concatenate':
+            return ''.join(words)
+        elif operation == 'interleave':
+            return (''.join(word) for word in zip(*words))
 
 
 def task_solved_successfuly(task):
@@ -320,7 +348,6 @@ def basic_task_run(messenger, learner, task):
     while True:
         question = messenger.get_text()[-1]
         answer = learner.next(question)
-        sys.stdout.write(question+answer+'_')
         reward = messenger.send(answer)
         learner.reward(reward)
         if task._env._last_result is not None:    # agent succeeded
@@ -719,3 +746,10 @@ class TestMicro9(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro9Learner()
+
+
+class TestMicro10(TestMicroTaskBase):
+    task = micro.Micro10Task
+
+    def _get_learner(self):
+        return TestMicro10Learner()
