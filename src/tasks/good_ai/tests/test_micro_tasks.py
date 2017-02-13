@@ -404,13 +404,14 @@ class TestMicro11Learner(TestMicroMultipleCommandsBase):
             return set1.replace(set2, '')
 
 
-class TestMicro12Learner(BaseLearner):
+class TestMatchQuestionAndFeedbackBase(BaseLearner):
+    matcher_feedback = None
+    matcher_output = None
+
     def __init__(self):
         self._buffer = []
         self._read_assignment = True
         self._output = []
-
-        self._matcher = re.compile('after (.) comes what:')
 
     def next(self, input_char):
         self._buffer.append(input_char)
@@ -421,16 +422,16 @@ class TestMicro12Learner(BaseLearner):
 
                 # Get the whole assignment, remove dot.
                 received_sentence = ''.join(self._buffer)
-                self._buffer = []
 
-                char = self._matcher.findall(received_sentence)[0]
-
-                idx = string.ascii_letters.find(char)
-                response = string.ascii_letters[idx + 1]
-
-                self._output = [response]
-
-                self._read_assignment = False
+                if self.matcher_feedback is None:
+                    feedback_match = ['']
+                else:
+                    feedback_match = self.matcher_feedback.findall(received_sentence)
+                output_match = self.matcher_output.findall(received_sentence)
+                if len(output_match) > 0:
+                    self._output = list(self.generate_response(feedback_match, output_match))
+                    self._buffer = []
+                    self._read_assignment = False
 
         if not self._read_assignment:
             if len(self._output) > 0:
@@ -440,6 +441,18 @@ class TestMicro12Learner(BaseLearner):
                 return '.'
 
         return ' '
+
+    def generate_response(self, feedback_match, output_match):
+        raise NotImplementedError()
+
+
+class TestMicro12Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_output = re.compile('after (.) comes what:')
+
+    def generate_response(self, feedback_match, output_match):
+        idx = string.ascii_letters.find(output_match[0])
+        response = string.ascii_letters[idx + 1]
+        return response
 
 
 class TestMicro13Learner(BaseLearner):
