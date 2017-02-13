@@ -1,6 +1,7 @@
 import random
 import string
 import unittest
+import re
 
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from core.scheduler import ConsecutiveTaskScheduler
@@ -269,14 +270,57 @@ class TestMicro8Learner(TestMicro6Sub1Learner):
             self.is_assignment = False
 
 
+class TestMicro9Learner(BaseLearner):
+    def __init__(self):
+        self._buffer = []
+        self._read_assignment = True
+        self._output = []
+
+        self._viable_commands = ['say']
+
+        commands = '|'.join(self._viable_commands)
+
+        self._matcher = re.compile('('+commands+'):(?: (\w*)|.)')
+
+    def next(self, input_char):
+        self._buffer.append(input_char)
+
+        if self._read_assignment:
+            if input_char == '.':
+                # Commands received.
+
+                # Get the whole assignment, remove dot.
+                received_sentence = ''.join(self._buffer)
+                self._buffer = []
+
+                # Get a list of pairs: [(command, argument), ...], argument can be ''.
+                commands = self._matcher.findall(received_sentence)
+
+                response = ' '.join(command[1] for command in commands)
+                self._output = (c for c in response)
+
+                self._read_assignment = False
+
+        if not self._read_assignment:
+            try:
+                return self._output.__next__()
+            except StopIteration:
+                self._read_assignment = True
+                return '.'
+
+        return ' '
+
+
 def task_solved_successfuly(task):
     return task._env._last_result and task.solved_on_time()
 
 
 def basic_task_run(messenger, learner, task):
+    import sys
     while True:
         question = messenger.get_text()[-1]
         answer = learner.next(question)
+        sys.stdout.write(question+answer+'_')
         reward = messenger.send(answer)
         learner.reward(reward)
         if task._env._last_result is not None:    # agent succeeded
@@ -294,6 +338,7 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.scheduler = ConsecutiveTaskScheduler(self.tasks, success_threshold)
         self.env = environment.Environment(slzr, self.scheduler, max_reward_per_task=float("inf"), byte_mode=True)
         self.messenger = EnvironmentByteMessenger(self.env, slzr)
+
 
     def test_same_task_after_solving_first_instance(self):
         self.perform_setup()
@@ -667,3 +712,10 @@ class TestMicro8Sub3(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro8Learner()
+
+
+class TestMicro9(TestMicroTaskBase):
+    task = micro.Micro9Task
+
+    def _get_learner(self):
+        return TestMicro9Learner()
