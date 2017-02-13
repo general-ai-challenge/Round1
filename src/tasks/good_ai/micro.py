@@ -1038,11 +1038,11 @@ class Micro19Task(MicroBase):
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
     synonym_list = ["say:", 'and', 'after', 'union', 'exclude']
+    tasks = []
 
     @on_start()
     def new_task_instance(self, event):
         super(Micro19Task, self).new_task_instance(event)
-        self.tasks = []
         self.should_know = False
 
     def get_task_generator(self):
@@ -1071,11 +1071,7 @@ class Micro19Task(MicroBase):
 
 class Micro20Task(Micro19Task):
     FILE_NAME = 'res/dict_gsl.txt'
-
-    @on_start()
-    def new_task_instance(self, event):
-        super(Micro20Task, self).new_task_instance(event)
-        self.tasks = []
+    tasks = []
 
     def get_task_generator(self):
         content = load_dictionary(self.FILE_NAME)
