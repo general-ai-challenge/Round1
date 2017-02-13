@@ -541,12 +541,36 @@ class TestMicro13Learner(BaseLearner):
                 return '.'
 
 
+class TestMicro17Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_feedback = re.compile('! (.+)\. ?;')
+    matcher_output = re.compile('random_map: (.+)\.')
+
+    def __init__(self):
+        super(TestMicro17Learner, self).__init__()
+        self.previous_symbol = ''
+        self.mapping = {}
+
+    def generate_response(self, feedback_match, output_match):
+        output = output_match[0]
+        if len(feedback_match) > 0:
+            feedback = feedback_match[0]
+            self.mapping[self.previous_symbol] = feedback
+
+        self.previous_symbol = output
+        if output in self.mapping.keys():
+            return self.mapping[output]
+        else:
+            return ' '
+
+
 class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
     matcher_feedback = re.compile('! (.+)\. ?;')
     matcher_output = re.compile('say next after: (.+)\.')
 
-    previous_symbol = ''
-    mapping = {}
+    def __init__(self):
+        super(TestMicro18Learner, self).__init__()
+        self.previous_symbol = ''
+        self.mapping = {}
 
     def generate_response(self, feedback_match, output_match):
         output = output_match[0]
@@ -1145,6 +1169,13 @@ class TestMicro13(TestMicroTaskBase):
 
     def _get_failing_learner(self):
         return FixedLearner('.')
+
+
+class TestMicro17(TestMicroTaskBase):
+    task = micro.Micro18Task
+
+    def _get_learner(self):
+        return TestMicro18Learner()
 
 
 class TestMicro18(TestMicroTaskBase):

@@ -972,7 +972,7 @@ class Micro17Task(MicroBase):
             self.key_idx = random.randint(0, len(keys) - 1)
             word1 = keys[self.key_idx]
             word2 = mapping[word1]
-            question = 'random_mapping: ' + word1 + '.'
+            question = 'random_map: ' + word1 + '.'
             sentence = word2 + '.'
             return question, [sentence], micro17_feedback
 
