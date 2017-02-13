@@ -462,8 +462,6 @@ class TestMicro13Learner(BaseLearner):
         self._read_assignment = True
 
     def next(self, input_char):
-        import sys
-        sys.stdout.write(input_char)
         if self._read_assignment:
             # Read an assignment from env.
             if input_char == '.' or input_char == ';':
@@ -538,7 +536,6 @@ def task_solved_successfuly(task):
 
 
 def basic_task_run(messenger, learner, task):
-    import sys
     while True:
         question = messenger.get_text()[-1]
         answer = learner.next(question)
