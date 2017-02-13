@@ -112,8 +112,7 @@ class TestMicro3Learner(BaseLearner):
 class TestMicro5Sub1Learner(BaseLearner):
 
     def __init__(self):
-        numbers = '0123456789'
-        self.mapping = {x: list(numbers) for x in numbers}
+        self.mapping = {x: list(string.digits) for x in string.digits}
         self.is_feedback = False
 
     def next(self, input):
@@ -126,6 +125,47 @@ class TestMicro5Sub1Learner(BaseLearner):
             self.answer = self.mapping[input][-1]
             self.is_feedback = not self.is_feedback
             return self.answer
+
+
+class TestMicro5Sub2Learner(BaseLearner):
+
+    def __init__(self):
+        self.mapping = {x: list(string.digits) for x in string.digits}
+        self.is_feedback = False
+
+    def next(self, input):
+        if input == ';':
+            return
+        if self.is_feedback:
+            self.mapping[self.last_input] = [input]
+            self.is_feedback = not self.is_feedback
+            return
+        else:
+            self.last_input = input
+            self.answer = self.mapping[input][-1]
+            self.is_feedback = not self.is_feedback
+            return self.answer
+
+
+class TestMicro5Sub3Learner(BaseLearner):
+
+    def __init__(self):
+        self.mapping = {x: list(string.digits) for x in string.digits}
+        self.is_feedback = False
+
+    def next(self, input):
+        if input == ';':
+            return
+        if self.is_feedback:
+            self.mapping[self.last_input] = [input]
+            self.is_feedback = not self.is_feedback
+        else:
+            if input != '.':
+                self.last_input = input
+            self.answer = self.mapping[self.last_input][-1]
+            if input == '.':
+                self.is_feedback = not self.is_feedback
+                return self.answer
 
 
 class TestMicro6Sub1Learner(BaseLearner):
@@ -563,6 +603,20 @@ class TestMicro5Sub1(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro5Sub1Learner()
+
+
+class TestMicro5Sub2(TestMicroTaskBase):
+    task = micro.Micro5Sub2Task
+
+    def _get_learner(self):
+        return TestMicro5Sub2Learner()
+
+
+class TestMicro5Sub3(TestMicroTaskBase):
+    task = micro.Micro5Sub3Task
+
+    def _get_learner(self):
+        return TestMicro5Sub3Learner()
 
 
 class TestMicro6Sub1(TestMicroTaskBase):

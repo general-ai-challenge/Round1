@@ -322,12 +322,19 @@ class Micro4Task(MicroMappingTask):
         return mapping
 
 
-class Micro5Sub1Task(MicroMappingTask):
-    task_gen_kwargs = {}
+class FeedbackMappingTaskMixin(MicroMappingTask):
+    '''
+    This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
+    The only one occurrence is needed for every key from mapping.
+    '''
 
     def _get_mapping_options(self, mapping):
-        numbers = '0123456789'
-        return {x: len(numbers) for x in numbers}
+        keys = mapping.keys()
+        return {x: 2 for x in keys}
+
+
+class Micro5Sub1Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    task_gen_kwargs = {}
 
     def _get_mapping(self):
         numbers = '0123456789'
@@ -339,22 +346,11 @@ class Micro5Sub1Task(MicroMappingTask):
 
 
 class Micro5Sub2Task(Micro5Sub1Task):
-    task_gen_kwargs = {'feedback_sep': '!'}
+    task_gen_kwargs = {'feedback_sep': ';'}
 
 
 class Micro5Sub3Task(Micro5Sub1Task):
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
-
-
-class FeedbackMappingTaskMixin(MicroMappingTask):
-    '''
-    This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
-    The only one occurrence is needed for every key from mapping.
-    '''
-
-    def _get_mapping_options(self, mapping):
-        keys = mapping.keys()
-        return {x: 2 for x in keys}
 
 
 class Micro5Sub4Task(FeedbackMappingTaskMixin, MicroMappingTask):
