@@ -202,17 +202,46 @@ class TestMicro5Sub4Learner(BaseLearner):
         self.awaiting_feedback = False
 
     def answer_question(self):
-        print("answer on {} is {}".format(self.question, self.mapping.get(self.question, ' ')))
-        return self.mapping.get(self.question, ' ')
+        return self.mapping.get(self.question, '.')
 
     def next(self, input):
         self.buffer.append(input)
-
         if self.is_question:
             self.process_question()
             return self.answer_question()
         elif self.is_feedback:
             self.process_feedback()
+
+
+class TestMicro5Sub6Learner(TestMicro5Sub4Learner):
+
+    def process_feedback(self):
+        feedback = self.buffer[:-len(self.feedback_separator)]
+        if feedback[-1] == '.':
+            feedback = feedback[:-1]
+        self.mapping[self.question] = ''.join(feedback)
+        del self.buffer[:]
+        self.awaiting_question = True
+        self.awaiting_feedback = False
+
+    def answer_question(self):
+        if self.question in self.mapping:
+            return self.mapping[self.question] + '.'
+        else:
+            return '.'
+
+
+class TestMicro5Sub10Learner(TestMicro5Sub4Learner):
+
+    def process_feedback(self):
+        desired_len = 2
+        feedback_len = len(self.buffer) - len(self.feedback_separator)
+        feedback = self.buffer[feedback_len - desired_len:-len(self.feedback_separator)]
+
+        self.mapping[self.question] = ''.join(feedback)
+        del self.buffer[:]
+        self.awaiting_question = True
+        self.awaiting_feedback = False
 
 
 class TestMicro6Sub1Learner(BaseLearner):
@@ -456,6 +485,7 @@ class TestMicro12Learner(TestMatchQuestionAndFeedbackBase):
 
 
 class TestMicro13Learner(BaseLearner):
+
     def __init__(self):
         self._buffer = []
         self._response = []
@@ -881,6 +911,104 @@ class TestMicro5Sub3(TestMicroTaskBase):
 
 class TestMicro5Sub4(TestMicroTaskBase):
     task = micro.Micro5Sub4Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub5(TestMicroTaskBase):
+    task = micro.Micro5Sub5Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub6(TestMicroTaskBase):
+    task = micro.Micro5Sub6Task
+
+    def _get_learner(self):
+        return TestMicro5Sub6Learner()
+
+
+class TestMicro5Sub7(TestMicroTaskBase):
+    task = micro.Micro5Sub7Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub8(TestMicroTaskBase):
+    task = micro.Micro5Sub8Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub9(TestMicroTaskBase):
+    task = micro.Micro5Sub9Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub10(TestMicroTaskBase):
+    task = micro.Micro5Sub10Task
+
+    def _get_learner(self):
+        return TestMicro5Sub10Learner()
+
+
+class TestMicro5Sub11(TestMicroTaskBase):
+    task = micro.Micro5Sub11Task
+
+    def _get_learner(self):
+        return TestMicro5Sub10Learner()
+
+
+class TestMicro5Sub12(TestMicroTaskBase):
+    task = micro.Micro5Sub12Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub13(TestMicroTaskBase):
+    task = micro.Micro5Sub13Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub14(TestMicroTaskBase):
+    task = micro.Micro5Sub14Task
+
+    def _get_learner(self):
+        return TestMicro5Sub10Learner()
+
+
+class TestMicro5Sub15(TestMicroTaskBase):
+    task = micro.Micro5Sub15Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub16(TestMicroTaskBase):
+    task = micro.Micro5Sub16Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub17(TestMicroTaskBase):
+    task = micro.Micro5Sub17Task
+
+    def _get_learner(self):
+        return TestMicro5Sub4Learner()
+
+
+class TestMicro5Sub18(TestMicroTaskBase):
+    task = micro.Micro5Sub18Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
