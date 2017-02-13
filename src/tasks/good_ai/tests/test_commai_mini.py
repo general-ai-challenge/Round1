@@ -1,8 +1,12 @@
 import unittest
 
 from tasks.competition.tests.helpers import task_messenger
+from tasks.good_ai.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
 import tasks.good_ai.comm_ai_mini as comm_ai_mini
-
+from learners.base import BaseLearner
+from core.scheduler import ConsecutiveTaskScheduler
+import core.environment as environment
+import core.serializer as serializer
 from worlds.grid_world import GridWorld
 
 
@@ -92,3 +96,102 @@ class TestCommAIMiniTS5(TestCommAIMiniBase):
     def __init__(self, *args, **kwargs):
         super(TestCommAIMiniTS5, self).__init__(*args, **kwargs)
         self.task_set = comm_ai_mini.TaskSet5
+
+
+def task_solved_successfuly(task):
+    return task._env._last_result and task.under_time_limit_for_successfull_solution()
+
+
+def basic_task_run(test, messenger, learner, task):
+    limit = task._max_time
+    while True:
+        limit -= 1
+        if limit < 1:
+            test.assertFalse(True)  # raise the timeout constant on these tasks, because they are not finishing
+            # on nr_of_questions timeout, but on nr_of_characters timeout
+            break
+        question = messenger.get_text()[-1]
+        answer = learner.next(question)
+        reward = messenger.send(answer)
+        learner.reward(reward)
+        if task._env._last_result is not None:    # agent succeeded
+            break
+
+
+class TestMicroTaskBase(unittest.TestCase):
+
+    task = None
+    task_instance_multiplier = 3
+    task_run_multiplier = 10
+
+    @classmethod
+    def setUpClass(cls):
+        if cls is TestMicroTaskBase:
+            raise unittest.SkipTest("Skip MicroTaskBase tests, it's a base class")
+        super(TestMicroTaskBase, cls).setUpClass()
+
+    def _get_task(self):
+        task = self.task()
+        task.success_tolerance = 0
+        task.failed_task_tolerance = 0
+        return task
+
+    def _get_learner(self):
+        pass
+
+    def _get_failing_learner(self):
+        return FixedLearner('*')
+
+    def init_env(self, task, success_threshold=2):
+        slzr = serializer.StandardSerializer()
+        scheduler = ConsecutiveTaskScheduler([task], success_threshold)
+        env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
+        messenger = EnvironmentByteMessenger(env, slzr)
+        return (scheduler, messenger)
+
+    def test_task(self):
+        for _ in range(self.task_instance_multiplier):
+            task = self._get_task()
+            for _ in range(self.task_run_multiplier):
+                learner = self._get_learner()
+                messenger = task_messenger(task)
+                basic_task_run(self, messenger, learner, task)
+                self.assertTrue(task_solved_successfuly(task))
+
+    def test_successful_evaluation(self):
+        # Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
+        task = self._get_task()
+        scheduler, messenger = self.init_env(task)
+        # first run
+        learner = self._get_learner()
+        basic_task_run(self, messenger, learner, task)
+        self.assertTrue(task_solved_successfuly(task))
+        self.assertEqual(scheduler.reward_count, 1)
+
+        # second run
+        learner = self._get_learner()
+        basic_task_run(self, messenger, learner, task)
+        self.assertTrue(task_solved_successfuly(task))
+        self.assertEqual(scheduler.reward_count, 0)  # 2 % 2 = 0, because the scheduler switched to next task
+
+    def test_failed_evaluation(self):
+        # Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
+        task = self.task()
+        scheduler, messenger = self.init_env(task)
+        # first run
+        learner = self._get_failing_learner()
+        basic_task_run(self, messenger, learner, task)
+        self.assertFalse(task_solved_successfuly(task))
+        self.assertEqual(scheduler.reward_count, 0)
+
+        # second run
+        basic_task_run(self, messenger, learner, task)
+        self.assertFalse(task_solved_successfuly(task))
+        self.assertEqual(scheduler.reward_count, 0)
+
+
+class TestCommAIMiniNewTS1(TestMicroTaskBase):
+    task = comm_ai_mini.TaskSet1
+
+    def _get_learner(self):
+        return BaseLearner()
