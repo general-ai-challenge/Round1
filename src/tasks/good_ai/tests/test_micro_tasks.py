@@ -1083,12 +1083,18 @@ class TestMicro15Sub1(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro15Learner()
 
+    def _get_failing_learner(self):
+        return FixedLearner('.')
+
 
 class TestMicro15Sub2(TestMicroTaskBase):
     task = micro.Micro15Sub2Task
 
     def _get_learner(self):
         return TestMicro15Learner()
+
+    def _get_failing_learner(self):
+        return FixedLearner('.')
 
 
 class TestMicro17(TestMicroTaskBase):
