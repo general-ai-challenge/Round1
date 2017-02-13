@@ -471,13 +471,13 @@ class TestMicro13Learner(BaseLearner):
                 self._buffer = []
 
                 # Depending on the question, choose a learner.
-                if 'spell' in question:
+                if 'spell:' in question:
                     learner = TestMicro8Learner()
-                elif 'reverse' in question or 'concatenate' in question or 'interleave' in question:
+                elif 'reverse:' in question or 'concatenate' in question or 'interleave' in question:
                     learner = TestMicro10Learner()
-                elif 'union' in question or 'exclude' in question:
+                elif 'union:' in question or 'exclude' in question:
                     learner = TestMicro11Learner()
-                elif 'say' in question:
+                elif 'say:' in question:
                     learner = TestMicro9Learner()
                 else:
                     learner = None
