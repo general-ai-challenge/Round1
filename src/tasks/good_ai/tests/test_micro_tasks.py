@@ -279,7 +279,7 @@ class TestMicroMultipleCommandsBase(BaseLearner):
 
         commands = '|'.join(self._viable_commands)
 
-        self._matcher = re.compile('('+commands+'):(?: (\w*)|.)')
+        self._matcher = re.compile('(' + commands + '):(?: (\w*)|.)')
 
     @classmethod
     def _generate_response(cls, commands):
@@ -358,7 +358,6 @@ class TestMicro11Learner(TestMicroMultipleCommandsBase):
             return set1.replace(set2, '')
 
 
-
 def task_solved_successfuly(task):
     return task._env._last_result and task.solved_on_time()
 
@@ -385,7 +384,6 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.scheduler = ConsecutiveTaskScheduler(self.tasks, success_threshold)
         self.env = environment.Environment(slzr, self.scheduler, max_reward_per_task=float("inf"), byte_mode=True)
         self.messenger = EnvironmentByteMessenger(self.env, slzr)
-
 
     def test_same_task_after_solving_first_instance(self):
         self.perform_setup()
@@ -612,9 +610,7 @@ class TestMicroTaskBase(unittest.TestCase):
                 self.assertTrue(task_solved_successfuly(task))
 
     def test_successful_evaluation(self):
-        '''
-        Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
-        '''
+        # Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
         task = self._get_task()
         scheduler, messenger = self.init_env(task)
         # first run
@@ -630,9 +626,7 @@ class TestMicroTaskBase(unittest.TestCase):
         self.assertEqual(scheduler.reward_count, 0)  # 2 % 2 = 0, because the scheduler switched to next task
 
     def test_failed_evaluation(self):
-        '''
-        Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
-        '''
+        # Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
         task = self.task()
         scheduler, messenger = self.init_env(task)
         # first run
@@ -648,9 +642,7 @@ class TestMicroTaskBase(unittest.TestCase):
 
     # this test fails - beacuse during the second run - env.last_result is already set to False from first run -> task run ends immediately
     # def test_failed_then_successful_evaluation(self):
-    #     '''
-    #     Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
-    #     '''
+    #     # Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
     #     task = self._get_task()
     #     scheduler, messenger = self.init_env(task)
     #     # first run
