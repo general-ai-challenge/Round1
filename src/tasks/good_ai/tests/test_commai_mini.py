@@ -3,6 +3,7 @@ import unittest
 import re
 
 from tasks.competition.tests.helpers import SingleTaskScheduler
+from tasks.competition.tests.helpers import task_messenger as commai_messenger
 from tasks.good_ai.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
 import tasks.good_ai.comm_ai_mini as comm_ai_mini
 from learners.base import BaseLearner
@@ -29,7 +30,7 @@ class TestCommAIMiniBase(unittest.TestCase):
         self.assertGreater(feedback_len, 0)
 
     def test_new_correct(self):
-        with task_messenger(self.task_set, GridWorld) as m:
+        with commai_messenger(self.task_set, GridWorld) as m:
             m.read()
             correct_answer = m._env._task_scheduler.task.answer + '.'
             m.send(correct_answer)
@@ -40,7 +41,7 @@ class TestCommAIMiniBase(unittest.TestCase):
             self.assertEqual(m.get_cumulative_reward(), 1)
 
     def test_new_timeout(self):
-        with task_messenger(self.task_set, GridWorld) as m:
+        with commai_messenger(self.task_set, GridWorld) as m:
             m.read()
             while m.is_silent():
                 m.send()
@@ -53,7 +54,7 @@ class TestCommAIMiniBase(unittest.TestCase):
             self.assertEqual(m.get_cumulative_reward(), 0)
 
     def test_error_answer(self):
-        with task_messenger(self.task_set, GridWorld) as m:
+        with commai_messenger(self.task_set, GridWorld) as m:
             m.read()
             m.send("wrong answer.")
 
@@ -256,7 +257,7 @@ def verify_description(verify, description):
     window_length = len(description)
     for i in range(0, len(verify) - window_length + 1):
         covers = description == verify[i:i + window_length]
-        verification_array[i:i+window_length] = [covers or verification_array[i+j] for j in range(0, window_length)]
+        verification_array[i:i + window_length] = [covers or verification_array[i + j] for j in range(0, window_length)]
     return all(verification_array)
 
 
