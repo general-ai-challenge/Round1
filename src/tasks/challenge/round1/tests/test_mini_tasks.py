@@ -1,15 +1,14 @@
+import re
 import unittest
 
-import re
-
-from tasks.competition.tests.helpers import SingleTaskScheduler
-from tasks.competition.tests.helpers import task_messenger as commai_messenger
-from tasks.good_ai.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
-import tasks.good_ai.comm_ai_mini as comm_ai_mini
-from learners.base import BaseLearner
-from core.scheduler import ConsecutiveTaskScheduler
 import core.environment as environment
 import core.serializer as serializer
+import tasks.challenge.round1.challenge_mini as comm_ai_mini
+from core.scheduler import ConsecutiveTaskScheduler
+from learners.base import BaseLearner
+from tasks.challenge.round1.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
+from tasks.competition.tests.helpers import SingleTaskScheduler
+from tasks.competition.tests.helpers import task_messenger as commai_messenger
 from worlds.grid_world import GridWorld
 
 

@@ -1,15 +1,15 @@
 import random
+import re
 import string
 import unittest
-import re
 
-from core.byte_channels import ByteInputChannel, ByteOutputChannel
-from core.scheduler import ConsecutiveTaskScheduler
 import core.environment as environment
 import core.serializer as serializer
+import tasks.challenge.round1.challenge_micro as micro
+from core.byte_channels import ByteInputChannel, ByteOutputChannel
+from core.scheduler import ConsecutiveTaskScheduler
 from learners.base import BaseLearner
 from tasks.competition.tests.helpers import SingleTaskScheduler
-import tasks.good_ai.micro as micro
 
 
 class FixedLearner:

@@ -3,9 +3,9 @@ import re
 import string
 from contextlib import contextmanager
 
-from core.task import on_message, on_start, on_timeout
 from core.task import Task
-from tasks.good_ai.task_generator import TaskGenerator
+from core.task import on_message, on_start, on_timeout
+from tasks.challenge.round1.task_generator import TaskGenerator
 
 REQUIRED_CONSECUTIVE_REWARDS = 10   # more or less arbitrary constant; high enough to prevent random solutions
 
