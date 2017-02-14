@@ -625,7 +625,26 @@ class TestMicro15Learner(TestMatchQuestionAndFeedbackBase):
             return ' '
 
 
-class TestMicro16Learner(TestMicroQuestionAnswerBase):
+class TestMicroQuestionAnswerDelegatingBase(TestMicroQuestionAnswerBase):
+    def delegate(self, learner, question):
+        # Feed the learner the question.
+        for c in self.question:
+            learner.next(c)
+
+        # Get response back from learner.
+        response = learner.next('.')
+        if len(response) > 1:
+            return response
+
+        response = [response]
+
+        while response[-1] != '.':
+            response.append(learner.next(' '))
+
+        return ''.join(response)
+
+
+class TestMicro16Learner(TestMicroQuestionAnswerDelegatingBase):
     def answer_question(self):
         # Depending on the question, choose a learner.
         if 'spell:' in self.question:
@@ -642,19 +661,10 @@ class TestMicro16Learner(TestMicroQuestionAnswerBase):
         if learner is None:
             return ' '
 
-        # Feed the learner the question.
-        for c in self.question:
-            learner.next(c)
-
-        # Get response back from learner.
-        response = [learner.next('.')]
-        while response[-1] != '.':
-            response.append(learner.next(' '))
-
-        return ''.join(response)
+        return self.delegate(learner, self.question)
 
 
-class TestMicro19Learner(BaseLearner):
+class TestMicro19Learner(TestMicroQuestionAnswerDelegatingBase):
     synonyms = {'say': ['say', 'print', 'write'],
                 'and': ['and', 'together with', '&', 'also'],
                 'or': ['or', 'alternative', '/'],
@@ -665,146 +675,64 @@ class TestMicro19Learner(BaseLearner):
     pattern_find = '(^|[^\w]){0}([^\w])'
     pattern_replace = '\g<1>{0}\g<2>'
 
-    def __init__(self):
-        self._buffer = []
-        self._response = []
-        self._read_assignment = True
-        self._read_result = False
-
     def replace(self, from_word, to_word, sentence):
         return re.sub(self.pattern_find.format(from_word), self.pattern_replace.format(to_word), sentence)
 
-    def next(self, input_char):
-        if self._read_assignment:
-            # Read an assignment from env.
-            if input_char == '.':
-                question = ''.join(self._buffer)
-                self._buffer = []
+    def answer_question(self):
+        for synonym in self.synonyms['say']:
+            self.question = self.replace(synonym, 'say', self.question)
 
-                for synonym in self.synonyms['say']:
-                    question = self.replace(synonym, 'say', question)
+        learner = None
 
-                learner = None
+        if self.question.find('what:') >= 0:
+            for synonym in self.synonyms['after']:
+                self.question = self.replace(synonym, 'after', self.question)
+            learner = TestMicro14Learner()
 
-                if question.find('what:') >= 0:
-                    for synonym in self.synonyms['after']:
-                        question = self.replace(synonym, 'after', question)
-                    learner = TestMicro14Learner()
+        if learner is None and ('concatenate:' in self.question or 'reverse:' in self.question or 'interleave:' in self.question):
+            learner = TestMicro11Learner()
 
-                if learner is None and ('concatenate:' in question or 'reverse:' in question or 'interleave:' in question):
-                    learner = TestMicro11Learner()
+        if learner is None:
+            is_learner_11 = False
+            for synonym in self.synonyms['union']:
+                if synonym in self.question:
+                    self.question = self.replace(synonym, 'union', self.question)
+                    learner = TestMicro12Learner()
+                    is_learner_11 = True
+            for synonym in self.synonyms['exclude']:
+                if synonym in self.question:
+                    self.question = self.replace(synonym, 'exclude', self.question)
+                    learner = TestMicro12Learner()
+                    is_learner_11 = True
+            if is_learner_11:
+                for synonym in self.synonyms['and']:
+                    self.question = self.replace(synonym, 'and', self.question)
+                for synonym in self.synonyms['or']:
+                    self.question = self.replace(synonym, 'or', self.question)
 
-                if learner is None:
-                    is_learner_11 = False
-                    for synonym in self.synonyms['union']:
-                        if synonym in question:
-                            question = self.replace(synonym, 'union', question)
-                            learner = TestMicro12Learner()
-                            is_learner_11 = True
-                    for synonym in self.synonyms['exclude']:
-                        if synonym in question:
-                            question = self.replace(synonym, 'exclude', question)
-                            learner = TestMicro12Learner()
-                            is_learner_11 = True
-                    if is_learner_11:
-                        for synonym in self.synonyms['and']:
-                            question = self.replace(synonym, 'and', question)
-                        for synonym in self.synonyms['or']:
-                            question = self.replace(synonym, 'or', question)
-
-                if learner is None:
-                    if 'say:' in question:
-                        learner = TestMicro10Learner()
-                    else:
-                        raise ValueError('Learner not found')
-
-                # Feed the learner the question.
-                for c in question:
-                    learner.next(c)
-
-                # Get response back from learner.
-                self._response = [learner.next('.')]
-                while self._response[-1] != '.':
-                    self._response.append(learner.next(' '))
-
-                # Remove the dot, it will be sent later.
-                self._response = self._response[:-1]
-                self._read_assignment = False
-
+        if learner is None:
+            if 'say:' in self.question:
+                learner = TestMicro10Learner()
             else:
-                # Waiting for the question to finish.
-                self._buffer.append(input_char)
-                return ' '
+                raise ValueError('Learner not found')
 
-        if not self._read_assignment and not self._read_result:
-            # Provide the answer from the selected learner.
-            if len(self._response) > 0:
-                return self._response.pop(0)
-            else:
-                self._read_result = True
-                # The answer is complete, finalize with a dot.
-                return '.'
-
-        if self._read_result:
-            if input_char == ';':
-                self._read_result = False
-                self._read_assignment = True
-                return ' '
+        return self.delegate(learner, self.question)
 
 
-class TestMicro20Learner(BaseLearner):
-
+class TestMicro20Learner(TestMicroQuestionAnswerDelegatingBase):
     def __init__(self):
-        self._buffer = []
-        self._response = []
+        super(TestMicro20Learner, self).__init__()
         self._matcher = re.compile('([^ ]+) is as ([^ ]+) - (.*)')
-        self._read_assignment = True
-        self._read_result = False
 
-    def next(self, input_char):
-        if self._read_assignment:
-            if input_char == '.':
-                question = ''.join(self._buffer)
-                self._buffer = []
-                to_word, from_word, rest = self._matcher.findall(question)[0]
+    def answer_question(self):
+        to_word, from_word, rest = self._matcher.findall(self.question)[0]
 
-                learner = TestMicro19Learner()
-                for key in list(learner.synonyms.keys()):
-                    learner.synonyms[key] = [key]
-                learner.synonyms[from_word] = [to_word]
+        learner = TestMicro19Learner()
+        for key in list(learner.synonyms.keys()):
+            learner.synonyms[key] = [key]
+        learner.synonyms[from_word] = [to_word]
 
-                for c in rest:
-                    learner.next(c)
-
-                # Get response back from learner.
-                self._response = [learner.next('.')]
-                while self._response[-1] != '.':
-                    self._response.append(learner.next(' '))
-
-                # Remove the dot, it will be sent later.
-                self._response = self._response[:-1]
-                self._read_assignment = False
-
-            else:
-                # Waiting for the question to finish.
-                self._buffer.append(input_char)
-                return ' '
-
-        if not self._read_assignment and not self._read_result:
-            # Provide the answer from the selected learner.
-            if len(self._response) > 0:
-                return self._response.pop(0)
-            else:
-                self._read_assignment = False
-                self._read_result = True
-                # The answer is complete, finalize with a dot.
-                return '.'
-
-        if self._read_result:
-            if input_char == ';':
-                self._read_result = False
-                self._read_assignment = True
-                return ' '
+        return self.delegate(learner, self.question)
 
 
 def task_solved_successfully(task):
