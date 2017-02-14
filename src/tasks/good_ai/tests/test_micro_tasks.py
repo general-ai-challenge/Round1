@@ -902,8 +902,6 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.env._current_task, first_task)
         self.assertEqual(self.scheduler.reward_count, 0)
 
-# all tests in TestMicroTask should be also fulfilled by classes inheriting from TestMicroTaskBase at the bottom
-
 
 class TestMicroTaskBase(unittest.TestCase):
 

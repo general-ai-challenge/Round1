@@ -86,12 +86,40 @@ The most notable are:
 2. Information that a task has ended (`result`) is now separated from `reward`. Reward can be sent even during the execution of a task.
 3. There is a new scheduler - `ConsecutiveTaskScheduler`, which waits for a series of successess on a task before it passes execution to another task.
 
+## Micro tasks system
+
+During the test of you agent, a sequential list consisting of one or more micro tasks is created. This list is then iterated and each of the tasks is presented to the agent until the agent solves all of them - or fails. The process is following
+
+1. `ConsecutiveTaskScheduler` takes next task. If it is at the end of the task list, it goes back to first one.
+2. Micro task (inheriting from `MicroBase`) is initialized.
+3. New task instance is started
+4. Task instance presents agent next question.
+5. If the agent does not respond, task waits until it times out.
+6. Task processes the agent's response.
+    1. If it is correct, agent receives reward and `consecutive_reward` counter is incremented
+    2. If it is wrong, agent receives punishment (depends on the task) and `consecutive_reward` is set to 0
+7.  If the task instance is not finished yet, new question is presented to agent (go to 4.)
+8.  Task instance can end for 2 reasons
+    1. Agent proved that he understands the task
+    2. Agent did not finished the task in the limit - there are two of them
+        1. Limit 1 - maximum number of questions being asked (see FAILED_TASK_TOLERANCE)
+        2. Limit 2 - maximum number of steps to run the task
+9. If the task instance is solved correctly, scheduler's success counter is incremented. If it is equal or higher than the `success_threshold` (see table below), the task ends (go to 1.)
+10. Otherwise, new task instance start (go to 3.)
+
+How the task instance is evaluated
+1. Agent has only one way of solving the task instance - to have a certain number of correct answers in a row (see table below for details)
+2. Once the task is sure that the agent already knows everything it needs to solve the task perfectly, it will provide the agent certain number of questions to prove it (`max_questions_for_success` variable). The number of questions is counted as `REQUIRED_CONSECUTIVE_REWARDS * (1 + SUCCESS_TOLERANCE)` (see table below for description of constants).
+3. If the agent does not solve the task instance during this period, it failed. But it is still given some extra time to learn the task. It is counted as `number_of_already_asked_questions * (1 + FAILED_TASK_TOLERANCE)` (see table below for description of constants).
+4. Once even this period is over, the task instance ends.
+
 ### Constants used in Challenge Micro tasks
 
 Name|Location|Description|Default value
 ---|---|---|---
-REQUIRED_CONSECUTIVE_REWARDS|`MicroBase`|To pass the task instance, agent has to provide at least this number of correct answers in a row|10
-success_tolerance|`MicroBase`|Once the task is sure that agent should already know everything it needs to solve the task perfectly, he will provide him some number of steps to prove it. The number is counted as `REQUIRED_CONSECUTIVE_REWARDS * (1 + success_tolerance)`|4
-failed_task_tolerance|`MicroBase`|Once the period for proving the success is over, agent cannot successfully complete the instance, however it can still obtain new instructions (and possibly feedbacks). Amount of these new questions is counted as `number_of_already_asked_questions * (1 + failed_task_tolerance)`|1
-ALPHABET_SIZE|`MicroTask1`-`MicroTask4`|Some tasks use just a subset of ASCII alphabet. This constant says how big the subset will be|4
-MAPPING_SIZE|`Micro5Sub8`,`Micro5Sub9`,`Micro5Sub13`,`Micro5Sub16`-`Micro5Sub18`,`Micro17Task`|Some tasks can potentially generate a huge amount of question-answer pairs. This constant limit that number.|10; 8 at `Micro17Task`
+success_threshold | JSON config file | Number of required successful solutions of task instance for agent to proceed onto the next task
+REQUIRED_CONSECUTIVE_REWARDS | `MicroBase` | To pass the task instance, agent has to provide at least this number of correct answers in a row | 10
+SUCCESS_TOLERANCE | `MicroBase` | Affects the size of period in which agent can solve the task instance successfully | 4
+FAILED_TASK_TOLERANCE | `MicroBase` | Affects the maximum number of questions for one task instance | 1
+ALPHABET_SIZE | `MicroTask1`-`MicroTask4` | Some tasks use just a subset of ASCII alphabet. This constant says how big the subset will be | 4
+MAPPING_SIZE | `Micro5Sub8`,`Micro5Sub9`,`Micro5Sub13`,`Micro5Sub16`-`Micro5Sub18`,`Micro17Task` | Some tasks can potentially generate a huge amount of question-answer pairs. This constant limit that number. | 10; 8 at `Micro17Task`
