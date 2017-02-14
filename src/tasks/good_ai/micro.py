@@ -875,7 +875,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence1 = '{}{}.'.format(word1, word2)
                 sentence2 = '{}{}.'.format(word2, word1)
                 sentence = random.choice([sentence1, sentence2])
-                return question, [sentence1, sentence2], micro15_feedback
+                return question, [sentence1, sentence2], micro13_feedback
             # or
             elif action == 2:
                 word1 = random.choice(words)
@@ -886,7 +886,7 @@ class Micro13Sub1Task(MicroBase):
                 def or_reward(answer, question=''):
                     correct = answer.find(word1) >= 0 or answer.find(word2) >= 0
                     return correct, 1 if correct else -1
-                return question, or_reward, micro15_feedback
+                return question, or_reward, micro13_feedback
             # anything and not
             elif action == 3:
                 word1 = 'anything'
@@ -898,7 +898,7 @@ class Micro13Sub1Task(MicroBase):
                 def anything_and_not_reward(answer, question=''):
                     correct = answer.find(word2) < 0
                     return correct, 1 if correct else -1
-                return question, anything_and_not_reward, micro15_feedback
+                return question, anything_and_not_reward, micro13_feedback
             # or but not
             else:
                 word1 = random.choice(words)
