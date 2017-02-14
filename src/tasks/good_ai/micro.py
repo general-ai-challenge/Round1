@@ -1118,7 +1118,9 @@ class Micro20Task(Micro19Task):
         get_synonym = self.get_synonym
 
         def func_outer(self_):
-            question, a, b = func_inner(self_)
+            with forbid_dictionary_strings(self.forbidden_strings):
+                question, a, b = func_inner(self_)
+
             synonym_present = [synonym for synonym in synonym_list if question.find(synonym) >= 0]
             synonym = random.choice(synonym_present)
             new_synonym = get_synonym(synonym)

@@ -444,6 +444,8 @@ class TestMicro10Learner(TestMicroMultipleCommandsBase):
             return ''.join(words)
         elif operation == 'interleave':
             return ''.join((''.join(word) for word in zip(*words)))
+        else:
+            raise ValueError('Wrong question: ' + str(commands))
 
 
 class TestMicro11Learner(TestMicroMultipleCommandsBase):
