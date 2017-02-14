@@ -629,61 +629,68 @@ class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
 
 
 class TestMicro19Learner(BaseLearner):
-    _synonyms = {'say': ['say', 'print', 'write'],
-                 'and': ['and', 'together with', '&', 'also'],
-                 'or': ['or', 'alternative', '/'],
-                 'after': ['after', 'behind', 'next'],
-                 'union': ['union', 'consolidate', 'joint'],
-                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
+    synonyms = {'say': ['say', 'print', 'write'],
+                'and': ['and', 'together with', '&', 'also'],
+                'or': ['or', 'alternative', '/'],
+                'after': ['after', 'behind', 'next'],
+                'union': ['union', 'consolidate', 'joint'],
+                'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
+
+    pattern_find = '(^|[^\w]){0}([^\w])'
+    pattern_replace = '\g<1>{0}\g<2>'
 
     def __init__(self):
         self._buffer = []
         self._response = []
         self._read_assignment = True
+        self._read_result = False
+
+    def replace(self, from_word, to_word, sentence):
+        return re.sub(self.pattern_find.format(from_word), self.pattern_replace.format(to_word), sentence)
 
     def next(self, input_char):
         if self._read_assignment:
             # Read an assignment from env.
-            if input_char == '.' or input_char == ';':
+            if input_char == '.':
                 question = ''.join(self._buffer)
                 self._buffer = []
 
-                for synonym in self._synonyms['say']:
-                    question = question.replace(synonym, 'say')
+                for synonym in self.synonyms['say']:
+                    question = self.replace(synonym, 'say', question)
 
                 learner = None
 
-                if 'what' in question:
-                    for synonym in self._synonyms['after']:
-                        question = question.replace(synonym, 'after')
-                        question = question.replace(synonym, 'after')
+                if re.search(self.pattern_find.format('what'), question) is not None:
+                    for synonym in self.synonyms['after']:
+                        question = self.replace(synonym, 'after', question)
                     learner = TestMicro12Learner()
 
-                if 'concatenate:' in question or 'reverse:' in question or 'interleave:' in question:
+                if learner is None and ('concatenate:' in question or 'reverse:' in question or 'interleave:' in question):
                     learner = TestMicro10Learner()
 
-                is_learner_11 = False
-                for synonym in self._synonyms['union']:
-                    if synonym in question:
-                        question = question.replace(synonym, 'union')
-                        learner = TestMicro11Learner()
-                        is_learner_11 = True
-                for synonym in self._synonyms['exclude']:
-                    if synonym in question:
-                        question = question.replace(synonym, 'exclude')
-                        learner = TestMicro11Learner()
-                        is_learner_11 = True
-                if is_learner_11:
-                    for synonym in self._synonyms['and']:
-                        question = question.replace(synonym, 'and')
-                    for synonym in self._synonyms['or']:
-                        question = question.replace(synonym, 'or')
+                if learner is None:
+                    is_learner_11 = False
+                    for synonym in self.synonyms['union']:
+                        if synonym in question:
+                            question = self.replace(synonym, 'union', question)
+                            learner = TestMicro11Learner()
+                            is_learner_11 = True
+                    for synonym in self.synonyms['exclude']:
+                        if synonym in question:
+                            question = self.replace(synonym, 'exclude', question)
+                            learner = TestMicro11Learner()
+                            is_learner_11 = True
+                    if is_learner_11:
+                        for synonym in self.synonyms['and']:
+                            question = self.replace(synonym, 'and', question)
+                        for synonym in self.synonyms['or']:
+                            question = self.replace(synonym, 'or', question)
 
                 if learner is None:
                     if 'say:' in question:
                         learner = TestMicro9Learner()
                     else:
-                        return ' '
+                        raise ValueError('Learner not found')
 
                 # Feed the learner the question.
                 for c in question:
@@ -703,17 +710,77 @@ class TestMicro19Learner(BaseLearner):
                 self._buffer.append(input_char)
                 return ' '
 
-        if not self._read_assignment:
+        if not self._read_assignment and not self._read_result:
             # Provide the answer from the selected learner.
             if len(self._response) > 0:
                 return self._response.pop(0)
             else:
-                self._read_assignment = True
+                self._read_result = True
                 # The answer is complete, finalize with a dot.
                 return '.'
 
+        if self._read_result:
+            if input_char == '.' or input_char == ';':
+                self._read_result = False
+                self._read_assignment = True
+                return ' '
 
-def task_solved_successfuly(task):
+
+class TestMicro20Learner(BaseLearner):
+    def __init__(self):
+        self._buffer = []
+        self._response = []
+        self._matcher = re.compile('([^ ]+) is as ([^ ]+) - (.*)')
+        self._read_assignment = True
+        self._read_result = False
+
+    def next(self, input_char):
+        if self._read_assignment:
+            if input_char == '.':
+                question = ''.join(self._buffer)
+                self._buffer = []
+                to_word, from_word, rest = self._matcher.findall(question)[0]
+
+                learner = TestMicro19Learner()
+                for key in list(learner.synonyms.keys()):
+                    learner.synonyms[key] = [key]
+                learner.synonyms[from_word] = [to_word]
+
+                for c in rest:
+                    learner.next(c)
+
+                # Get response back from learner.
+                self._response = [learner.next('.')]
+                while self._response[-1] != '.':
+                    self._response.append(learner.next(' '))
+
+                # Remove the dot, it will be sent later.
+                self._response = self._response[:-1]
+                self._read_assignment = False
+
+            else:
+                # Waiting for the question to finish.
+                self._buffer.append(input_char)
+                return ' '
+
+        if not self._read_assignment and not self._read_result:
+            # Provide the answer from the selected learner.
+            if len(self._response) > 0:
+                return self._response.pop(0)
+            else:
+                self._read_assignment = False
+                self._read_result = True
+                # The answer is complete, finalize with a dot.
+                return '.'
+
+        if self._read_result:
+            if input_char == '.' or input_char == ';':
+                self._read_result = False
+                self._read_assignment = True
+                return ' '
+
+
+def task_solved_successfully(task):
     return task._env._last_result and task.under_time_limit_for_successfull_solution()
 
 
@@ -841,7 +908,7 @@ class TestMicroTaskBase(unittest.TestCase):
                 learner = self._get_learner()
                 messenger = task_messenger(task)
                 basic_task_run(self, messenger, learner, task)
-                self.assertTrue(task_solved_successfuly(task))
+                self.assertTrue(task_solved_successfully(task))
 
     def test_successful_evaluation(self):
         # Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
@@ -850,13 +917,13 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = self._get_learner()
         basic_task_run(self, messenger, learner, task)
-        self.assertTrue(task_solved_successfuly(task))
+        self.assertTrue(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 1)
 
         # second run
         learner = self._get_learner()
         basic_task_run(self, messenger, learner, task)
-        self.assertTrue(task_solved_successfuly(task))
+        self.assertTrue(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 0)  # 2 % 2 = 0, because the scheduler switched to next task
 
     def test_failed_evaluation(self):
@@ -866,12 +933,12 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = self._get_failing_learner()
         basic_task_run(self, messenger, learner, task)
-        self.assertFalse(task_solved_successfuly(task))
+        self.assertFalse(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 0)
 
         # second run
         basic_task_run(self, messenger, learner, task)
-        self.assertFalse(task_solved_successfuly(task))
+        self.assertFalse(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 0)
 
     def test_failed_then_successful_evaluation(self):
@@ -882,13 +949,13 @@ class TestMicroTaskBase(unittest.TestCase):
         # first run
         learner = self._get_failing_learner()
         basic_task_run(self, messenger, learner, task)
-        self.assertFalse(task_solved_successfuly(task))
+        self.assertFalse(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 0)
 
         # second run
         learner = self._get_learner()
         basic_task_run(self, messenger, learner, task)
-        self.assertTrue(task_solved_successfuly(task))
+        self.assertTrue(task_solved_successfully(task))
         self.assertEqual(scheduler.reward_count, 1)
 
 
@@ -1277,3 +1344,12 @@ class TestMicro19(TestMicroTaskBase):
     def _get_failing_learner(self):
         return FixedLearner('.')
 
+
+class TestMicro20(TestMicroTaskBase):
+    task = micro.Micro20Task
+
+    def _get_learner(self):
+        return TestMicro20Learner()
+
+    def _get_failing_learner(self):
+        return FixedLearner('.')

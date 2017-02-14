@@ -565,7 +565,6 @@ def load_dictionary(file_name):
     with open(file_name) as f:
         content = f.readlines()
 
-    print(load_dictionary.forbidden_strings)
     return [x.strip() for x in content
             if not any(map(lambda forbidden: forbidden in x.strip(), load_dictionary.forbidden_strings))]
 
@@ -1052,14 +1051,17 @@ class Micro19Task(MicroBase):
                 'after': ['after', 'behind', 'next'],
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
-    synonym_list = list(synonyms.keys())
 
-    def __init__(self):
-        super().__init__()
-        self.tasks = []
-        self._forbidden_strings = []
-        for original, synonyms in self.synonyms.items():
-            self._forbidden_strings.extend(synonyms)
+    tasks = []
+    forbidden_strings = []
+    for original, syn in synonyms.items():
+        forbidden_strings.extend(syn)
+
+    pattern_find = '(^|[^\w]){0}([^\w])'
+    pattern_replace = '\g<1>{0}\g<2>'
+
+    def replace(self, from_word, to_word, sentence):
+        return re.sub(self.pattern_find.format(from_word), self.pattern_replace.format(to_word), sentence)
 
     @on_start()
     def new_task_instance(self, event):
@@ -1075,16 +1077,15 @@ class Micro19Task(MicroBase):
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
 
-        synonym_list = self.synonym_list
         get_random_synonym = self.get_random_synonym
 
-        def func_outer(_self):
-            with forbid_dictionary_strings(self._forbidden_strings):
-                question, a, b = func_inner(_self)
+        def func_outer(self_):
+            with forbid_dictionary_strings(self.forbidden_strings):
+                question, a, b = func_inner(self_)
 
-            for synonym in synonym_list:
-                question = question.replace(synonym + ' ', get_random_synonym(synonym) + ' ')
-                question = question.replace(synonym + ':', get_random_synonym(synonym) + ':')
+            for original in self.synonyms.keys():
+                synonym = get_random_synonym(original)
+                question = self.replace(original, synonym, question)
             return question, a, b
         task_generator.instancer = func_outer
         return task_generator
@@ -1098,9 +1099,11 @@ class Micro20Task(Micro19Task):
     tasks = []
 
     def get_task_generator(self):
-        content = load_dictionary(self.FILE_NAME)
+        with forbid_dictionary_strings(self.forbidden_strings):
+            content = load_dictionary(self.FILE_NAME)
+
         vocabulary = content[200:400]
-        self.synonyms = {o: s for (o, s) in zip(self.synonym_list, random.sample(vocabulary, len(self.synonym_list)))}
+        self.synonyms = {o: s for (o, s) in zip(self.synonyms.keys(), random.sample(vocabulary, len(self.synonyms)))}
 
         # choose task randomly, but provide all n tasks in n tries
         if len(self.tasks) == 0:
@@ -1111,15 +1114,15 @@ class Micro20Task(Micro19Task):
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
 
-        synonym_list = self.synonym_list
+        synonym_list = self.synonyms.keys()
         get_synonym = self.get_synonym
 
-        def func_outer(self):
-            question, a, b = func_inner(self)
+        def func_outer(self_):
+            question, a, b = func_inner(self_)
             synonym_present = [synonym for synonym in synonym_list if question.find(synonym) >= 0]
             synonym = random.choice(synonym_present)
             new_synonym = get_synonym(synonym)
-            question = question.replace(synonym, new_synonym)
+            question = self.replace(synonym, new_synonym, question)
             question = new_synonym + " is as " + synonym + ' - ' + question
             return question, a, b
         task_generator.instancer = func_outer
