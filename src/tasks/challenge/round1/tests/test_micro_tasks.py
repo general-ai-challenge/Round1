@@ -1115,9 +1115,6 @@ class TestMicro5Sub6(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub6Learner()
 
-    def _get_failing_learner(self):
-        return TestMicro5Sub4Learner()
-
 
 class TestMicro5Sub7(TestMicroTaskBase):
     task = micro.Micro5Sub7Task
