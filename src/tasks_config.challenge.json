@@ -6,27 +6,147 @@
   },
   "tasks":
   {
-    "cm0": {
+    "micro1": {
+      "type": "tasks.good_ai.micro.Micro1Task"
+    },
+    "micro2": {
+      "type": "tasks.good_ai.micro.Micro2Task"
+    },
+    "micro3": {
+      "type": "tasks.good_ai.micro.Micro3Task"
+    },
+    "micro4": {
+      "type": "tasks.good_ai.micro.Micro4Task"
+    },
+    "micro5.1": {
+      "type": "tasks.good_ai.micro.Micro5Sub1Task"
+    },
+    "micro5.2": {
+      "type": "tasks.good_ai.micro.Micro5Sub2Task"
+    },
+    "micro5.3": {
+      "type": "tasks.good_ai.micro.Micro5Sub3Task"
+    },
+    "micro5.4": {
+      "type": "tasks.good_ai.micro.Micro5Sub4Task"
+    },
+    "micro5.5": {
+      "type": "tasks.good_ai.micro.Micro5Sub5Task"
+    },
+    "micro5.6": {
+      "type": "tasks.good_ai.micro.Micro5Sub6Task"
+    },
+    "micro5.7": {
+      "type": "tasks.good_ai.micro.Micro5Sub7Task"
+    },
+    "micro5.8": {
+      "type": "tasks.good_ai.micro.Micro5Sub8Task"
+    },
+    "micro5.9": {
+      "type": "tasks.good_ai.micro.Micro5Sub9Task"
+    },
+    "micro5.10": {
+      "type": "tasks.good_ai.micro.Micro5Sub10Task"
+    },
+    "micro5.11": {
+      "type": "tasks.good_ai.micro.Micro5Sub11Task"
+    },
+    "micro5.12": {
+      "type": "tasks.good_ai.micro.Micro5Sub12Task"
+    },
+    "micro5.13": {
+      "type": "tasks.good_ai.micro.Micro5Sub13Task"
+    },
+    "micro5.14": {
+      "type": "tasks.good_ai.micro.Micro5Sub14Task"
+    },
+    "micro5.15": {
+      "type": "tasks.good_ai.micro.Micro5Sub15Task"
+    },
+    "micro5.16": {
+      "type": "tasks.good_ai.micro.Micro5Sub16Task"
+    },
+    "micro5.17": {
+      "type": "tasks.good_ai.micro.Micro5Sub17Task"
+    },
+    "micro5.18": {
+      "type": "tasks.good_ai.micro.Micro5Sub18Task"
+    },
+    "micro6.1": {
+      "type": "tasks.good_ai.micro.Micro6Sub1Task"
+    },
+    "micro6.2": {
+      "type": "tasks.good_ai.micro.Micro6Sub2Task"
+    },
+    "micro6.3": {
+      "type": "tasks.good_ai.micro.Micro6Sub3Task"
+    },
+    "micro7": {
+      "type": "tasks.good_ai.micro.Micro7Task"
+    },
+    "micro8.1": {
+      "type": "tasks.good_ai.micro.Micro8Sub1Task"
+    },
+    "micro8.2": {
+      "type": "tasks.good_ai.micro.Micro8Sub2Task"
+    },
+    "micro8.3": {
+      "type": "tasks.good_ai.micro.Micro8Sub3Task"
+    },
+    "micro9": {
+      "type": "tasks.good_ai.micro.Micro9Task"
+    },
+    "micro10": {
+      "type": "tasks.good_ai.micro.Micro10Task"
+    },
+    "micro11": {
+      "type": "tasks.good_ai.micro.Micro11Task"
+    },
+    "micro12": {
+      "type": "tasks.good_ai.micro.Micro12Task"
+    },
+    "micro13": {
+      "type": "tasks.good_ai.micro.Micro13Task"
+    },
+    "micro15.1": {
+      "type": "tasks.good_ai.micro.Micro15Sub1Task"
+    },
+    "micro15.2": {
+      "type": "tasks.good_ai.micro.Micro15Sub2Task"
+    },
+    "micro17": {
+      "type": "tasks.good_ai.micro.Micro17Task"
+    },
+    "micro18": {
+      "type": "tasks.good_ai.micro.Micro18Task"
+    },
+    "micro19": {
+      "type": "tasks.good_ai.micro.Micro19Task"
+    },
+    "micro20": {
+      "type": "tasks.good_ai.micro.Micro20Task"
+    },
+    "mini0": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet0",
       "world": "gw"
     },
-    "cm1": {
+    "mini1": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet1",
       "world": "gw"
     },
-    "cm2": {
+    "mini2": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet2",
       "world": "gw"
     },
-    "cm3": {
+    "mini3": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet3",
       "world": "gw"
     },
-    "cm4": {
+    "mini4": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet4",
       "world": "gw"
     },
-    "cm5": {
+    "mini5": {
       "type": "tasks.good_ai.comm_ai_mini.TaskSet5",
       "world": "gw"
     }
@@ -35,8 +155,19 @@
     {
       "type": "core.scheduler.ConsecutiveTaskScheduler",
       "args": {
-          "tasks": ["cm0", "cm1","cm2", "cm3","cm4", "cm5"],
-          "success_threshold": 3
+          "tasks": [
+            "micro1","micro2","micro3","micro4",
+            "micro5.1","micro5.2","micro5.3","micro5.4","micro5.5","micro5.6","micro5.7","micro5.8","micro5.9",
+            "micro5.10", "micro5.11", "micro5.12","micro5.13","micro5.14","micro5.15","micro5.16","micro5.17",
+            "micro5.18",
+            "micro6.1","micro6.2","micro6.3",
+            "micro7",
+            "micro8.1","micro8.2","micro8.3",
+            "micro9","micro10","micro11","micro12","micro13",
+            "micro15.1","micro15.2",
+            "micro17","micro18","micro19","micro20",
+            "mini0","mini1","mini2","mini3","mini4","mini5"],
+          "success_threshold": 5
         }
     }
 }
