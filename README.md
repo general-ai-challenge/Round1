@@ -10,7 +10,10 @@ The environment is a fork of environment [CommAI-env](https://github.com/faceboo
 2. Reward is given as either -1, 0 or 1, not just 0 or 1.
 3. Tasks for Round 1 of the General AI Challenge were added.
 
-The repository contains implementations of CommAI mini-tasks, which are described in [CommAI: Evaluating the first steps towards a useful general AI](https://arxiv.org/abs/1701.08954), and implementations of micro-tasks described in [link to specification].
+The repository also contains implementations of the following sets of tasks:
+
+1. CommAI mini-tasks, described in [CommAI: Evaluating the first steps towards a useful general AI](https://arxiv.org/abs/1701.08954).
+2. Challenge micro-tasks, described in the [Challenge specification document](https://mirror.general-ai.challenge.org/challenge_first_round_specifications.pdf).
 
 ## To run the environment
 
