@@ -101,12 +101,18 @@ class MicroBase(Task):
         self.set_message(self.question)
         # internal buffer reset
         self.agent_answer = ''
+        self.remaining_instruction_length = len(self.question)
 
     @on_message(r'.')
     def check_response(self, event):
+        self.remaining_instruction_length -= 1
+
         if not self._env.is_silent():
             if not event.message[-1] == ' ':
                 self.set_immediate_reward(-1)
+            return
+
+        if self.remaining_instruction_length > 1:
             return
 
         self.preprocess_answer(event.message)
@@ -114,10 +120,7 @@ class MicroBase(Task):
         if not self._answer_ended(self.agent_answer):
             return      # agent is still speaking - do not check it yet
 
-        # in case the message is not complete self.agent_answer should not be stripped
-        answer = self.agent_answer.strip()
-        if answer == '':
-            answer = ' '
+        answer = self.agent_answer # no stripping of agent's answer
 
         finished, correct, reward = self.tasker.check_answer(answer, self.question)
         self.provide_reward(reward)
@@ -245,6 +248,8 @@ class MicroMappingTask(MicroBase):
             def micro_mapping_reward(answer, question):
                 key = self.get_original_question(question)
                 if len(answer) > 0 and MicroBase.is_prefix(answer, mapping[key]):
+                    return None, 0
+                if len(answer) < len(mapping[key]):
                     return None, 0
                 correct = answer == mapping[key]
                 return correct, 1 if correct else -1

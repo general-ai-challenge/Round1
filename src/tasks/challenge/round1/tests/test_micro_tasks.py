@@ -274,6 +274,10 @@ class TestMicro5Sub4Learner(TestMicroQuestionAnswerBase):
     def answer_question(self):
         return self.mapping.get(self.question, '.')
 
+    def reward(self, reward):
+        if reward and reward != 0:
+            del self.buffer[:]
+
 
 class TestMicro5Sub6Learner(TestMicro5Sub4Learner):
 
