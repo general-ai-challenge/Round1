@@ -40,6 +40,9 @@ Download correct version of `curses` at [http://www.lfd.uci.edu/~gohlke/pythonli
 and install it with
 
 	pip install curses-2.2-cp*.whl
+	
+When your `curses` support is running fine, you can run the interactive version of the environment 
+with parameter `--curses`, which will switch the GUI to a nicer rendering.
 
 ## To run unit tests
 
