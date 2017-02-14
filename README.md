@@ -13,7 +13,7 @@ The environment is a fork of environment [CommAI-env](https://github.com/faceboo
 The repository also contains implementations of the following sets of tasks:
 
 1. CommAI mini-tasks, described in [CommAI: Evaluating the first steps towards a useful general AI](https://arxiv.org/abs/1701.08954).
-2. Challenge micro-tasks, described in the [Challenge specification document](https://mirror.general-ai.challenge.org/challenge_first_round_specifications.pdf).
+2. Challenge micro-tasks, described in the [Challenge specification document](https://mirror.general-ai-challenge.org/challenge_first_round_specifications.pdf).
 
 ## To run the environment
 
