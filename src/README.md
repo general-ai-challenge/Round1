@@ -33,3 +33,13 @@ Download correct version of `curses` at http://www.lfd.uci.edu/~gohlke/pythonlib
 and install it with
 
 `pip install curses-2.2-cp*.whl`
+
+## Constants used in GoodAI Micro tasks
+
+Name|Location|Description|Default value
+---|---|---|---
+REQUIRED_CONSECUTIVE_REWARDS|`MicroBase`|To pass the task instance, agent has to provide at least this number of correct answers in a row|10
+success_tolerance|`MicroBase`|Once the task is sure that agent should already know everything it needs to solve the task perfectly, he will provide him some number of steps to prove it. The number is counted as `REQUIRED_CONSECUTIVE_REWARDS * (1 + success_tolerance)`|4
+failed_task_tolerance|`MicroBase`|Once the period for proving the success is over, agent cannot successfully complete the instance, however it can still obtain new instructions (and possibly feedbacks). Amount of these new questions is counted as `number_of_already_asked_questions * (1 + failed_task_tolerance)`|1
+ALPHABET_SIZE|`MicroTask1`-`MicroTask4`|Some tasks use just a subset of ASCII alphabet. This constant says how big the subset will be|4
+MAPPING_SIZE|`Micro5Sub8`,`Micro5Sub9`,`Micro5Sub13`,`Micro5Sub16`-`Micro5Sub18`,`Micro17Task`|Some tasks can potentially generate a huge amount of question-answer pairs. This constant limit that number.|10; 8 at `Micro17Task`
