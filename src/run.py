@@ -19,7 +19,6 @@ from core.environment import Environment
 from core.config_loader import JSONConfigLoader, PythonConfigLoader
 import learners
 from core.session import Session
-import platform
 
 
 def main():
@@ -52,7 +51,7 @@ def main():
                   default=10, type=int,
                   help='Maximum reward that we can give to a learner for'
                   ' a given task.')
-    op.add_option('--use-standard-output', action='store_true', default=False,
+    op.add_option('--curses', action='store_true', default=False,
                   help='Uses standard output instead of curses library.')
     op.add_option('--bit-mode', action='store_true', default=False,
                   help='Environment receives input in bytes.')
@@ -67,8 +66,7 @@ def main():
     # the bit signal
     serializer = StandardSerializer()
     # create a learner (the human learner takes the serializer)
-    learner = create_learner(opt.learner, serializer, opt.learner_cmd,
-                                opt.learner_port, not opt.bit_mode)
+    learner = create_learner(opt.learner, serializer, opt.learner_cmd, opt.learner_port, not opt.bit_mode)
     # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     # construct an environment
@@ -79,7 +77,7 @@ def main():
     session = Session(env, learner, opt.time_delay)
     # setup view
     view = create_view(opt.view, opt.learner, env, session, serializer, opt.show_world,
-                       opt.use_standard_output, not opt.bit_mode)
+                       opt.curses, not opt.bit_mode)
     try:
         # send the interface to the human learner
         learner.set_view(view)
@@ -98,8 +96,8 @@ def main():
         view.finalize()
 
 
-def create_view(view_type, learner_type, env, session, serializer, show_world, use_standard_output, byte_mode):
-    if platform.system() == 'Windows' or use_standard_output:
+def create_view(view_type, learner_type, env, session, serializer, show_world, use_curses, byte_mode):
+    if not use_curses:
         from view.win_console import StdInOutView, StdOutView
         if learner_type.split('.')[0:2] == ['learners', 'human_learner'] \
            or view_type == 'ConsoleView':
