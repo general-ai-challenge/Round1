@@ -82,7 +82,7 @@ class TestMicro1Learner(BaseLearner):
         return self.char
 
     def reward(self, reward):
-        if reward < 0:
+        if reward < 0 and len(self.valid_chars) > 0:
             self.char = None
 
 
@@ -123,7 +123,8 @@ class TestMicro5Sub1Learner(BaseLearner):
             return
         else:
             self.last_input = input
-            self.answer = self.mapping[input][-1]
+            if input in self.mapping:   # for usage with other than 5.1 task
+                self.answer = self.mapping[input][-1]
             self.is_feedback = not self.is_feedback
             return self.answer
 
@@ -143,7 +144,8 @@ class TestMicro5Sub2Learner(BaseLearner):
             return
         else:
             self.last_input = input
-            self.answer = self.mapping[input][-1]
+            if input in self.mapping:   # for usage with other than 5.1 task
+                self.answer = self.mapping[input][-1]
             self.is_feedback = not self.is_feedback
             return self.answer
 
@@ -163,7 +165,8 @@ class TestMicro5Sub3Learner(BaseLearner):
         else:
             if input != '.':
                 self.last_input = input
-            self.answer = self.mapping[self.last_input][-1]
+            if self.last_input in self.mapping:   # for usage with other than 5.3 task
+                self.answer = self.mapping[self.last_input][-1]
             if input == '.':
                 self.is_feedback = not self.is_feedback
                 return self.answer
@@ -858,7 +861,7 @@ class TestMicroTaskBase(unittest.TestCase):
 
     def test_failed_evaluation(self):
         # Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
-        task = self.task()
+        task = self._get_task()
         scheduler, messenger = self.init_env(task)
         # first run
         learner = self._get_failing_learner()
@@ -882,7 +885,6 @@ class TestMicroTaskBase(unittest.TestCase):
         self.assertFalse(task_solved_successfuly(task))
         self.assertEqual(scheduler.reward_count, 0)
 
-
         # second run
         learner = self._get_learner()
         basic_task_run(self, messenger, learner, task)
@@ -895,6 +897,9 @@ class TestMicro1(TestMicroTaskBase):
 
     def _get_learner(self):
         return TestMicro1Learner(string.ascii_letters + string.digits + ' ,.!;?-')
+
+    def _get_failing_learner(self):
+        return BaseLearner()
 
 
 class TestMicro2(TestMicroTaskBase):
@@ -910,12 +915,18 @@ class TestMicro3(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro3Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro1Learner(string.ascii_lowercase)
+
 
 class TestMicro4(TestMicroTaskBase):
     task = micro.Micro4Task
 
     def _get_learner(self):
         return BaseLearner()
+
+    def _get_failing_learner(self):
+        return TestMicro1Learner(string.ascii_lowercase)
 
 
 class TestMicro5Sub1(TestMicroTaskBase):
@@ -924,12 +935,18 @@ class TestMicro5Sub1(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub1Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro1Learner(string.digits)
+
 
 class TestMicro5Sub2(TestMicroTaskBase):
     task = micro.Micro5Sub2Task
 
     def _get_learner(self):
         return TestMicro5Sub2Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub1Learner()
 
 
 class TestMicro5Sub3(TestMicroTaskBase):
@@ -938,12 +955,18 @@ class TestMicro5Sub3(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub3Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub4(TestMicroTaskBase):
     task = micro.Micro5Sub4Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
 
 
 class TestMicro5Sub5(TestMicroTaskBase):
@@ -952,12 +975,18 @@ class TestMicro5Sub5(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub6(TestMicroTaskBase):
     task = micro.Micro5Sub6Task
 
     def _get_learner(self):
         return TestMicro5Sub6Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub4Learner()
 
 
 class TestMicro5Sub7(TestMicroTaskBase):
@@ -966,12 +995,18 @@ class TestMicro5Sub7(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub8(TestMicroTaskBase):
     task = micro.Micro5Sub8Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
 
 
 class TestMicro5Sub9(TestMicroTaskBase):
@@ -980,12 +1015,18 @@ class TestMicro5Sub9(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub10(TestMicroTaskBase):
     task = micro.Micro5Sub10Task
 
     def _get_learner(self):
         return TestMicro5Sub10Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub4Learner()
 
 
 class TestMicro5Sub11(TestMicroTaskBase):
@@ -994,12 +1035,18 @@ class TestMicro5Sub11(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub10Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub4Learner()
+
 
 class TestMicro5Sub12(TestMicroTaskBase):
     task = micro.Micro5Sub12Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
 
 
 class TestMicro5Sub13(TestMicroTaskBase):
@@ -1008,12 +1055,18 @@ class TestMicro5Sub13(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub14(TestMicroTaskBase):
     task = micro.Micro5Sub14Task
 
     def _get_learner(self):
         return TestMicro5Sub10Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub4Learner()
 
 
 class TestMicro5Sub15(TestMicroTaskBase):
@@ -1022,12 +1075,18 @@ class TestMicro5Sub15(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub16(TestMicroTaskBase):
     task = micro.Micro5Sub16Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
 
 
 class TestMicro5Sub17(TestMicroTaskBase):
@@ -1036,12 +1095,18 @@ class TestMicro5Sub17(TestMicroTaskBase):
     def _get_learner(self):
         return TestMicro5Sub4Learner()
 
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
+
 
 class TestMicro5Sub18(TestMicroTaskBase):
     task = micro.Micro5Sub18Task
 
     def _get_learner(self):
         return TestMicro5Sub4Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro5Sub2Learner()
 
 
 class TestMicro6Sub1(TestMicroTaskBase):
