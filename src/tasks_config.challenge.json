@@ -7,147 +7,147 @@
   "tasks":
   {
     "micro1": {
-      "type": "tasks.good_ai.micro.Micro1Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro1Task"
     },
     "micro2": {
-      "type": "tasks.good_ai.micro.Micro2Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro2Task"
     },
     "micro3": {
-      "type": "tasks.good_ai.micro.Micro3Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro3Task"
     },
     "micro4": {
-      "type": "tasks.good_ai.micro.Micro4Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro4Task"
     },
     "micro5.1": {
-      "type": "tasks.good_ai.micro.Micro5Sub1Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub1Task"
     },
     "micro5.2": {
-      "type": "tasks.good_ai.micro.Micro5Sub2Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub2Task"
     },
     "micro5.3": {
-      "type": "tasks.good_ai.micro.Micro5Sub3Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub3Task"
     },
     "micro5.4": {
-      "type": "tasks.good_ai.micro.Micro5Sub4Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub4Task"
     },
     "micro5.5": {
-      "type": "tasks.good_ai.micro.Micro5Sub5Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub5Task"
     },
     "micro5.6": {
-      "type": "tasks.good_ai.micro.Micro5Sub6Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub6Task"
     },
     "micro5.7": {
-      "type": "tasks.good_ai.micro.Micro5Sub7Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub7Task"
     },
     "micro5.8": {
-      "type": "tasks.good_ai.micro.Micro5Sub8Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub8Task"
     },
     "micro5.9": {
-      "type": "tasks.good_ai.micro.Micro5Sub9Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub9Task"
     },
     "micro5.10": {
-      "type": "tasks.good_ai.micro.Micro5Sub10Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub10Task"
     },
     "micro5.11": {
-      "type": "tasks.good_ai.micro.Micro5Sub11Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub11Task"
     },
     "micro5.12": {
-      "type": "tasks.good_ai.micro.Micro5Sub12Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub12Task"
     },
     "micro5.13": {
-      "type": "tasks.good_ai.micro.Micro5Sub13Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub13Task"
     },
     "micro5.14": {
-      "type": "tasks.good_ai.micro.Micro5Sub14Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub14Task"
     },
     "micro5.15": {
-      "type": "tasks.good_ai.micro.Micro5Sub15Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub15Task"
     },
     "micro5.16": {
-      "type": "tasks.good_ai.micro.Micro5Sub16Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub16Task"
     },
     "micro5.17": {
-      "type": "tasks.good_ai.micro.Micro5Sub17Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub17Task"
     },
     "micro5.18": {
-      "type": "tasks.good_ai.micro.Micro5Sub18Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro5Sub18Task"
     },
     "micro6": {
-      "type": "tasks.good_ai.micro.Micro6Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro6Task"
     },
     "micro7.1": {
-      "type": "tasks.good_ai.micro.Micro7Sub1Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro7Sub1Task"
     },
     "micro7.2": {
-      "type": "tasks.good_ai.micro.Micro7Sub2Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro7Sub2Task"
     },
     "micro7.3": {
-      "type": "tasks.good_ai.micro.Micro7Sub3Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro7Sub3Task"
     },
     "micro8": {
-      "type": "tasks.good_ai.micro.Micro8Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro8Task"
     },
     "micro9.1": {
-      "type": "tasks.good_ai.micro.Micro9Sub1Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro9Sub1Task"
     },
     "micro9.2": {
-      "type": "tasks.good_ai.micro.Micro9Sub2Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro9Sub2Task"
     },
     "micro9.3": {
-      "type": "tasks.good_ai.micro.Micro9Sub3Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro9Sub3Task"
     },
     "micro10": {
-      "type": "tasks.good_ai.micro.Micro10Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro10Task"
     },
     "micro11": {
-      "type": "tasks.good_ai.micro.Micro11Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro11Task"
     },
     "micro12": {
-      "type": "tasks.good_ai.micro.Micro12Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro12Task"
     },
     "micro13.1": {
-      "type": "tasks.good_ai.micro.Micro13Sub1Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro13Sub1Task"
     },
     "micro13.2": {
-      "type": "tasks.good_ai.micro.Micro13Sub2Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro13Sub2Task"
     },
     "micro14": {
-      "type": "tasks.good_ai.micro.Micro14Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro14Task"
     },
     "micro15": {
-      "type": "tasks.good_ai.micro.Micro15Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro15Task"
     },
     "micro16": {
-      "type": "tasks.good_ai.micro.Micro16Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro16Task"
     },
     "micro19": {
-      "type": "tasks.good_ai.micro.Micro19Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro19Task"
     },
     "micro20": {
-      "type": "tasks.good_ai.micro.Micro20Task"
+      "type": "tasks.challenge.round1.challenge_micro.Micro20Task"
     },
     "mini0": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet0",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet0",
       "world": "gw"
     },
     "mini1": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet1",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet1",
       "world": "gw"
     },
     "mini2": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet2",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet2",
       "world": "gw"
     },
     "mini3": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet3",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet3",
       "world": "gw"
     },
     "mini4": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet4",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet4",
       "world": "gw"
     },
     "mini5": {
-      "type": "tasks.good_ai.comm_ai_mini.TaskSet5",
+      "type": "tasks.challenge.round1.challenge_mini.TaskSet5",
       "world": "gw"
     }
   },
