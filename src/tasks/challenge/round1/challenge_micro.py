@@ -1,3 +1,4 @@
+import os
 import random
 import re
 import string
@@ -7,6 +8,7 @@ from core.task import Task
 from core.task import on_message, on_start, on_timeout
 from tasks.challenge.round1.task_generator import TaskGenerator
 
+DICTIONARY_FILE = 'res/dict_gsl.txt'
 REQUIRED_CONSECUTIVE_REWARDS = 10   # more or less arbitrary constant; high enough to prevent random solutions
 
 
@@ -562,7 +564,9 @@ class Micro5Sub18Task(FeedbackMappingTaskMixin, MicroMappingTask):
 
 
 def load_dictionary(file_name):
-    with open(file_name) as f:
+    current_dir = os.path.dirname(__file__)
+    file_path = os.path.join(current_dir, '../../../' + file_name)
+    with open(file_path) as f:
         content = f.readlines()
 
     return [x.strip() for x in content
@@ -574,7 +578,6 @@ load_dictionary.forbidden_strings = []
 class Micro6Task(MicroBase):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
-    FILE_NAME = 'res/dict_gsl.txt'
     FAILED_TASK_TOLERANCE = 2.0
 
     @on_start()
@@ -594,7 +597,7 @@ class Micro6Task(MicroBase):
             self.should_know = True
 
     def get_task_generator(self):
-        content = load_dictionary(self.FILE_NAME)
+        content = load_dictionary(DICTIONARY_FILE)
         vocabulary = content[:200]
         mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
                            random.sample(vocabulary, self.MAPPING_SIZE)))
@@ -642,10 +645,9 @@ class Micro7Sub1Task(MicroBase):
 
 class Micro7Sub2Task(MicroBase):
     reg_answer_end = r'\.'
-    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        valid_words = load_dictionary(self.FILE_NAME)
+        valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_2_question(self):
             word = random.choice(valid_words) + '.'
@@ -660,10 +662,9 @@ class Micro7Sub2Task(MicroBase):
 
 class Micro7Sub3Task(MicroBase):
     reg_answer_end = r'\.'
-    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        valid_words = load_dictionary(self.FILE_NAME)
+        valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_3_question(self):
             sentence = random.choice(valid_words) + ' ' + random.choice(valid_words) + '.'
@@ -714,11 +715,10 @@ class Micro9Sub1Task(MicroBase):
 
 class Micro9Sub2Task(MicroBase):
     reg_answer_end = r'\.'
-    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
         def micro9_2_question(self):
-            valid_words = load_dictionary('res/dict_gsl.txt')
+            valid_words = load_dictionary(DICTIONARY_FILE)
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
@@ -734,11 +734,10 @@ class Micro9Sub2Task(MicroBase):
 
 class Micro9Sub3Task(MicroBase):
     reg_answer_end = r'\.'
-    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
         def micro9_3_question(self):
-            valid_words = load_dictionary('res/dict_gsl.txt')
+            valid_words = load_dictionary(DICTIONARY_FILE)
             word = random.choice(valid_words)
             joint = random.choice(['-', '#', ','])
             question = "interleave: " + word + ' by ' + joint + '.'
@@ -755,11 +754,10 @@ class Micro9Sub3Task(MicroBase):
 
 class Micro10Task(MicroBase):
     reg_answer_end = r'\.'
-    FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
         def micro10_question(self):
-            valid_words = load_dictionary('res/dict_gsl.txt')
+            valid_words = load_dictionary(DICTIONARY_FILE)
             n = random.randint(2, 3)
             questions = []
             words = []
@@ -1094,12 +1092,11 @@ class Micro19Task(MicroBase):
 
 
 class Micro20Task(Micro19Task):
-    FILE_NAME = 'res/dict_gsl.txt'
     tasks = []
 
     def get_task_generator(self):
         with forbid_dictionary_strings(self.forbidden_strings):
-            content = load_dictionary(self.FILE_NAME)
+            content = load_dictionary(DICTIONARY_FILE)
 
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonyms.keys(), random.sample(vocabulary, len(self.synonyms)))}
