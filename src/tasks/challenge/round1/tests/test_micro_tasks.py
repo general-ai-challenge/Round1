@@ -73,12 +73,8 @@ class TextFaultingLearner(BaseLearner):
             return '.'
 
         response = self._correct_learner.next(input_char)
-        if response == '.':
-            # Introduce error symbol.
-            self._make_mistake = True
-            return '4'
-        else:
-            return response
+        if response is not None and response.endswith('.'):
+            return response[:-1] + '4.'
 
 
 class EnvironmentByteMessenger:
@@ -221,15 +217,14 @@ class TestMicro5Sub3Learner(BaseLearner):
                 return self.answer
 
 
-class TestMicro5Sub4Learner(BaseLearner):
-
+class TestMicroQuestionAnswerBase(BaseLearner):
     def __init__(self):
         self.awaiting_question = True
         self.awaiting_feedback = False
         self.question_separator = '.'
         self.feedback_separator = ';'
-        self.mapping = {}
         self.question = None
+        self.feedback = None
         self.buffer = []
 
     @property
@@ -247,14 +242,16 @@ class TestMicro5Sub4Learner(BaseLearner):
         self.awaiting_feedback = True
 
     def process_feedback(self):
-        feedback = self.buffer[:-len(self.feedback_separator)]
-        self.mapping[self.question] = ''.join(feedback)
+        self.feedback = self.buffer[:-len(self.feedback_separator)]
         del self.buffer[:]
         self.awaiting_question = True
         self.awaiting_feedback = False
 
     def answer_question(self):
-        return self.mapping.get(self.question, '.')
+        pass
+
+    def answer_feedback(self):
+        pass
 
     def next(self, input):
         self.buffer.append(input)
@@ -263,18 +260,28 @@ class TestMicro5Sub4Learner(BaseLearner):
             return self.answer_question()
         elif self.is_feedback:
             self.process_feedback()
+            return self.answer_feedback()
+
+
+class TestMicro5Sub4Learner(TestMicroQuestionAnswerBase):
+    def __init__(self):
+        super(TestMicro5Sub4Learner, self).__init__()
+        self.mapping = {}
+
+    def answer_feedback(self):
+        self.mapping[self.question] = ''.join(self.feedback)
+
+    def answer_question(self):
+        return self.mapping.get(self.question, '.')
 
 
 class TestMicro5Sub6Learner(TestMicro5Sub4Learner):
 
-    def process_feedback(self):
-        feedback = self.buffer[:-len(self.feedback_separator)]
+    def answer_feedback(self):
+        feedback = self.feedback
         if feedback[-1] == '.':
             feedback = feedback[:-1]
         self.mapping[self.question] = ''.join(feedback)
-        del self.buffer[:]
-        self.awaiting_question = True
-        self.awaiting_feedback = False
 
     def answer_question(self):
         if self.question in self.mapping:
@@ -285,10 +292,9 @@ class TestMicro5Sub6Learner(TestMicro5Sub4Learner):
 
 class TestMicro5Sub10Learner(TestMicro5Sub4Learner):
 
-    def process_feedback(self):
+    def answer_feedback(self):
         desired_len = 2
-        feedback_len = len(self.buffer) - len(self.feedback_separator)
-        feedback = self.buffer[feedback_len - desired_len:-len(self.feedback_separator)]
+        feedback = self.feedback[-desired_len:]
 
         self.mapping[self.question] = ''.join(feedback)
         del self.buffer[:]
@@ -555,52 +561,37 @@ class TestMicro12Learner(TestMicroMultipleCommandsBase):
             return set1.replace(set2, '')
 
 
-class TestMicro13Learner(BaseLearner):
-
+class TestMicro13Learner(TestMicro5Sub4Learner):
     def __init__(self, failing=False):
-        self._buffer = []
-        self._result = []
-        self._read_assignment = True
+        super(TestMicro13Learner, self).__init__()
         self._failing = failing
 
-    def next(self, input_char):
-        if input_char == '.' or input_char == ';':
-            words = ''.join(self._buffer).strip().split(' ')
-            command, words = words[0], words[1:]
-            self._buffer = []
+    def answer_question(self):
+        words = self.question.strip().split(' ')
+        command, words = words[0], words[1:]
 
-            if command == 'say:':
-                if words[1] == 'and' and words[2] != 'not':
-                    self._result = ''.join(words[::2])
-                    if self._failing:
-                        self._result += '2'
-                elif words[1] == 'or':
-                    if len(words) > 3 and words[3] == 'but' and words[4] == 'not':
-                        self._result = words[0] if words[0] != words[5] else words[2]
-                    else:
-                        self._result = words[0]
+        if command == 'say:':
+            result = ' '
+            if words[1] == 'and' and words[2] != 'not':
+                result = ''.join(words[::2])
+                if self._failing:
+                    result += '2'
+            elif words[1] == 'or':
+                if len(words) > 3 and words[3] == 'but' and words[4] == 'not':
+                    result = words[0] if words[0] != words[5] else words[2]
+                else:
+                    result = words[0]
 
-                    if self._failing:
-                        self._result += '2'
-                elif words[0] == 'anything':
-                    self._result = 'a' if 'a' != words[3] else 'b'
-                    if self._failing:
-                        self._result = words[3]
+                if self._failing:
+                    result += '2'
+            elif words[0] == 'anything':
+                result = 'a' if 'a' != words[3] else 'b'
+                if self._failing:
+                    result = words[3]
 
-                self._result = list(self._result)
-                self._read_assignment = False
-            else:
-                return ' '
-
-        if not self._read_assignment:
-            if len(self._result) > 0:
-                return self._result.pop(0)
-            else:
-                self._read_assignment = True
-                return '.'
-
-        self._buffer.append(input_char)
-        return ' '
+            return result + '.'
+        else:
+            return ' '
 
 
 class TestMicro14Learner(TestMatchQuestionAndFeedbackBase):
@@ -634,61 +625,33 @@ class TestMicro15Learner(TestMatchQuestionAndFeedbackBase):
             return ' '
 
 
-class TestMicro16Learner(BaseLearner):
+class TestMicro16Learner(TestMicroQuestionAnswerBase):
+    def answer_question(self):
+        # Depending on the question, choose a learner.
+        if 'spell:' in self.question:
+            learner = TestMicro9Learner()
+        elif 'reverse:' in self.question or 'concatenate' in self.question or 'interleave' in self.question:
+            learner = TestMicro11Learner()
+        elif 'union:' in self.question or 'exclude' in self.question:
+            learner = TestMicro12Learner()
+        elif 'say:' in self.question:
+            learner = TestMicro10Learner()
+        else:
+            learner = None
 
-    def __init__(self):
-        self._buffer = []
-        self._response = []
-        self._read_assignment = True
+        if learner is None:
+            return ' '
 
-    def next(self, input_char):
-        if self._read_assignment:
-            # Read an assignment from env.
-            if input_char == '.' or input_char == ';':
-                question = ''.join(self._buffer)
-                self._buffer = []
+        # Feed the learner the question.
+        for c in self.question:
+            learner.next(c)
 
-                # Depending on the question, choose a learner.
-                if 'spell:' in question:
-                    learner = TestMicro9Learner()
-                elif 'reverse:' in question or 'concatenate' in question or 'interleave' in question:
-                    learner = TestMicro11Learner()
-                elif 'union:' in question or 'exclude' in question:
-                    learner = TestMicro12Learner()
-                elif 'say:' in question:
-                    learner = TestMicro10Learner()
-                else:
-                    learner = None
+        # Get response back from learner.
+        response = [learner.next('.')]
+        while response[-1] != '.':
+            response.append(learner.next(' '))
 
-                if learner is None:
-                    return ' '
-
-                # Feed the learner the question.
-                for c in question:
-                    learner.next(c)
-
-                # Get response back from learner.
-                self._response = [learner.next('.')]
-                while self._response[-1] != '.':
-                    self._response.append(learner.next(' '))
-
-                # Remove the dot, it will be sent later.
-                self._response = self._response[:-1]
-                self._read_assignment = False
-
-            else:
-                # Waiting for the question to finish.
-                self._buffer.append(input_char)
-                return ' '
-
-        if not self._read_assignment:
-            # Provide the answer from the selected learner.
-            if len(self._response) > 0:
-                return self._response.pop(0)
-            else:
-                self._read_assignment = True
-                # The answer is complete, finalize with a dot.
-                return '.'
+        return ''.join(response)
 
 
 class TestMicro19Learner(BaseLearner):
@@ -783,7 +746,7 @@ class TestMicro19Learner(BaseLearner):
                 return '.'
 
         if self._read_result:
-            if input_char == '.' or input_char == ';':
+            if input_char == ';':
                 self._read_result = False
                 self._read_assignment = True
                 return ' '
@@ -822,7 +785,7 @@ class TestMicro20Learner(BaseLearner):
                 self._response = self._response[:-1]
                 self._read_assignment = False
 
-            elif input_char != ';':
+            else:
                 # Waiting for the question to finish.
                 self._buffer.append(input_char)
                 return ' '
@@ -838,7 +801,7 @@ class TestMicro20Learner(BaseLearner):
                 return '.'
 
         if self._read_result:
-            if input_char == '.' or input_char == ';':
+            if input_char == ';':
                 self._read_result = False
                 self._read_assignment = True
                 return ' '
@@ -1363,7 +1326,7 @@ class TestMicro13Sub2(TestMicroTaskBase):
         return TestMicro13Learner()
 
     def _get_failing_learner(self):
-        return TextFaultingLearner(TestMicro13Learner())
+        return TestMicro13Learner(failing=True)
 
 
 class TestMicro14(TestMicroTaskBase):
