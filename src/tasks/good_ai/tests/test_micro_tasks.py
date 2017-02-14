@@ -557,10 +557,11 @@ class TestMicro12Learner(TestMicroMultipleCommandsBase):
 
 class TestMicro13Learner(BaseLearner):
 
-    def __init__(self):
+    def __init__(self, failing=False):
         self._buffer = []
         self._result = []
         self._read_assignment = True
+        self._failing = failing
 
     def next(self, input_char):
         if input_char == '.' or input_char == ';':
@@ -571,13 +572,20 @@ class TestMicro13Learner(BaseLearner):
             if command == 'say:':
                 if words[1] == 'and' and words[2] != 'not':
                     self._result = ''.join(words[::2])
+                    if self._failing:
+                        self._result += '2'
                 elif words[1] == 'or':
                     if len(words) > 3 and words[3] == 'but' and words[4] == 'not':
                         self._result = words[0] if words[0] != words[5] else words[2]
                     else:
                         self._result = words[0]
+
+                    if self._failing:
+                        self._result += '2'
                 elif words[0] == 'anything':
                     self._result = 'a' if 'a' != words[3] else 'b'
+                    if self._failing:
+                        self._result = words[3]
 
                 self._result = list(self._result)
                 self._read_assignment = False
@@ -715,7 +723,7 @@ class TestMicro19Learner(BaseLearner):
 
                 learner = None
 
-                if re.search(self.pattern_find.format('what'), question) is not None:
+                if question.find('what:') >= 0:
                     for synonym in self.synonyms['after']:
                         question = self.replace(synonym, 'after', question)
                     learner = TestMicro14Learner()
@@ -1348,7 +1356,7 @@ class TestMicro13Sub1(TestMicroTaskBase):
         return TestMicro13Learner()
 
     def _get_failing_learner(self):
-        return TextFaultingLearner(TestMicro13Learner())
+        return TestMicro13Learner(failing=True)
 
 
 class TestMicro13Sub2(TestMicroTaskBase):
