@@ -632,7 +632,7 @@ class TestMicro15Learner(TestMatchQuestionAndFeedbackBase):
 class TestMicroQuestionAnswerDelegatingBase(TestMicroQuestionAnswerBase):
     def delegate(self, learner, question):
         # Feed the learner the question.
-        for c in self.question:
+        for c in question:
             learner.next(c)
 
         # Get response back from learner.
@@ -736,7 +736,7 @@ class TestMicro20Learner(TestMicroQuestionAnswerDelegatingBase):
             learner.synonyms[key] = [key]
         learner.synonyms[from_word] = [to_word]
 
-        return self.delegate(learner, self.question)
+        return self.delegate(learner, rest)
 
 
 def task_solved_successfully(task):

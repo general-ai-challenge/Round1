@@ -874,10 +874,8 @@ class Micro13Sub1Task(MicroBase):
                 word1 = random.choice(words)
                 word2 = random.choice(words)
                 question = ' say: {} and {}.'.format(word1, word2)
-                sentence1 = '{}{}.'.format(word1, word2)
-                sentence2 = '{}{}.'.format(word2, word1)
-                sentence = random.choice([sentence1, sentence2])
-                return question, [sentence1, sentence2], micro13_1_feedback
+                sentence = '{}{}.'.format(word1, word2)
+                return question, sentence, micro13_1_feedback
             # or
             elif action == 2:
                 word1 = random.choice(words)
@@ -886,7 +884,8 @@ class Micro13Sub1Task(MicroBase):
                 sentence = '{}.'.format(random.choice([word1, word2]))
 
                 def or_reward(answer, question=''):
-                    correct = answer.find(word1) >= 0 or answer.find(word2) >= 0
+                    answer_ = answer[:-1]
+                    correct = answer_ == word1 or answer_ == word2 or answer_ == word1 + word2 or answer_ == word2 + word1
                     return correct, 1 if correct else -1
                 return question, or_reward, micro13_1_feedback
             # anything and not
@@ -898,7 +897,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence = random.choice(words)
 
                 def anything_and_not_reward(answer, question=''):
-                    correct = answer.find(word2) < 0
+                    correct = answer.find(word2) < 0 and len(answer) > 1
                     return correct, 1 if correct else -1
                 return question, anything_and_not_reward, micro13_1_feedback
             # or but not
@@ -915,7 +914,9 @@ class Micro13Sub1Task(MicroBase):
                 sentence = random.choice(correct_word)
 
                 def or_but_not_reward(answer, question=''):
-                    correct = answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
+                    answer_ = answer[:-1]
+                    correct = answer_ == word1 or answer_ == word2 or answer_ == word1 + word2 or answer_ == word2 + word1
+                    correct = correct and (answer.find(word3) < 0)
                     return correct, 1 if correct else -1
                 return question, or_but_not_reward, micro13_1_feedback
         return TaskGenerator(micro13_1_question, '', None, ';')
