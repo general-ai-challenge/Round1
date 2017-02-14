@@ -211,6 +211,8 @@ class Environment:
         return hasattr(self._current_task, 'skip_task_separator') and self._current_task.skip_task_separator
 
     def set_result(self, result, message='', priority=0, provide_result_as_reward=True):
+        # the following two ifs prevent repeating the same feedback ad infinitum, which otherwise happens in mini-tasks
+        # in case of a repeated invalid input. self._result is set back to None every time a new task is switched.
         if self._result is True and result is True:
             return
         if self._result is False and result is False:
