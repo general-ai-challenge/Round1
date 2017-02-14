@@ -125,8 +125,8 @@ It is counted as `number_of_already_asked_questions * (1 + FAILED_TASK_TOLERANCE
 Name|Location|Description|Default value
 ---|---|---|---
 success_threshold | JSON config file | Number of required successful solutions of task instance for agent to proceed onto the next task
-REQUIRED_CONSECUTIVE_REWARDS | `MicroBase` | To pass the task instance, agent has to provide at least this number of correct answers in a row | 10
+REQUIRED_CONSECUTIVE  _REWARDS | `MicroBase` | To pass the task instance, agent has to provide at least this number of correct answers in a row | 10
 SUCCESS_TOLERANCE | `MicroBase` | Affects the size of period in which agent can solve the task instance successfully | 4
 FAILED_TASK_TOLERANCE | `MicroBase` | Affects the maximum number of questions for one task instance | 1
-ALPHABET_SIZE | `MicroTask1`-`MicroTask4` | Some tasks use just a subset of ASCII alphabet. This constant says how big the subset will be | 4
-MAPPING_SIZE | `Micro5Sub8`,`Micro5Sub9`,`Micro5Sub13`,`Micro5Sub16`-`Micro5Sub18`,`Micro17Task` | Some tasks can potentially generate a huge amount of question-answer pairs. This constant limit that number. | 10; 8 at `Micro17Task`
+ALPHABET_SIZE | `MicroTask1` -  `MicroTask4` | Some tasks use just a subset of ASCII alphabet. This constant says how big the subset will be | 4
+MAPPING_SIZE | `Micro5Sub8`,  `Micro5Sub9`,  `Micro5Sub13`,  `Micro5Sub16` -  `Micro5Sub18`,  `Micro17Task` | Some tasks can potentially generate a huge amount of question-answer pairs. This constant limit that number. | 10; 8 at `Micro17Task`
