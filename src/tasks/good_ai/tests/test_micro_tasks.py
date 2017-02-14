@@ -62,6 +62,25 @@ class FaultingLearner(BaseLearner):
         return output
 
 
+class TextFaultingLearner(BaseLearner):
+    def __init__(self, correct_learner):
+        self._correct_learner = correct_learner
+        self._make_mistake = False
+
+    def next(self, input_char):
+        if self._make_mistake:
+            self._make_mistake = False
+            return '.'
+
+        response = self._correct_learner.next(input_char)
+        if response == '.':
+            # Introduce error symbol.
+            self._make_mistake = True
+            return '4'
+        else:
+            return response
+
+
 class EnvironmentByteMessenger:
 
     def __init__(self, env, serializer):
@@ -407,6 +426,9 @@ class TestMicroMultipleCommandsBase(BaseLearner):
 
                 # Get a list of pairs: [(command, argument), ...], argument can be ''.
                 commands = self._matcher.findall(received_sentence)
+
+                if len(commands) == 0:
+                    return ' '
 
                 response = self._generate_response(commands)
                 self._output = [c for c in response]
@@ -792,7 +814,7 @@ class TestMicro20Learner(BaseLearner):
                 self._response = self._response[:-1]
                 self._read_assignment = False
 
-            else:
+            elif input_char != ';':
                 # Waiting for the question to finish.
                 self._buffer.append(input_char)
                 return ' '
@@ -1286,7 +1308,7 @@ class TestMicro9(TestMicroTaskBase):
         return TestMicro9Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro9Learner())
 
 
 class TestMicro10(TestMicroTaskBase):
@@ -1296,7 +1318,7 @@ class TestMicro10(TestMicroTaskBase):
         return TestMicro10Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro10Learner())
 
 
 class TestMicro11(TestMicroTaskBase):
@@ -1306,7 +1328,7 @@ class TestMicro11(TestMicroTaskBase):
         return TestMicro11Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro11Learner())
 
 
 class TestMicro12(TestMicroTaskBase):
@@ -1326,7 +1348,7 @@ class TestMicro13(TestMicroTaskBase):
         return TestMicro13Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro13Learner())
 
 
 class TestMicro15Sub1(TestMicroTaskBase):
@@ -1336,7 +1358,7 @@ class TestMicro15Sub1(TestMicroTaskBase):
         return TestMicro15Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro15Learner())
 
 
 class TestMicro15Sub2(TestMicroTaskBase):
@@ -1346,7 +1368,7 @@ class TestMicro15Sub2(TestMicroTaskBase):
         return TestMicro15Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro15Learner())
 
 
 class TestMicro17(TestMicroTaskBase):
@@ -1376,7 +1398,7 @@ class TestMicro19(TestMicroTaskBase):
         return TestMicro19Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro19Learner())
 
 
 class TestMicro20(TestMicroTaskBase):
@@ -1386,4 +1408,4 @@ class TestMicro20(TestMicroTaskBase):
         return TestMicro20Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return TextFaultingLearner(TestMicro20Learner())
