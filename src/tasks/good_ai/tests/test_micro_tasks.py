@@ -32,6 +32,35 @@ class FixedLearner:
         return self.fixed_output
 
 
+class FaultingLearner(BaseLearner):
+    def __init__(self, correct_learner, error_rate=0.1):
+        self.correct_learner = correct_learner
+        self.mistake_done = False
+        self.dot_skipped = False
+        self.error_rate = error_rate
+        return
+
+    def next(self, agents_input):
+        if self.dot_skipped:
+            self.mistake_done = False
+            self.dot_skipped = False
+            return '.'
+        output = self.correct_learner.next(agents_input)
+        if output == ' ':
+            return ' '
+        if output == '.':
+            if self.mistake_done:
+                self.mistake_done = False
+                return '.'
+            else:
+                self.dot_skipped = True
+                return random.choice(string.ascii_letters)
+        if random.random() < self.error_rate:
+            self.mistake_done = True
+            return random.choice(string.ascii_letters)
+        return output
+
+
 class EnvironmentByteMessenger:
 
     def __init__(self, env, serializer):
@@ -1282,7 +1311,7 @@ class TestMicro12(TestMicroTaskBase):
         return TestMicro12Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return FaultingLearner(TestMicro12Learner(), 0.7)
 
 
 class TestMicro13(TestMicroTaskBase):
@@ -1322,7 +1351,7 @@ class TestMicro17(TestMicroTaskBase):
         return TestMicro17Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return FaultingLearner(TestMicro17Learner(), 0.3)
 
 
 class TestMicro18(TestMicroTaskBase):
@@ -1332,7 +1361,7 @@ class TestMicro18(TestMicroTaskBase):
         return TestMicro18Learner()
 
     def _get_failing_learner(self):
-        return FixedLearner('.')
+        return FaultingLearner(TestMicro18Learner(), 0.3)
 
 
 class TestMicro19(TestMicroTaskBase):
