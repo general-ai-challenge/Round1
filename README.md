@@ -28,7 +28,7 @@ Then install dependencies (you will need at least Python 2.7):
 
 Check that your installation is working fine by running a human-interactive mode of the tasks:
 
-	python src\run.py tasks_config.micro.json -l learners.human_learner.ImmediateHumanLearner
+	python src\run.py tasks_config.challenge.json -l learners.human_learner.ImmediateHumanLearner
 
 For additional information, you can also refer to the installation instructions of original CommAI-env at [https://github.com/facebookresearch/CommAI-env](https://github.com/facebookresearch/CommAI-env)
 
