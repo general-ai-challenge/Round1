@@ -33,6 +33,7 @@ class FixedLearner:
 
 
 class FaultingLearner(BaseLearner):
+
     def __init__(self, correct_learner, error_rate=0.1):
         self.correct_learner = correct_learner
         self.mistake_done = False
@@ -577,6 +578,7 @@ class TestMicro13Learner(BaseLearner):
 
 
 class TestMicro15Learner(BaseLearner):
+
     def __init__(self):
         self._buffer = []
         self._result = []
@@ -758,6 +760,7 @@ class TestMicro19Learner(BaseLearner):
 
 
 class TestMicro20Learner(BaseLearner):
+
     def __init__(self):
         self._buffer = []
         self._response = []
@@ -819,10 +822,10 @@ def basic_task_run(test, messenger, learner, task):
     limit = task._max_time
     temp_max_questions_nr = None
     while True:
-        limit-=1
+        limit -= 1
         if limit < 1:
             test.assertFalse(True)  # raise the timeout constant on these tasks, because they are not finishing
-                                    # on nr_of_questions timeout, but on nr_of_characters timeout
+            # on nr_of_questions timeout, but on nr_of_characters timeout
             break
         question = messenger.get_text()[-1]
         answer = learner.next(question)
@@ -888,7 +891,7 @@ class TestMicroTaskFlow(unittest.TestCase):
         def on_task_change(*args):
             task_changed[0] = True
         first_task = self.env._current_task
-        first_task.failed_task_tolerance = 0    # make the task really strict
+        first_task.FAILED_TASK_TOLERANCE = 0    # make the task really strict
         self.assertIsNotNone(first_task)
         learner = BaseLearner()
         self.env.task_updated.register(on_task_change)
@@ -900,6 +903,7 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.scheduler.reward_count, 0)
 
 # all tests in TestMicroTask should be also fulfilled by classes inheriting from TestMicroTaskBase at the bottom
+
 
 class TestMicroTaskBase(unittest.TestCase):
 
@@ -915,8 +919,8 @@ class TestMicroTaskBase(unittest.TestCase):
 
     def _get_task(self):
         task = self.task()
-        task.success_tolerance = 0
-        task.failed_task_tolerance = 0
+        task.SUCCESS_TOLERANCE = 0
+        task.FAILED_TASK_TOLERANCE = 0
         return task
 
     def _get_learner(self):
@@ -1285,6 +1289,7 @@ class TestMicro9(TestMicroTaskBase):
 
     def _get_failing_learner(self):
         return FixedLearner('.')
+
 
 class TestMicro10(TestMicroTaskBase):
     task = micro.Micro10Task

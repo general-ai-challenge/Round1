@@ -12,8 +12,8 @@ REQUIRED_CONSECUTIVE_REWARDS = 10   # more or less arbitrary constant; high enou
 
 class MicroBase(Task):
     reg_answer_end = r'.'
-    failed_task_tolerance = 1.0
-    success_tolerance = 4.0
+    FAILED_TASK_TOLERANCE = 1.0
+    SUCCESS_TOLERANCE = 4.0
     tasker = None
 
     def __init__(self, world=None):
@@ -79,10 +79,10 @@ class MicroBase(Task):
             return True
 
         if not self.max_questions_for_success and self.agent_should_know_answers():  # agent did not solve it but should know answers from now on
-            self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (1.0 + self.success_tolerance)
+            self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (1.0 + self.SUCCESS_TOLERANCE)
 
         if not self.max_questions_nr and not self.under_time_limit_for_successfull_solution():  # agent failed but give him some time to learn task
-            self.max_questions_nr = self.questions_asked * (1.0 + self.failed_task_tolerance)
+            self.max_questions_nr = self.questions_asked * (1.0 + self.FAILED_TASK_TOLERANCE)
 
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
             self.set_result(False, provide_result_as_reward=False)
@@ -947,7 +947,7 @@ class Micro17Task(MicroBase):
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
     FILE_NAME = 'res/dict_gsl.txt'
-    failed_task_tolerance = 2.0
+    FAILED_TASK_TOLERANCE = 2.0
 
     @on_start()
     def new_task_instance(self, event):
@@ -992,7 +992,7 @@ class Micro17Task(MicroBase):
 
 class Micro18Task(MicroBase):
     reg_answer_end = r'\.'
-    failed_task_tolerance = 2.0
+    FAILED_TASK_TOLERANCE = 2.0
 
     @on_start()
     def new_task_instance(self, event):
@@ -1044,7 +1044,7 @@ class Micro19Task(MicroBase):
     m10 = Micro10Task()
     m11 = Micro11Task()
     m12 = Micro12Task()
-    failed_task_tolerance = 2.0
+    FAILED_TASK_TOLERANCE = 2.0
     synonyms = {'say': ['say', 'print', 'write'],
                 'and': ['and', 'together with', '&', 'also'],
                 'or': ['or', 'alternative', '/'],
