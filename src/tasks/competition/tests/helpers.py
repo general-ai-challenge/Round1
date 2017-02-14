@@ -27,19 +27,19 @@ class EnvironmentMessenger:
 
     def init(self):
         '''Kick-starts the environment'''
-        first_bit, reward = self._env.next(None)
-        self._input_channel.consume(first_bit)
+        first_symbol, reward = self._env.next(None)
+        self._input_channel.consume(first_symbol)
 
     def is_silent(self):
         return self._env._output_channel.is_silent()
 
     def read(self):
         '''Sends silence until the teacher has stopped speaking'''
-        nbits = 0
+        nsymbols = 0
         while not self.is_silent():
             # Keep on putting silence in the output channel
-            nbits += self.send(self._serializer.SILENCE_TOKEN)
-        return nbits
+            nsymbols += self.send(self._serializer.SILENCE_TOKEN)
+        return nsymbols
 
     def read_until(self, condition):
         '''Sends silence until a given condition holds true.
@@ -52,32 +52,32 @@ class EnvironmentMessenger:
                 return condition(self)
             except BaseException:
                 return False
-        nbits = 0
+        nsymbols = 0
         while not self.is_silent() and not safe_condition_eval():
             # Keep on putting silence in the output channel
-            nbits += self.send(self._serializer.SILENCE_TOKEN)
-        return nbits
+            nsymbols += self.send(self._serializer.SILENCE_TOKEN)
+        return nsymbols
 
     def send(self, msg=None):
         # default message is a silence
         if msg is None:
             msg = self._serializer.SILENCE_TOKEN
-        nbits = 0
+        nsymbols = 0
         # puts the message in the output channel
         self._output_channel.set_message(msg)
-        # send every bit in it
+        # send every symbol in it
         while not self._output_channel.is_empty():
-            # send/receive a bit and reward
-            env_bit, reward = self._env.next(self._output_channel.consume())
-            # save the bit
-            self._input_channel.consume(env_bit)
+            # send/receive a symbol and reward
+            env_symbol, reward = self._env.next(self._output_channel.consume())
+            # save the symbol
+            self._input_channel.consume(env_symbol)
             # save the reward
             if reward is not None:
                 self.cum_reward += reward
                 # a reward marks the end of a task for now, so clear
                 # the buffers
-            nbits += 1
-        return nbits
+            nsymbols += 1
+        return nsymbols
 
     def get_text(self):
         return self._input_channel.get_text()

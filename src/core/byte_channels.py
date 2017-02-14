@@ -99,6 +99,5 @@ class ByteOutputChannel:
         return len(self._buffer) == 0
 
     def is_silent(self):
-        ''' All the bits in the output token are the result of serializing
-        silence tokens'''
+        ''' All the bytes in the output are silent tokens. '''
         return self._buffer.strip(self.serializer.SILENCE_TOKEN) == ''

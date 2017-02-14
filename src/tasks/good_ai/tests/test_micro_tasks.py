@@ -72,18 +72,18 @@ class EnvironmentByteMessenger:
         self.init()
 
     def init(self):
-        first_bit, reward = self._env.next(None)
-        self._input_channel.consume(first_bit)
+        first_symbol, reward = self._env.next(None)
+        self._input_channel.consume(first_symbol)
         self._input_channel.get_text()
 
     def send(self, msg=None):
         msg = msg or ' '
-        nbits = 0
+        nsymbols = 0
         self._output_channel.set_message(msg)
         while not self._output_channel.is_empty():
-            env_bit, reward = self._env.next(self._output_channel.consume())
-            self._input_channel.consume(env_bit)
-            nbits += 1
+            env_symbol, reward = self._env.next(self._output_channel.consume())
+            self._input_channel.consume(env_symbol)
+            nsymbols += 1
         return reward
 
     def get_text(self):
