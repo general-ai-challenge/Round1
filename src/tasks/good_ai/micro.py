@@ -601,8 +601,8 @@ class Micro6Task(MicroBase):
         keys = list(mapping.keys())
         self.mapping_check = {key: False for key in keys}
 
-        def micro17_question(self):
-            def micro17_feedback(is_correct, question):
+        def micro6_question(self):
+            def micro6_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -613,9 +613,9 @@ class Micro6Task(MicroBase):
             word2 = mapping[word1]
             question = 'random_map: ' + word1 + '.'
             sentence = word2 + '.'
-            return question, [sentence], micro17_feedback
+            return question, [sentence], micro6_feedback
 
-        return TaskGenerator(micro17_question, '', None, ';')
+        return TaskGenerator(micro6_question, '', None, ';')
 
 
 @contextmanager
@@ -629,15 +629,15 @@ class Micro7Sub1Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro6_1_question(self):
+        def micro7_1_question(self):
             correct_answer = random.choice(string.ascii_lowercase) + '.'
             question = "say: {}".format(correct_answer)
 
-            def micro6_1_feedback(is_correct, question):
+            def micro7_1_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + correct_answer
-            return question, [correct_answer], micro6_1_feedback
-        return TaskGenerator(micro6_1_question, '', None, ';')
+            return question, [correct_answer], micro7_1_feedback
+        return TaskGenerator(micro7_1_question, '', None, ';')
 
 
 class Micro7Sub2Task(MicroBase):
@@ -647,15 +647,15 @@ class Micro7Sub2Task(MicroBase):
     def get_task_generator(self):
         valid_words = load_dictionary(self.FILE_NAME)
 
-        def micro6_2_question(self):
+        def micro7_2_question(self):
             word = random.choice(valid_words) + '.'
             question = "say: {}".format(word)
 
-            def micro6_2_feedback(is_correct, question):
+            def micro7_2_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + word
-            return question, [word], micro6_2_feedback
-        return TaskGenerator(micro6_2_question, '', None, ';')
+            return question, [word], micro7_2_feedback
+        return TaskGenerator(micro7_2_question, '', None, ';')
 
 
 class Micro7Sub3Task(MicroBase):
@@ -665,52 +665,51 @@ class Micro7Sub3Task(MicroBase):
     def get_task_generator(self):
         valid_words = load_dictionary(self.FILE_NAME)
 
-        def micro6_3_question(self):
+        def micro7_3_question(self):
             sentence = random.choice(valid_words) + ' ' + random.choice(valid_words) + '.'
             question = "say: {}".format(sentence)
 
-            def micro6_3_feedback(is_correct, question):
+            def micro7_3_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + sentence
-            return question, [sentence], micro6_3_feedback
-        return TaskGenerator(micro6_3_question, '', None, ';')
+            return question, [sentence], micro7_3_feedback
+        return TaskGenerator(micro7_3_question, '', None, ';')
 
 
 class Micro8Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro7_question(self):
+        def micro8_question(self):
             alphabet = string.ascii_lowercase
             sentence = "{}{}{}{}{}.".format(' ' * random.randint(0, 6), random.choice(alphabet), ' ' * random.randint(0, 6),
                                             random.choice(alphabet), ' ' * random.randint(0, 6))
             question = "say: {}".format(sentence)
             sentence = re.sub(' +', ' ', sentence).strip()
 
-            def micro7_feedback(is_correct, question):
+            def micro8_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
                 return reaction + '!' + sentence
-                print("sentence: ".format(sentence))
-            return question, [sentence], micro7_feedback
+            return question, [sentence], micro8_feedback
 
-        return TaskGenerator(micro7_question, '', None, ';')
+        return TaskGenerator(micro8_question, '', None, ';')
 
 
 class Micro9Sub1Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro8_question(self):
+        def micro9_1_question(self):
             valid_words = string.ascii_lowercase
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
 
-            def micro8_feedback(is_correct, question):
+            def micro9_1_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
-            return question, [sentence], micro8_feedback
-        return TaskGenerator(micro8_question, '', None, ';')
+            return question, [sentence], micro9_1_feedback
+        return TaskGenerator(micro9_1_question, '', None, ';')
 
 
 class Micro9Sub2Task(MicroBase):
@@ -718,19 +717,19 @@ class Micro9Sub2Task(MicroBase):
     FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        def micro8_question(self):
+        def micro9_2_question(self):
             valid_words = load_dictionary('res/dict_gsl.txt')
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
 
-            def micro8_feedback(is_correct, question):
+            def micro9_2_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
 
-            return question, [sentence], micro8_feedback
+            return question, [sentence], micro9_2_feedback
 
-        return TaskGenerator(micro8_question, '', None, ';')
+        return TaskGenerator(micro9_2_question, '', None, ';')
 
 
 class Micro9Sub3Task(MicroBase):
@@ -738,20 +737,20 @@ class Micro9Sub3Task(MicroBase):
     FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        def micro8_question(self):
+        def micro9_3_question(self):
             valid_words = load_dictionary('res/dict_gsl.txt')
             word = random.choice(valid_words)
             joint = random.choice(['-', '#', ','])
             question = "interleave: " + word + ' by ' + joint + '.'
             sentence = joint.join(word) + '.'
 
-            def micro8_feedback(is_correct, question):
+            def micro9_3_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
 
-            return question, [sentence], micro8_feedback
+            return question, [sentence], micro9_3_feedback
 
-        return TaskGenerator(micro8_question, '', None, ';')
+        return TaskGenerator(micro9_3_question, '', None, ';')
 
 
 class Micro10Task(MicroBase):
@@ -759,7 +758,7 @@ class Micro10Task(MicroBase):
     FILE_NAME = 'res/dict_gsl.txt'
 
     def get_task_generator(self):
-        def micro9_question(self):
+        def micro10_question(self):
             valid_words = load_dictionary('res/dict_gsl.txt')
             n = random.randint(2, 3)
             questions = []
@@ -771,21 +770,21 @@ class Micro10Task(MicroBase):
             question = ' '.join(questions) + '.'
             sentence = ' '.join(words) + '.'
 
-            def micro9_feedback(is_correct, question):
+            def micro10_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            return question, [sentence], micro9_feedback
-        return TaskGenerator(micro9_question, '', None, ';')
+            return question, [sentence], micro10_feedback
+        return TaskGenerator(micro10_question, '', None, ';')
 
 
 class Micro11Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro10_question(self):
+        def micro11_question(self):
             actions = ['reverse', 'concatenate', 'interleave']
             action = random.choice(actions)
             valid_words = ["ab", "ac", "ad", "bc", "bd", "cd"]
@@ -806,14 +805,14 @@ class Micro11Task(MicroBase):
                 sentence = ''.join(sentence)
             sentence += '.'
 
-            def micro10_feedback(is_correct, question):
+            def micro11_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            return question, [sentence], micro10_feedback
-        return TaskGenerator(micro10_question, '', None, ';')
+            return question, [sentence], micro11_feedback
+        return TaskGenerator(micro11_question, '', None, ';')
 
 
 class Micro12Task(MicroBase):
@@ -830,7 +829,7 @@ class Micro12Task(MicroBase):
         return str1.replace(str2, '')
 
     def get_task_generator(self):
-        def micro11_question(self):
+        def micro12_question(self):
             actions = ['union', 'exclude']
             action = random.choice(actions)
             valid_words = ["abc", "acd", "adc", "bcd", "bda", "cdb"]
@@ -844,22 +843,22 @@ class Micro12Task(MicroBase):
                 sentence = Micro12Task.string_special_exclude(word, second_word)
             sentence += '.'
 
-            def micro11_feedback(is_correct, question):
+            def micro12_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            return question, [sentence], micro11_feedback
-        return TaskGenerator(micro11_question, '', None, ';')
+            return question, [sentence], micro12_feedback
+        return TaskGenerator(micro12_question, '', None, ';')
 
 
 class Micro13Sub1Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro13_question(self):
-            def micro13_feedback(is_correct, question):
+        def micro13_1_question(self):
+            def micro13_1_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -875,7 +874,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence1 = '{}{}.'.format(word1, word2)
                 sentence2 = '{}{}.'.format(word2, word1)
                 sentence = random.choice([sentence1, sentence2])
-                return question, [sentence1, sentence2], micro13_feedback
+                return question, [sentence1, sentence2], micro13_1_feedback
             # or
             elif action == 2:
                 word1 = random.choice(words)
@@ -886,7 +885,7 @@ class Micro13Sub1Task(MicroBase):
                 def or_reward(answer, question=''):
                     correct = answer.find(word1) >= 0 or answer.find(word2) >= 0
                     return correct, 1 if correct else -1
-                return question, or_reward, micro13_feedback
+                return question, or_reward, micro13_1_feedback
             # anything and not
             elif action == 3:
                 word1 = 'anything'
@@ -898,7 +897,7 @@ class Micro13Sub1Task(MicroBase):
                 def anything_and_not_reward(answer, question=''):
                     correct = answer.find(word2) < 0
                     return correct, 1 if correct else -1
-                return question, anything_and_not_reward, micro13_feedback
+                return question, anything_and_not_reward, micro13_1_feedback
             # or but not
             else:
                 word1 = random.choice(words)
@@ -915,16 +914,16 @@ class Micro13Sub1Task(MicroBase):
                 def or_but_not_reward(answer, question=''):
                     correct = answer.find(word3) < 0 and (answer.find(word2) >= 0 or answer.find(word1) >= 0)
                     return correct, 1 if correct else -1
-                return question, or_but_not_reward, micro13_feedback
-        return TaskGenerator(micro13_question, '', None, ';')
+                return question, or_but_not_reward, micro13_1_feedback
+        return TaskGenerator(micro13_1_question, '', None, ';')
 
 
 class Micro13Sub2Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro13sub2_question(self):
-            def micro13sub2_feedback(is_correct, question):
+        def micro13_2_question(self):
+            def micro13_2_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -946,35 +945,35 @@ class Micro13Sub2Task(MicroBase):
                     correct = any(answer.find(word) >= 0 for word in words)
                     return correct, 1 if correct else -1
                 question = 'say: ' + clause + '.'
-                return question, or_but_not_reward, micro13sub2_feedback
+                return question, or_but_not_reward, micro13_2_feedback
             else:
                 sentence = ''.join(words)
                 sentence += '.'
                 question = 'say: ' + clause + '.'
-                return question, [sentence], micro13sub2_feedback
+                return question, [sentence], micro13_2_feedback
 
-        return TaskGenerator(micro13sub2_question, '', None, ';')
+        return TaskGenerator(micro13_2_question, '', None, ';')
 
 
 class Micro14Task(MicroBase):
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
-        def micro12_question(self):
+        def micro14_question(self):
             alphabet = string.ascii_lowercase
             idx = random.randint(0, len(alphabet) - 2)
             question = 'after {} comes what:.'.format(alphabet[idx])
             sentence = alphabet[idx + 1]
             sentence += '.'
 
-            def micro12_feedback(is_correct, question):
+            def micro14_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
                 else:
                     return reaction + '! '
-            return question, [sentence], micro12_feedback
-        return TaskGenerator(micro12_question, '', None, ';')
+            return question, [sentence], micro14_feedback
+        return TaskGenerator(micro14_question, '', None, ';')
 
 
 class Micro15Task(MicroBase):
@@ -1009,8 +1008,8 @@ class Micro15Task(MicroBase):
 
         self.mapping_check = {key: False for key in chosen_sequence[0:-1]}
 
-        def micro18_question(self):
-            def micro18_feedback(is_correct, question):
+        def micro15_question(self):
+            def micro15_feedback(is_correct, question):
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -1020,9 +1019,9 @@ class Micro15Task(MicroBase):
             word = chosen_sequence[idx]
             question = 'say next after: ' + word + '.'
             sentence = chosen_sequence[idx + 1] + '.'
-            return question, [sentence], micro18_feedback
+            return question, [sentence], micro15_feedback
 
-        return TaskGenerator(micro18_question, '', None, ';')
+        return TaskGenerator(micro15_question, '', None, ';')
 
 
 class Micro16Task(MicroBase):
