@@ -15,6 +15,8 @@ from collections import defaultdict
 import random
 import logging
 
+import sys
+
 
 class RandomTaskScheduler:
     '''
@@ -106,6 +108,7 @@ class ConsecutiveTaskScheduler:
 
             if self.task_ptr >= len(self.tasks):
                 self.logger.info("Learning finished successfully!")
+                sys.exit() # you can insert some handler code here.
                 return None
         return self.tasks[self.task_ptr]
 

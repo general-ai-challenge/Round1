@@ -18,7 +18,6 @@ from core.channels import InputChannel, OutputChannel
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from collections import defaultdict
 import logging
-import sys
 
 
 class Environment:
@@ -289,8 +288,6 @@ class Environment:
             self._result = None
 
         self._current_task = self._task_scheduler.get_next_task()
-        if self._current_task is None:
-            sys.exit()
         try:
             # This is to check whether the user didn't mess up in instantiating
             # the class
