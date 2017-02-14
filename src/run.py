@@ -48,7 +48,7 @@ def main():
                   default=5556,
                   help='Port on which to accept remote learner.')
     op.add_option('--max-reward-per-task',
-                  default=10, type=int,
+                  default=2147483647, type=int,
                   help='Maximum reward that we can give to a learner for'
                   ' a given task.')
     op.add_option('--curses', action='store_true', default=False,
