@@ -57,7 +57,7 @@ class TaskSet0(BaseTask):
         if event.is_message(self.answer, '.'):
             # if the message sent by the learner equals the teacher's
             # expected answer followed by a period, reward the learner.
-            self.set_result(1, random.choice(msg.congratulations))
+            self.set_result(True, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -70,7 +70,7 @@ class TaskSet0(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_result(0, self.give_away_message)
+        self.set_result(False, self.give_away_message)
 
 
 class TaskSetBase(BaseTask):
@@ -138,7 +138,7 @@ class TaskSetBase(BaseTask):
             verify = automaton.get_correct_string(verify_length)
         else:
             verify = automaton.get_wrong_string(verify_length, 0)
-        return (is_correct, "description: {}; verify {}.".format(complete_description, verify))
+        return (is_correct, "description: {}; verify: {}.".format(complete_description, verify))
 
     def __init__(self, world=None):
         super(TaskSetBase, self).__init__(world=world, max_time=3000)
@@ -168,7 +168,7 @@ class TaskSetBase(BaseTask):
         if event.is_message(self.answer, '.'):
             # if the message sent by the learner equals the teacher's
             # expected answer followed by a period, reward the learner.
-            self.set_result(1, random.choice(msg.congratulations))
+            self.set_result(True, random.choice(msg.congratulations))
         else:
             # If the learner said anything else, it fails the task.
             self.fail_learner()
@@ -181,7 +181,7 @@ class TaskSetBase(BaseTask):
 
     def fail_learner(self):
         # fail the learner sending a random fail feedback message
-        self.set_result(0, self.give_away_message)
+        self.set_result(False, self.give_away_message)
 
 
 class TaskSet1(TaskSetBase):

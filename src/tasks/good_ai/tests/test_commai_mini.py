@@ -2,7 +2,7 @@ import unittest
 
 import re
 
-from tasks.competition.tests.helpers import task_messenger
+from tasks.competition.tests.helpers import SingleTaskScheduler
 from tasks.good_ai.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
 import tasks.good_ai.comm_ai_mini as comm_ai_mini
 from learners.base import BaseLearner
@@ -101,7 +101,7 @@ class TestCommAIMiniTS5(TestCommAIMiniBase):
 
 
 def task_solved_successfuly(task):
-    return task._env._last_result and task.under_time_limit_for_successfull_solution()
+    return task._env._last_result
 
 
 def basic_task_run(test, messenger, learner, task):
@@ -118,6 +118,13 @@ def basic_task_run(test, messenger, learner, task):
         learner.reward(reward)
         if task._env._last_result is not None:    # agent succeeded
             break
+
+
+def task_messenger(task):
+    slzr = serializer.StandardSerializer()
+    scheduler = SingleTaskScheduler(task)
+    env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
+    return EnvironmentByteMessenger(env, slzr)
 
 
 class TestMicroTaskBase(unittest.TestCase):
@@ -196,7 +203,10 @@ class TestCommAIMiniNewTS1(TestMicroTaskBase):
     task = comm_ai_mini.TaskSet1
 
     def _get_learner(self):
-        return BaseLearner()
+        return Mini1Learner()
+
+    def _get_failing_learner(self):
+        return FixedLearner('.')
 
 
 class TestMatchQuestionAndFeedbackBase(BaseLearner):
@@ -242,15 +252,20 @@ class TestMatchQuestionAndFeedbackBase(BaseLearner):
 
 
 def verify_description(verify, description):
-    pass
+    verification_array = [False for _ in verify]
+    window_length = len(description)
+    for i in range(0, len(verify) - window_length + 1):
+        covers = description == verify[i:i + window_length]
+        verification_array[i:i+window_length] = [covers or verification_array[i+j] for j in range(0, window_length)]
+    return all(verification_array)
 
 
 class Mini1Learner(TestMatchQuestionAndFeedbackBase):
     matcher_output = re.compile('description: (.+); verify: (.+)\.')
 
     def generate_response(self, feedback_match, output_match):
-        description = output_match[0]
-        verify = output_match[1]
+        description = output_match[0][0]
+        verify = output_match[0][1]
         if verify_description(verify, description):
             return 'true'
         else:

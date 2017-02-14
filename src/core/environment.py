@@ -211,6 +211,11 @@ class Environment:
         return hasattr(self._current_task, 'skip_task_separator') and self._current_task.skip_task_separator
 
     def set_result(self, result, message='', priority=0, provide_result_as_reward=True):
+        if self._result is True and result is True:
+            return
+        if self._result is False and result is False:
+            return
+
         if provide_result_as_reward:
             self._reward = result
         self._result = result
