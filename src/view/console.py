@@ -146,14 +146,14 @@ class ConsoleView(BaseView):
             self.input_buffer += self._learner_channel.get_text()[-1]
             self.input_buffer = self.input_buffer[-self._scroll_msg_length:]
             learner_input = self.channel_to_str(
-                self.input_buffer,
+                self.input_buffer + ' ',
                 self._learner_channel.get_undeserialized())
             self._win.addstr(self._learner_seq_y, 0, learner_input.encode(code).decode(code))
             self._win.refresh()
 
     def on_learner_sequence_updated(self, sequence):
         learner_input = self.channel_to_str(
-            self.input_buffer,
+            self.input_buffer + ' ',
             self._learner_channel.get_undeserialized())
         self._win.addstr(self._learner_seq_y, 0, learner_input.encode(code).decode(code))
         self._win.refresh()

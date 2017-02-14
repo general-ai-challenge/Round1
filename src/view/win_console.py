@@ -162,7 +162,7 @@ class StdInOutView(WinBaseView):
             self._reward_buffer = self._reward_buffer[0:-1]
             self._reward_buffer += self._encode_reward(change)
             self._reward = self.channel_to_str(
-                self._reward_buffer,
+                self._reward_buffer + ' ',
                 self._env_channel.get_undeserialized())
 
     @staticmethod
@@ -182,17 +182,17 @@ class StdInOutView(WinBaseView):
             self.input_buffer += self._learner_channel.get_text()[-1]
             self.input_buffer = self.input_buffer[-self._scroll_msg_length:]
             self._learner_input = self.channel_to_str(
-                self.input_buffer,
+                self.input_buffer + ' ',
                 self._learner_channel.get_undeserialized())
             if self._byte_channels:
                 self._reward_buffer += ' '
                 self._reward = self.channel_to_str(
-                    self._reward_buffer,
+                    self._reward_buffer + ' ',
                     self._env_channel.get_undeserialized())
 
     def on_learner_sequence_updated(self, sequence):
         self._learner_input = self.channel_to_str(
-            self.input_buffer,
+            self.input_buffer + ' ',
             self._learner_channel.get_undeserialized())
 
     def on_env_message_updated(self, message):
@@ -224,7 +224,7 @@ class StdInOutView(WinBaseView):
         self._scroll_msg_length = columns - 1 - reward_len
         # properties init
         self._learner_input = self.channel_to_str(
-            '',
+            ' ',
             self._learner_channel.get_undeserialized())
 
     def get_input(self):
