@@ -148,14 +148,14 @@ class ConsoleView(BaseView):
             learner_input = self.channel_to_str(
                 self.input_buffer,
                 self._learner_channel.get_undeserialized())
-            self._win.addstr(self._learner_seq_y, 0, str(learner_input.encode(code)))
+            self._win.addstr(self._learner_seq_y, 0, learner_input.encode(code).decode(code))
             self._win.refresh()
 
     def on_learner_sequence_updated(self, sequence):
         learner_input = self.channel_to_str(
             self.input_buffer,
             self._learner_channel.get_undeserialized())
-        self._win.addstr(self._learner_seq_y, 0, str(learner_input.encode(code)))
+        self._win.addstr(self._learner_seq_y, 0, learner_input.encode(code).decode(code))
         self._win.refresh()
 
     def on_env_message_updated(self, message):
@@ -166,14 +166,14 @@ class ConsoleView(BaseView):
             env_output = self.channel_to_str(
                 self.output_buffer,
                 self._env_channel.get_undeserialized())
-            self._win.addstr(self._teacher_seq_y, 0, str(env_output.encode(code)))
+            self._win.addstr(self._teacher_seq_y, 0, env_output.encode(code).decode(code))
             self._win.refresh()
 
     def on_env_sequence_updated(self, sequence):
         env_output = self.channel_to_str(
             self.output_buffer,
             self._env_channel.get_undeserialized())
-        self._win.addstr(self._teacher_seq_y, 0, str(env_output.encode(code)))
+        self._win.addstr(self._teacher_seq_y, 0, env_output.encode(code).decode(code))
         self._win.refresh()
 
     def on_world_updated(self, world):
