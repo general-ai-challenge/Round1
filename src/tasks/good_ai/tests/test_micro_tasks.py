@@ -296,7 +296,71 @@ class TestMicro5Sub10Learner(TestMicro5Sub4Learner):
         self.awaiting_feedback = False
 
 
-class TestMicro6Sub1Learner(BaseLearner):
+class TestMatchQuestionAndFeedbackBase(BaseLearner):
+    matcher_feedback = None
+    matcher_output = None
+
+    def __init__(self):
+        self._buffer = []
+        self._read_assignment = True
+        self._output = []
+
+    def next(self, input_char):
+        self._buffer.append(input_char)
+
+        if self._read_assignment:
+            if input_char == '.':
+                # Commands received.
+
+                # Get the whole assignment, remove dot.
+                received_sentence = ''.join(self._buffer)
+
+                if self.matcher_feedback is None:
+                    feedback_match = ['']
+                else:
+                    feedback_match = self.matcher_feedback.findall(received_sentence)
+                output_match = self.matcher_output.findall(received_sentence)
+                if len(output_match) > 0:
+                    self._output = list(self.generate_response(feedback_match, output_match))
+                    self._buffer = []
+                    self._read_assignment = False
+
+        if not self._read_assignment:
+            if len(self._output) > 0:
+                return self._output.pop(0)
+            else:
+                self._read_assignment = True
+                return '.'
+
+        return ' '
+
+    def generate_response(self, feedback_match, output_match):
+        raise NotImplementedError()
+
+
+class TestMicro6Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_feedback = re.compile('! (.+)\. ?;')
+    matcher_output = re.compile('random_map: (.+)\.')
+
+    def __init__(self):
+        super(TestMicro6Learner, self).__init__()
+        self.previous_symbol = ''
+        self.mapping = {}
+
+    def generate_response(self, feedback_match, output_match):
+        output = output_match[0]
+        if len(feedback_match) > 0:
+            feedback = feedback_match[0]
+            self.mapping[self.previous_symbol] = feedback
+
+        self.previous_symbol = output
+        if output in self.mapping.keys():
+            return self.mapping[output]
+        else:
+            return ' '
+
+
+class TestMicro7Sub1Learner(BaseLearner):
 
     def __init__(self):
         self.buffer = []
@@ -351,19 +415,19 @@ class TestMicro6Sub1Learner(BaseLearner):
         return ' '
 
 
-class TestMicro7Learner(TestMicro6Sub1Learner):
+class TestMicro8Learner(TestMicro7Sub1Learner):
 
     def _handle_assignment(self, input):
         if len(self.buffer) >= 2 and self.buffer[-1] == ' ' and self.buffer[-2] == ' ':
             self.buffer.pop()  # trimming white spaces to a single one
-        TestMicro6Sub1Learner._handle_assignment(self, input)
+        TestMicro7Sub1Learner._handle_assignment(self, input)
 
 
-class TestMicro8Learner(TestMicro6Sub1Learner):
+class TestMicro9Learner(TestMicro7Sub1Learner):
 
     def __init__(self):
         self.interleave_char = ' '
-        TestMicro6Sub1Learner.__init__(self)
+        TestMicro7Sub1Learner.__init__(self)
 
     def _handle_assignment(self, input):
         if len(self.buffer) >= 2 and self.buffer[-1] == ' ' and self.buffer[-2] == ' ':
@@ -445,7 +509,7 @@ class TestMicroMultipleCommandsBase(BaseLearner):
         return ' '
 
 
-class TestMicro9Learner(TestMicroMultipleCommandsBase):
+class TestMicro10Learner(TestMicroMultipleCommandsBase):
     _viable_commands = ['say']
 
     @classmethod
@@ -453,7 +517,7 @@ class TestMicro9Learner(TestMicroMultipleCommandsBase):
         return ' '.join(command[1] for command in commands)
 
 
-class TestMicro10Learner(TestMicroMultipleCommandsBase):
+class TestMicro11Learner(TestMicroMultipleCommandsBase):
     _viable_commands = ['say', 'reverse', 'concatenate', 'interleave']
 
     @classmethod
@@ -471,7 +535,7 @@ class TestMicro10Learner(TestMicroMultipleCommandsBase):
             raise ValueError('Wrong question: ' + str(commands))
 
 
-class TestMicro11Learner(TestMicroMultipleCommandsBase):
+class TestMicro12Learner(TestMicroMultipleCommandsBase):
     _viable_commands = ['say', 'union', 'exclude']
 
     @classmethod
@@ -491,115 +555,7 @@ class TestMicro11Learner(TestMicroMultipleCommandsBase):
             return set1.replace(set2, '')
 
 
-class TestMatchQuestionAndFeedbackBase(BaseLearner):
-    matcher_feedback = None
-    matcher_output = None
-
-    def __init__(self):
-        self._buffer = []
-        self._read_assignment = True
-        self._output = []
-
-    def next(self, input_char):
-        self._buffer.append(input_char)
-
-        if self._read_assignment:
-            if input_char == '.':
-                # Commands received.
-
-                # Get the whole assignment, remove dot.
-                received_sentence = ''.join(self._buffer)
-
-                if self.matcher_feedback is None:
-                    feedback_match = ['']
-                else:
-                    feedback_match = self.matcher_feedback.findall(received_sentence)
-                output_match = self.matcher_output.findall(received_sentence)
-                if len(output_match) > 0:
-                    self._output = list(self.generate_response(feedback_match, output_match))
-                    self._buffer = []
-                    self._read_assignment = False
-
-        if not self._read_assignment:
-            if len(self._output) > 0:
-                return self._output.pop(0)
-            else:
-                self._read_assignment = True
-                return '.'
-
-        return ' '
-
-    def generate_response(self, feedback_match, output_match):
-        raise NotImplementedError()
-
-
-class TestMicro12Learner(TestMatchQuestionAndFeedbackBase):
-    matcher_output = re.compile('after (.) comes what:')
-
-    def generate_response(self, feedback_match, output_match):
-        idx = string.ascii_letters.find(output_match[0])
-        response = string.ascii_letters[idx + 1]
-        return response
-
-
 class TestMicro13Learner(BaseLearner):
-
-    def __init__(self):
-        self._buffer = []
-        self._response = []
-        self._read_assignment = True
-
-    def next(self, input_char):
-        if self._read_assignment:
-            # Read an assignment from env.
-            if input_char == '.' or input_char == ';':
-                question = ''.join(self._buffer)
-                self._buffer = []
-
-                # Depending on the question, choose a learner.
-                if 'spell:' in question:
-                    learner = TestMicro8Learner()
-                elif 'reverse:' in question or 'concatenate' in question or 'interleave' in question:
-                    learner = TestMicro10Learner()
-                elif 'union:' in question or 'exclude' in question:
-                    learner = TestMicro11Learner()
-                elif 'say:' in question:
-                    learner = TestMicro9Learner()
-                else:
-                    learner = None
-
-                if learner is None:
-                    return ' '
-
-                # Feed the learner the question.
-                for c in question:
-                    learner.next(c)
-
-                # Get response back from learner.
-                self._response = [learner.next('.')]
-                while self._response[-1] != '.':
-                    self._response.append(learner.next(' '))
-
-                # Remove the dot, it will be sent later.
-                self._response = self._response[:-1]
-                self._read_assignment = False
-
-            else:
-                # Waiting for the question to finish.
-                self._buffer.append(input_char)
-                return ' '
-
-        if not self._read_assignment:
-            # Provide the answer from the selected learner.
-            if len(self._response) > 0:
-                return self._response.pop(0)
-            else:
-                self._read_assignment = True
-                # The answer is complete, finalize with a dot.
-                return '.'
-
-
-class TestMicro15Learner(BaseLearner):
 
     def __init__(self):
         self._buffer = []
@@ -639,34 +595,21 @@ class TestMicro15Learner(BaseLearner):
         return ' '
 
 
-class TestMicro17Learner(TestMatchQuestionAndFeedbackBase):
-    matcher_feedback = re.compile('! (.+)\. ?;')
-    matcher_output = re.compile('random_map: (.+)\.')
-
-    def __init__(self):
-        super(TestMicro17Learner, self).__init__()
-        self.previous_symbol = ''
-        self.mapping = {}
+class TestMicro14Learner(TestMatchQuestionAndFeedbackBase):
+    matcher_output = re.compile('after (.) comes what:')
 
     def generate_response(self, feedback_match, output_match):
-        output = output_match[0]
-        if len(feedback_match) > 0:
-            feedback = feedback_match[0]
-            self.mapping[self.previous_symbol] = feedback
-
-        self.previous_symbol = output
-        if output in self.mapping.keys():
-            return self.mapping[output]
-        else:
-            return ' '
+        idx = string.ascii_letters.find(output_match[0])
+        response = string.ascii_letters[idx + 1]
+        return response
 
 
-class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
+class TestMicro15Learner(TestMatchQuestionAndFeedbackBase):
     matcher_feedback = re.compile('! (.+)\. ?;')
     matcher_output = re.compile('say next after: (.+)\.')
 
     def __init__(self):
-        super(TestMicro18Learner, self).__init__()
+        super(TestMicro15Learner, self).__init__()
         self.previous_symbol = ''
         self.mapping = {}
 
@@ -681,6 +624,63 @@ class TestMicro18Learner(TestMatchQuestionAndFeedbackBase):
             return self.mapping[output]
         else:
             return ' '
+
+
+class TestMicro16Learner(BaseLearner):
+
+    def __init__(self):
+        self._buffer = []
+        self._response = []
+        self._read_assignment = True
+
+    def next(self, input_char):
+        if self._read_assignment:
+            # Read an assignment from env.
+            if input_char == '.' or input_char == ';':
+                question = ''.join(self._buffer)
+                self._buffer = []
+
+                # Depending on the question, choose a learner.
+                if 'spell:' in question:
+                    learner = TestMicro9Learner()
+                elif 'reverse:' in question or 'concatenate' in question or 'interleave' in question:
+                    learner = TestMicro11Learner()
+                elif 'union:' in question or 'exclude' in question:
+                    learner = TestMicro12Learner()
+                elif 'say:' in question:
+                    learner = TestMicro10Learner()
+                else:
+                    learner = None
+
+                if learner is None:
+                    return ' '
+
+                # Feed the learner the question.
+                for c in question:
+                    learner.next(c)
+
+                # Get response back from learner.
+                self._response = [learner.next('.')]
+                while self._response[-1] != '.':
+                    self._response.append(learner.next(' '))
+
+                # Remove the dot, it will be sent later.
+                self._response = self._response[:-1]
+                self._read_assignment = False
+
+            else:
+                # Waiting for the question to finish.
+                self._buffer.append(input_char)
+                return ' '
+
+        if not self._read_assignment:
+            # Provide the answer from the selected learner.
+            if len(self._response) > 0:
+                return self._response.pop(0)
+            else:
+                self._read_assignment = True
+                # The answer is complete, finalize with a dot.
+                return '.'
 
 
 class TestMicro19Learner(BaseLearner):
@@ -718,22 +718,22 @@ class TestMicro19Learner(BaseLearner):
                 if re.search(self.pattern_find.format('what'), question) is not None:
                     for synonym in self.synonyms['after']:
                         question = self.replace(synonym, 'after', question)
-                    learner = TestMicro12Learner()
+                    learner = TestMicro14Learner()
 
                 if learner is None and ('concatenate:' in question or 'reverse:' in question or 'interleave:' in question):
-                    learner = TestMicro10Learner()
+                    learner = TestMicro11Learner()
 
                 if learner is None:
                     is_learner_11 = False
                     for synonym in self.synonyms['union']:
                         if synonym in question:
                             question = self.replace(synonym, 'union', question)
-                            learner = TestMicro11Learner()
+                            learner = TestMicro12Learner()
                             is_learner_11 = True
                     for synonym in self.synonyms['exclude']:
                         if synonym in question:
                             question = self.replace(synonym, 'exclude', question)
-                            learner = TestMicro11Learner()
+                            learner = TestMicro12Learner()
                             is_learner_11 = True
                     if is_learner_11:
                         for synonym in self.synonyms['and']:
@@ -743,7 +743,7 @@ class TestMicro19Learner(BaseLearner):
 
                 if learner is None:
                     if 'say:' in question:
-                        learner = TestMicro9Learner()
+                        learner = TestMicro10Learner()
                     else:
                         raise ValueError('Learner not found')
 
@@ -1231,84 +1231,84 @@ class TestMicro5Sub18(TestMicroTaskBase):
         return TestMicro5Sub2Learner()
 
 
-class TestMicro6Sub1(TestMicroTaskBase):
-    task = micro.Micro6Sub1Task
+class TestMicro6(TestMicroTaskBase):
+    task = micro.Micro6Task
 
     def _get_learner(self):
-        return TestMicro6Sub1Learner()
+        return TestMicro6Learner()
+
+    def _get_failing_learner(self):
+        return FaultingLearner(TestMicro6Learner(), 0.3)
+
+
+class TestMicro7Sub1(TestMicroTaskBase):
+    task = micro.Micro7Sub1Task
+
+    def _get_learner(self):
+        return TestMicro7Sub1Learner()
 
     def _get_failing_learner(self):
         return FixedLearner('.')
 
 
-class TestMicro6Sub2(TestMicroTaskBase):
-    task = micro.Micro6Sub2Task
+class TestMicro7Sub2(TestMicroTaskBase):
+    task = micro.Micro7Sub2Task
 
     def _get_learner(self):
-        return TestMicro6Sub1Learner()
+        return TestMicro7Sub1Learner()
 
     def _get_failing_learner(self):
         return FixedLearner('.')
 
 
-class TestMicro6Sub3(TestMicroTaskBase):
-    task = micro.Micro6Sub3Task
+class TestMicro7Sub3(TestMicroTaskBase):
+    task = micro.Micro7Sub3Task
 
     def _get_learner(self):
-        return TestMicro6Sub1Learner()
+        return TestMicro7Sub1Learner()
 
     def _get_failing_learner(self):
         return FixedLearner('.')
 
 
-class TestMicro7(TestMicroTaskBase):
-    task = micro.Micro7Task
-
-    def _get_learner(self):
-        return TestMicro7Learner()
-
-    def _get_failing_learner(self):
-        return TestMicro6Sub1Learner()
-
-
-class TestMicro8Sub1(TestMicroTaskBase):
-    task = micro.Micro8Sub1Task
+class TestMicro8(TestMicroTaskBase):
+    task = micro.Micro8Task
 
     def _get_learner(self):
         return TestMicro8Learner()
 
     def _get_failing_learner(self):
-        return TestMicro7Learner()
+        return TestMicro7Sub1Learner()
 
 
-class TestMicro8Sub2(TestMicroTaskBase):
-    task = micro.Micro8Sub2Task
-
-    def _get_learner(self):
-        return TestMicro8Learner()
-
-    def _get_failing_learner(self):
-        return TestMicro7Learner()
-
-
-class TestMicro8Sub3(TestMicroTaskBase):
-    task = micro.Micro8Sub3Task
-
-    def _get_learner(self):
-        return TestMicro8Learner()
-
-    def _get_failing_learner(self):
-        return TestMicro7Learner()
-
-
-class TestMicro9(TestMicroTaskBase):
-    task = micro.Micro9Task
+class TestMicro9Sub1(TestMicroTaskBase):
+    task = micro.Micro9Sub1Task
 
     def _get_learner(self):
         return TestMicro9Learner()
 
     def _get_failing_learner(self):
-        return TextFaultingLearner(TestMicro9Learner())
+        return TestMicro8Learner()
+
+
+class TestMicro9Sub2(TestMicroTaskBase):
+    task = micro.Micro9Sub2Task
+
+    def _get_learner(self):
+        return TestMicro9Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro8Learner()
+
+
+class TestMicro9Sub3(TestMicroTaskBase):
+    task = micro.Micro9Sub3Task
+
+    def _get_learner(self):
+        return TestMicro9Learner()
+
+    def _get_failing_learner(self):
+        return TestMicro8Learner()
 
 
 class TestMicro10(TestMicroTaskBase):
@@ -1338,11 +1338,11 @@ class TestMicro12(TestMicroTaskBase):
         return TestMicro12Learner()
 
     def _get_failing_learner(self):
-        return FaultingLearner(TestMicro12Learner(), 0.7)
+        return TextFaultingLearner(TestMicro12Learner())
 
 
-class TestMicro13(TestMicroTaskBase):
-    task = micro.Micro13Task
+class TestMicro13Sub1(TestMicroTaskBase):
+    task = micro.Micro13Sub1Task
 
     def _get_learner(self):
         return TestMicro13Learner()
@@ -1351,44 +1351,44 @@ class TestMicro13(TestMicroTaskBase):
         return TextFaultingLearner(TestMicro13Learner())
 
 
-class TestMicro15Sub1(TestMicroTaskBase):
-    task = micro.Micro15Sub1Task
+class TestMicro13Sub2(TestMicroTaskBase):
+    task = micro.Micro13Sub2Task
+
+    def _get_learner(self):
+        return TestMicro13Learner()
+
+    def _get_failing_learner(self):
+        return TextFaultingLearner(TestMicro13Learner())
+
+
+class TestMicro14(TestMicroTaskBase):
+    task = micro.Micro14Task
+
+    def _get_learner(self):
+        return TestMicro14Learner()
+
+    def _get_failing_learner(self):
+        return FaultingLearner(TestMicro14Learner(), 0.7)
+
+
+class TestMicro15(TestMicroTaskBase):
+    task = micro.Micro15Task
 
     def _get_learner(self):
         return TestMicro15Learner()
 
     def _get_failing_learner(self):
-        return TextFaultingLearner(TestMicro15Learner())
+        return FaultingLearner(TestMicro15Learner(), 0.3)
 
 
-class TestMicro15Sub2(TestMicroTaskBase):
-    task = micro.Micro15Sub2Task
-
-    def _get_learner(self):
-        return TestMicro15Learner()
-
-    def _get_failing_learner(self):
-        return TextFaultingLearner(TestMicro15Learner())
-
-
-class TestMicro17(TestMicroTaskBase):
-    task = micro.Micro17Task
+class TestMicro16(TestMicroTaskBase):
+    task = micro.Micro16Task
 
     def _get_learner(self):
-        return TestMicro17Learner()
+        return TestMicro16Learner()
 
     def _get_failing_learner(self):
-        return FaultingLearner(TestMicro17Learner(), 0.3)
-
-
-class TestMicro18(TestMicroTaskBase):
-    task = micro.Micro18Task
-
-    def _get_learner(self):
-        return TestMicro18Learner()
-
-    def _get_failing_learner(self):
-        return FaultingLearner(TestMicro18Learner(), 0.3)
+        return TextFaultingLearner(TestMicro16Learner())
 
 
 class TestMicro19(TestMicroTaskBase):

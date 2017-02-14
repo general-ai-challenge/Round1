@@ -72,29 +72,29 @@
     "micro5.18": {
       "type": "tasks.good_ai.micro.Micro5Sub18Task"
     },
-    "micro6.1": {
-      "type": "tasks.good_ai.micro.Micro6Sub1Task"
+    "micro6": {
+      "type": "tasks.good_ai.micro.Micro6Task"
     },
-    "micro6.2": {
-      "type": "tasks.good_ai.micro.Micro6Sub2Task"
+    "micro7.1": {
+      "type": "tasks.good_ai.micro.Micro7Sub1Task"
     },
-    "micro6.3": {
-      "type": "tasks.good_ai.micro.Micro6Sub3Task"
+    "micro7.2": {
+      "type": "tasks.good_ai.micro.Micro7Sub2Task"
     },
-    "micro7": {
-      "type": "tasks.good_ai.micro.Micro7Task"
+    "micro7.3": {
+      "type": "tasks.good_ai.micro.Micro7Sub3Task"
     },
-    "micro8.1": {
-      "type": "tasks.good_ai.micro.Micro8Sub1Task"
+    "micro8": {
+      "type": "tasks.good_ai.micro.Micro8Task"
     },
-    "micro8.2": {
-      "type": "tasks.good_ai.micro.Micro8Sub2Task"
+    "micro9.1": {
+      "type": "tasks.good_ai.micro.Micro9Sub1Task"
     },
-    "micro8.3": {
-      "type": "tasks.good_ai.micro.Micro8Sub3Task"
+    "micro9.2": {
+      "type": "tasks.good_ai.micro.Micro9Sub2Task"
     },
-    "micro9": {
-      "type": "tasks.good_ai.micro.Micro9Task"
+    "micro9.3": {
+      "type": "tasks.good_ai.micro.Micro9Sub3Task"
     },
     "micro10": {
       "type": "tasks.good_ai.micro.Micro10Task"
@@ -105,20 +105,20 @@
     "micro12": {
       "type": "tasks.good_ai.micro.Micro12Task"
     },
-    "micro13": {
-      "type": "tasks.good_ai.micro.Micro13Task"
+    "micro13.1": {
+      "type": "tasks.good_ai.micro.Micro13Sub1Task"
     },
-    "micro15.1": {
-      "type": "tasks.good_ai.micro.Micro15Sub1Task"
+    "micro13.2": {
+      "type": "tasks.good_ai.micro.Micro13Sub2Task"
     },
-    "micro15.2": {
-      "type": "tasks.good_ai.micro.Micro15Sub2Task"
+    "micro14": {
+      "type": "tasks.good_ai.micro.Micro14Task"
     },
-    "micro17": {
-      "type": "tasks.good_ai.micro.Micro17Task"
+    "micro15": {
+      "type": "tasks.good_ai.micro.Micro15Task"
     },
-    "micro18": {
-      "type": "tasks.good_ai.micro.Micro18Task"
+    "micro16": {
+      "type": "tasks.good_ai.micro.Micro16Task"
     },
     "micro19": {
       "type": "tasks.good_ai.micro.Micro19Task"
@@ -160,12 +160,13 @@
             "micro5.1","micro5.2","micro5.3","micro5.4","micro5.5","micro5.6","micro5.7","micro5.8","micro5.9",
             "micro5.10", "micro5.11", "micro5.12","micro5.13","micro5.14","micro5.15","micro5.16","micro5.17",
             "micro5.18",
-            "micro6.1","micro6.2","micro6.3",
-            "micro7",
-            "micro8.1","micro8.2","micro8.3",
-            "micro9","micro10","micro11","micro12","micro13",
-            "micro15.1","micro15.2",
-            "micro17","micro18","micro19","micro20",
+            "micro6",
+            "micro7.1","micro7.2","micro7.3",
+            "micro8",
+            "micro9.1","micro9.2","micro9.3",
+            "micro10","micro11","micro12",
+            "micro13.1","micro13.2",
+            "micro14","micro15","micro16","micro19","micro20",
             "mini0","mini1","mini2","mini3","mini4","mini5"],
           "success_threshold": 5
         }
