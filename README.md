@@ -82,6 +82,18 @@ You should implement your own `learner` which will solve the micro-tasks and the
 
 You might need to design your own task(s). To do that, refer to the challenge tasks in the folder `tasks/challenge/round1` for inspiration. Simpler tasks, like `Micro1Task`, are a good place to start.
 
+## A note on original CommAI-env tasks
+The challenge code is built on top of CommAI-env code. The original code also includes a number of tasks (folders `competition`, `micro` and `sample`). 
+These original tasks are **not related to the challenge in any way**. 
+We did not delete this code from the repository simply because
+we wanted to allow you to browse through the original tasks if you wished to.
+
+The original tasks are bit-based and if you want to run them, you should start the environment with parameter `--bitmode`. 
+Also note that the original tasks are intended for python 2.6+ only, so you might encounter errors if using python 3.
+ 
+We will not provide support for the original tasks - if you encounter an issue, please report it to the [original repository](https://github.com/facebookresearch/CommAI-env) . 
+
+
 ## Selected details of the environment
 
 ### Minor modifications
