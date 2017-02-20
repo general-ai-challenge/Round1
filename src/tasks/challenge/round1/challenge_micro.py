@@ -1113,6 +1113,8 @@ class Micro20Task(Micro19Task):
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonyms.keys(), random.sample(vocabulary, len(self.synonyms)))}
 
+        current_forbidden_strings = self.forbidden_strings + list(self.synonyms.values())
+
         # choose task randomly, but provide all n tasks in n tries
         if len(self.tasks) == 0:
             self.tasks = [self.m10, self.m11, self.m12, self.m14]
@@ -1126,7 +1128,7 @@ class Micro20Task(Micro19Task):
         get_synonym = self.get_synonym
 
         def func_outer(self_):
-            with forbid_dictionary_strings(self.forbidden_strings):
+            with forbid_dictionary_strings(current_forbidden_strings):
                 question, a, b = func_inner(self_)
 
             synonym_present = [synonym for synonym in synonym_list if question.find(synonym) >= 0]
