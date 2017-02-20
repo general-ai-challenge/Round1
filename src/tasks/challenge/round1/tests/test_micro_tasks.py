@@ -69,6 +69,7 @@ class FaultingLearner(BaseLearner):
 
 
 class TextFaultingLearner(BaseLearner):
+
     def __init__(self, correct_learner):
         self._correct_learner = correct_learner
         self._make_mistake = False
@@ -224,6 +225,7 @@ class TestMicro5Sub3Learner(BaseLearner):
 
 
 class TestMicroQuestionAnswerBase(BaseLearner):
+
     def __init__(self):
         self.awaiting_question = True
         self.awaiting_feedback = False
@@ -270,6 +272,7 @@ class TestMicroQuestionAnswerBase(BaseLearner):
 
 
 class TestMicro5Sub4Learner(TestMicroQuestionAnswerBase):
+
     def __init__(self):
         super(TestMicro5Sub4Learner, self).__init__()
         self.mapping = {}
@@ -572,6 +575,7 @@ class TestMicro12Learner(TestMicroMultipleCommandsBase):
 
 
 class TestMicro13Learner(TestMicro5Sub4Learner):
+
     def __init__(self, failing=False):
         super(TestMicro13Learner, self).__init__()
         self._failing = failing
@@ -636,6 +640,7 @@ class TestMicro15Learner(TestMatchQuestionAndFeedbackBase):
 
 
 class TestMicroQuestionAnswerDelegatingBase(TestMicroQuestionAnswerBase):
+
     def delegate(self, learner, question):
         # Feed the learner the question.
         for c in question:
@@ -655,6 +660,7 @@ class TestMicroQuestionAnswerDelegatingBase(TestMicroQuestionAnswerBase):
 
 
 class TestMicro16Learner(TestMicroQuestionAnswerDelegatingBase):
+
     def answer_question(self):
         # Depending on the question, choose a learner.
         if 'spell:' in self.question:
@@ -730,6 +736,7 @@ class TestMicro19Learner(TestMicroQuestionAnswerDelegatingBase):
 
 
 class TestMicro20Learner(TestMicroQuestionAnswerDelegatingBase):
+
     def __init__(self):
         super(TestMicro20Learner, self).__init__()
         self._matcher = re.compile('([^ ]+) is as ([^ ]+) - (.*)')
@@ -834,6 +841,25 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertEqual(self.scheduler.reward_count, 0)
 
 
+def init_env(task, success_threshold=2):
+    slzr = serializer.StandardSerializer()
+    scheduler = ConsecutiveTaskScheduler([task], success_threshold)
+    env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
+    messenger = EnvironmentByteMessenger(env, slzr)
+    return (scheduler, messenger)
+
+
+class TestMicroTaskReward(unittest.TestCase):
+
+    def test_valid_reward_on_newline(self):
+        scheduler, messenger = init_env(micro.Micro1Task())
+        learner = FixedLearner('\n')
+        question = messenger.get_text()[-1]
+        answer = learner.next(question)
+        reward = messenger.send(answer)
+        self.assertIsNotNone(reward)
+
+
 class TestMicroTaskBase(unittest.TestCase):
 
     task = None
@@ -858,13 +884,6 @@ class TestMicroTaskBase(unittest.TestCase):
     def _get_failing_learner(self):
         return FixedLearner('*')
 
-    def init_env(self, task, success_threshold=2):
-        slzr = serializer.StandardSerializer()
-        scheduler = ConsecutiveTaskScheduler([task], success_threshold)
-        env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
-        messenger = EnvironmentByteMessenger(env, slzr)
-        return (scheduler, messenger)
-
     def test_task(self):
         for _ in range(self.task_instance_multiplier):
             task = self._get_task()
@@ -877,7 +896,7 @@ class TestMicroTaskBase(unittest.TestCase):
     def test_successful_evaluation(self):
         # Tests that task instance can be solved and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
         task = self._get_task()
-        scheduler, messenger = self.init_env(task)
+        scheduler, messenger = init_env(task)
         # first run
         learner = self._get_learner()
         basic_task_run(self, messenger, learner, task)
@@ -893,7 +912,7 @@ class TestMicroTaskBase(unittest.TestCase):
     def test_failed_evaluation(self):
         # Tests that instance can be failed and that there are no residuals from 1st instance, which would solve the 2nd instance instead of agent
         task = self._get_task()
-        scheduler, messenger = self.init_env(task)
+        scheduler, messenger = init_env(task)
         # first run
         learner = self._get_failing_learner()
         basic_task_run(self, messenger, learner, task)
@@ -909,7 +928,7 @@ class TestMicroTaskBase(unittest.TestCase):
         # Tests that instance can be failed and that there are no residuals from 1st instance, which would prevent agent from solving 2nd instance
 
         task = self._get_task()
-        scheduler, messenger = self.init_env(task)
+        scheduler, messenger = init_env(task)
         # first run
         learner = self._get_failing_learner()
         basic_task_run(self, messenger, learner, task)

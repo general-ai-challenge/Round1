@@ -109,7 +109,7 @@ class MicroBase(Task):
         self.agent_answer = ''
         self.remaining_instruction_length = len(self.question)
 
-    @on_message(r'.')
+    @on_message()   # on every character
     def check_response(self, event):
         self.remaining_instruction_length -= 1
 
@@ -150,7 +150,7 @@ class MicroBase(Task):
         return correct_answer.startswith(answer)
 
     def _answer_ended(self, message):
-        return not (re.search(self.reg_answer_end, message) is None)
+        return not (re.search(self.reg_answer_end, message, re.DOTALL) is None)
 
 
 class Micro1Task(MicroBase):
