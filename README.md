@@ -25,9 +25,9 @@ First clone the repository:
 
 Then install dependencies (you will need at least Python 2.7):
 
-- Python 2.7:	`pip install -r requirements\py2.txt`
+- Python 2.7:	`pip install -r src/requirements/py2.txt`
 
-- Python 3.5+:	`pip install -r requirements\py3.txt`
+- Python 3.5+:	`pip install -r src/requirements/py3.txt`
 
 Check that your installation is working fine by running a human-interactive mode of the tasks:
 
