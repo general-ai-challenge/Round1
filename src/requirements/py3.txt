@@ -1,6 +1,2 @@
-attrs==16.3.0
+-r common.txt
 git+https://github.com/0xnurl/fado-python3
-future==0.16.0
-pyzmq==16.0.2
-six==1.10.0
-zmq==0.0.0
