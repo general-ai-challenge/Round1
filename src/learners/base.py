@@ -43,15 +43,21 @@ class RemoteLearner(BaseLearner):
 
         # launch learner
         subprocess.Popen((cmd + ' ' + str(self.port)).split())
-        handshake_in = self.socket.recv()
+        handshake_in = self.socket.recv().decode('utf-8')
         assert handshake_in == 'hello'  # handshake
 
     # send to learner, and get response;
     def next(self, inp):
-        self.socket.send(str(inp))
-        reply = self.socket.recv()
+        self.socket.send_string(str(inp))
+        reply = self.receive_socket()
         return reply
 
     def try_reward(self, reward):
         reward = reward if reward is not None else 0
-        self.socket.send(str(reward))
+        self.socket.send_string(str(reward))
+
+    def receive_socket(self):
+        reply = self.socket.recv()
+        if type(reply) == type(b''):
+            reply = reply.decode('utf-8')
+        return reply
