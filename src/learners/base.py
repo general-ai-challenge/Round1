@@ -42,7 +42,8 @@ class RemoteLearner(BaseLearner):
         self.socket.bind("tcp://*:%s" % port)
 
         # launch learner
-        subprocess.Popen((cmd + ' ' + str(self.port)).split())
+        if cmd is not None:
+            subprocess.Popen((cmd + ' ' + str(self.port)).split())
         handshake_in = self.socket.recv().decode('utf-8')
         assert handshake_in == 'hello'  # handshake
 
