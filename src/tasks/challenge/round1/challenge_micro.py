@@ -158,11 +158,11 @@ class Micro1Task(MicroBase):
 
     def __init__(self):
         self.base_alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
-        self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         super(Micro1Task, self).__init__()
 
     @on_start()
     def micro1_on_start(self, event):
+        self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         self.remaining_options = len(self.base_alphabet)
         self.should_know = False
 
@@ -283,13 +283,13 @@ class MicroMappingTask(MicroBase):
 class Micro2Task(MicroMappingTask):
     ALPHABET_SIZE = 4
     base_alphabet = string.ascii_lowercase
-    alphabet = random.sample(base_alphabet, ALPHABET_SIZE)
 
     def __init__(self):
         super(Micro2Task, self).__init__()
 
     @on_start()
     def micro2_on_start(self, event):
+        self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         self.remaining_options = len(self.base_alphabet)
 
     def agent_should_know_answers(self):
@@ -313,7 +313,10 @@ class Micro2Task(MicroMappingTask):
 class Micro3Task(MicroMappingTask):
     ALPHABET_SIZE = 4
     base_alphabet = string.ascii_lowercase
-    alphabet = random.sample(base_alphabet, ALPHABET_SIZE)
+
+    @on_start()
+    def micro3_on_start(self, event):
+        self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
 
     def _get_mapping_options(self, mapping):
         result = {x: len(self.base_alphabet) for x in self.alphabet}
@@ -331,7 +334,10 @@ class Micro3Task(MicroMappingTask):
 
 class Micro4Task(MicroMappingTask):
     ALPHABET_SIZE = 4
-    alphabet = random.sample(string.ascii_lowercase + ' !":?.,;', ALPHABET_SIZE)
+
+    @on_start()
+    def micro4_on_start(self, event):
+        self.alphabet = random.sample(string.ascii_lowercase + ' !":?.,;', self.ALPHABET_SIZE)
 
     def _get_mapping(self):
         alphabet = self.alphabet
