@@ -104,6 +104,7 @@ class ConsoleView(BaseView):
         # task, we can keep the history intact.
         self.input_buffer = ''
         self.output_buffer = ''
+        self.reward_buffer = ''
         self.panic = 'SKIP'
         if byte_channels:
             # record what the learner says
@@ -133,6 +134,19 @@ class ConsoleView(BaseView):
         session.env_token_updated.register(self.on_env_token_updated)
         session.learner_token_updated.register(self.on_learner_token_updated)
         del self.info['current_task']
+
+    def on_total_reward_updated(self, reward):
+        change = reward - self.info['reward']
+        BaseView.on_total_reward_updated(self, reward)
+        self.reward_buffer = "_" * self._scroll_msg_length + self.reward_buffer + self.encode_reward(change)
+        self.reward_buffer = self.reward_buffer[-self._scroll_msg_length+11:]
+        self._win.addstr(self._reward_seq_y, 0, self.reward_buffer)
+        self._win.refresh()
+
+    @staticmethod
+    def encode_reward(reward):
+        d = {0: " ", 1: "+", -1: "-", 2: "2", -2: "\u01BB"}
+        return d[reward]
 
     def on_env_token_updated(self, token):
         self._env_channel.consume(token)
@@ -196,11 +210,12 @@ class ConsoleView(BaseView):
         begin_y = 0
         self._teacher_seq_y = 0
         self._learner_seq_y = 1
-        self._world_win_y = 3
+        self._reward_seq_y = 2
+        self._world_win_y = 4
         self._world_win_x = 0
         self._info_win_width = 20
-        self._info_win_height = 2
-        self._user_input_win_y = 2
+        self._info_win_height = 4
+        self._user_input_win_y = 4
         self._user_input_win_x = 10
         self.height, self.width = self._stdscr.getmaxyx()
         self._scroll_msg_length = self.width - self._info_win_width - 1
