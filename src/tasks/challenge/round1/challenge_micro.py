@@ -717,7 +717,7 @@ class Micro8Task(MicroBase):
 
             def micro8_feedback(is_correct, question):
                 reaction = "correct" if is_correct else "false"
-                return reaction + '!' + sentence
+                return reaction + '! ' + sentence
             return question, [sentence], micro8_feedback
 
         return TaskGenerator(micro8_question, '', None, ';')
