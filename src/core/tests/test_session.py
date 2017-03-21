@@ -15,6 +15,7 @@ import core.session as session
 import core.serializer as serializer
 import core.environment as environment
 from core.obs.observer import Observable
+from learners.base import BaseLearner
 
 
 class NullTask(task.Task):
@@ -64,7 +65,8 @@ class TestSession(unittest.TestCase):
 
     def testLimitReward(self):
         env = environment.Environment(serializer.StandardSerializer(),
-                                      SingleTaskScheduler(NullTask()))
+                                      SingleTaskScheduler(NullTask()),
+                                      byte_mode=True)
         learner = LearnerMock()
         s = session.Session(env, learner)
 
@@ -75,3 +77,31 @@ class TestSession(unittest.TestCase):
 
         s.run()
         self.assertLessEqual(s._total_reward, 10)
+
+    def testAllInputs(self):
+        env = environment.Environment(serializer.StandardSerializer(),
+                                      SingleTaskScheduler(NullTask()),
+                                      byte_mode=True)
+        learner = TryAllInputsLearner()
+        s = session.Session(env, learner)
+
+        def on_time_updated(t):
+            if t >= 600:
+                s.stop()
+
+        s.total_time_updated.register(on_time_updated)
+
+        s.run()
+
+
+class TryAllInputsLearner(BaseLearner):
+    char = -1
+
+    def reward(self, reward):
+        # YEAH! Reward!!! Whatever...
+        pass
+
+    def next(self, input):
+        self.char += 1
+        return chr(self.char % 256)
+

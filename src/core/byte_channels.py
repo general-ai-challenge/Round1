@@ -13,6 +13,10 @@ from __future__ import unicode_literals
 from core.obs.observer import Observable
 import logging
 
+import platform
+if platform.python_version_tuple()[0] == '2':
+    from kitchen.text.converters import to_unicode
+
 
 class ByteInputChannel:
 
@@ -20,7 +24,7 @@ class ByteInputChannel:
         self.serializer = serializer
         # remembers the input in binary format
         # leftmost deserialization of the binary buffer
-        self._buffer = ''
+        self._buffer = u''
         # remember the position until which we deserialized the binary buffer
 
         self.message_updated = Observable()
@@ -30,13 +34,19 @@ class ByteInputChannel:
         '''
         Takes a byte into the channel
         '''
-        self._buffer += input_char
+        if ord(input_char) >= 256:
+            raise Exception("Input char out of range")
+        if platform.python_version_tuple()[0] == '2':
+            encoded_char = to_unicode(input_char, 'utf-8')
+        else:
+            encoded_char = input_char
+        self._buffer += encoded_char
         self.message_updated(self._buffer)
         self.sequence_updated(self._buffer)
 
     def clear(self):
         '''Clears all the  buffers'''
-        self._set_buffer('')
+        self._set_buffer(u'')
 
     def _set_buffer(self, new_buffer):
         '''
@@ -54,7 +64,7 @@ class ByteInputChannel:
         '''
         Returns the yet non deserialized chunk in the input
         '''
-        return ''
+        return u''
 
     def set_deserialized_buffer(self, new_buffer):
         '''
@@ -67,7 +77,7 @@ class ByteOutputChannel:
 
     def __init__(self, serializer):
         self.serializer = serializer
-        self._buffer = ''
+        self._buffer = u''
         # remembers the data that has to be shipped out
         # event that gets fired every time we change the output sequence
         self.sequence_updated = Observable()
@@ -78,7 +88,7 @@ class ByteOutputChannel:
         self.sequence_updated(self._buffer)
 
     def clear(self):
-        self._set_buffer('')
+        self._set_buffer(u'')
 
     def _set_buffer(self, new_buffer):
         '''
@@ -100,4 +110,4 @@ class ByteOutputChannel:
 
     def is_silent(self):
         ''' All the bytes in the output are silent tokens. '''
-        return self._buffer.strip(self.serializer.SILENCE_TOKEN) == ''
+        return self._buffer.strip(self.serializer.SILENCE_TOKEN) == u''
