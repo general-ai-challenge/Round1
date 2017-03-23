@@ -13,6 +13,10 @@ from core.channels import InputChannel
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
 
+import platform
+if platform.python_version_tuple()[0] == '2':
+    from kitchen.text.converters import to_unicode
+
 
 class BaseView(object):
 
@@ -252,7 +256,10 @@ class ConsoleView(BaseView):
             0,
             self.width - self._user_input_win_x).decode(code)
         curses.noecho()
+        if platform.python_version_tuple()[0] == '2':
+            inputstr = to_unicode(inputstr)
         self._user_input_win.clear()
+
         if inputstr == self.panic:
             inputstr = ''
             self._env._task_time = float('inf')

@@ -11,6 +11,10 @@ import sys
 import os
 import platform
 
+import platform
+if platform.python_version_tuple()[0] == '2':
+    from kitchen.text.converters import to_unicode
+
 locale.setlocale(locale.LC_ALL, '')
 code = locale.getpreferredencoding()
 
@@ -118,7 +122,7 @@ class StdInOutView(WinBaseView):
         # task, we can keep the history intact.
         self.input_buffer = ''
         self.output_buffer = ''
-        self.panic = 'SKIP'
+        self.panic = u'SKIP'
         self.quit = 'QUIT'
         self._byte_channels = byte_channels
 
@@ -238,7 +242,8 @@ class StdInOutView(WinBaseView):
             input_str = raw_input()
         else:
             input_str = input()
-
+        if platform.python_version_tuple()[0] == '2':
+            input_str = to_unicode(input_str)
         if input_str == self.panic:
             input_str = ''
             self._env._task_time = float('inf')
