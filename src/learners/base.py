@@ -62,3 +62,6 @@ class RemoteLearner(BaseLearner):
         if type(reply) == type(b''):
             reply = reply.decode('utf-8')
         return reply
+
+    def set_view(self, view):
+        pass
