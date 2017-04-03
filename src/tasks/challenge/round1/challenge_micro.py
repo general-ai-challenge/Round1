@@ -81,8 +81,7 @@ class MicroBase(Task):
             self.consecutive_reward += 1
         elif reward < 0:
             self.consecutive_reward = 0
-        if reward != 0:
-            self.set_immediate_reward(reward)
+        self.set_immediate_reward(reward)
 
     def question_answered(self, is_correct):
         self.questions_asked += 1

@@ -161,6 +161,8 @@ class Environment:
         if reward is not None:
             # process the reward (clearing it if it's not allowed)
             reward = self._allowable_reward(reward)
+        else:
+            reward = 0
 
         return output, reward
 

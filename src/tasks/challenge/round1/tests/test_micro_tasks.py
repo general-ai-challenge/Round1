@@ -180,6 +180,10 @@ class TestMicro5Sub1Learner(BaseLearner):
             self.is_feedback = not self.is_feedback
             return self.answer
 
+    def try_reward(self, reward):
+        if reward is None:
+            assert False
+
 
 class TestMicro5Sub2Learner(BaseLearner):
 
