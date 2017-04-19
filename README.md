@@ -21,7 +21,11 @@ The repository also contains implementations of the following sets of tasks:
 
 First clone the repository:
 
-	git clone https://github.com/general-ai-challenge/Round1.git
+    git clone https://github.com/general-ai-challenge/Round1.git
+
+Go into the cloned foler
+
+    cd Round1
 
 Then install dependencies (you will need at least Python 2.7):
 
