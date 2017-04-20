@@ -23,7 +23,7 @@ First clone the repository:
 
     git clone https://github.com/general-ai-challenge/Round1.git
 
-Go into the cloned foler
+Go into the cloned folder
 
     cd Round1
 
