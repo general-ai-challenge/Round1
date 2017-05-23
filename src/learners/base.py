@@ -65,3 +65,7 @@ class RemoteLearner(BaseLearner):
 
     def set_view(self, view):
         pass
+
+class RemoteTimedLearner(BaseLearner):
+    def __init__(self, cmd, port):
+        super().__init__(cmd, port)
