@@ -39,7 +39,7 @@ class RemoteLearner(BaseLearner):
         self.port = port if port is not None else 5556
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
-        self.socket.bind("tcp://*:%s" % port)
+        self.socket.bind("tcp://172.18.0.1:%s" % port)
 
         # launch learner
         if cmd is not None:
