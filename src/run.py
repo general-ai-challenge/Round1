@@ -136,12 +136,12 @@ def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byt
 
 
 def create_tasks_from_config(tasks_config_file):
-    ''' Returns a TaskScheduler based on either:
+    """ Returns a TaskScheduler based on either:
 
         - a json configuration file.
         - a python module with a function create_tasks that does the job
         of returning the task scheduler.
-    '''
+    """
     fformat = tasks_config_file.split('.')[-1]
     if fformat == 'json':
         config_loader = JSONConfigLoader()
@@ -165,7 +165,7 @@ def save_results(session, output_file):
             avg_reward=session.get_total_reward() / session.get_total_time()),
             file=fout)
         print('Total time: {time}'.format(time=session.get_total_time()),
-               file=fout)
+              file=fout)
         print('Total reward: {reward}'.format(
             reward=session.get_total_reward()),
             file=fout)
