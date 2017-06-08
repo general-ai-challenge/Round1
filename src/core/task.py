@@ -108,6 +108,7 @@ def method_to_func(f):
         except AttributeError:
             return f
 
+
 def on_start():
     """ Decorator for the Start of Task event handler. Start event decorator
     """
@@ -141,6 +142,7 @@ def on_ended():
         global_event_handlers[f] = Trigger(Ended, lambda e: True, f)
         return f
     return register
+
 
 def on_world_start():
     """ WorldStart event decorator Decorator for the World Start event handler
@@ -475,7 +477,7 @@ class ScriptSet(object):
             try:
                 try:
                     f = getattr(self, fname).im_func
-                except AttributeError: # Python 3
+                except AttributeError:
                     f = getattr(self, fname).__func__
                 trigger = handler_to_trigger(f)
                 if trigger:
