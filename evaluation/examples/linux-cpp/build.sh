@@ -2,7 +2,7 @@
 
 cd agent
 
-bash build.sh
+bash make.sh
 
 cd ..
 
