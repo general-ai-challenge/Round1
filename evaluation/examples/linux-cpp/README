@@ -1,0 +1,7 @@
+To build the CPP agent, you need g++ and zeromq with c++ bindings.
+If you se Ubuntu, you can install this via:
+
+sudo apt install g++ libzmq-dev
+
+Then proceed to ./build.sh
+
