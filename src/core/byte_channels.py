@@ -5,10 +5,6 @@
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 
 from core.obs.observer import Observable
 import logging
@@ -100,8 +96,7 @@ class ByteOutputChannel:
 
     def consume(self):
         if len(self._buffer) > 0:
-            output, new_buffer = self._buffer[0], \
-                self._buffer[1:]
+            output, new_buffer = self._buffer[0], self._buffer[1:]
             self._set_buffer(new_buffer)
             return output
 
