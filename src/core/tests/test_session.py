@@ -5,10 +5,6 @@
 # LICENSE file in the root directory of this source tree. An additional grant
 # of patent rights can be found in the PATENTS file in the same directory.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 import unittest
 import core.task as task
 import core.session as session
@@ -64,9 +60,7 @@ class SingleTaskScheduler():
 class TestSession(unittest.TestCase):
 
     def testLimitReward(self):
-        env = environment.Environment(serializer.StandardSerializer(),
-                                      SingleTaskScheduler(NullTask()),
-                                      byte_mode=True)
+        env = environment.Environment(serializer.StandardSerializer(), SingleTaskScheduler(NullTask()), byte_mode=True)
         learner = LearnerMock()
         s = session.Session(env, learner)
 
@@ -79,9 +73,7 @@ class TestSession(unittest.TestCase):
         self.assertLessEqual(s._total_reward, 10)
 
     def testAllInputs(self):
-        env = environment.Environment(serializer.StandardSerializer(),
-                                      SingleTaskScheduler(NullTask()),
-                                      byte_mode=True)
+        env = environment.Environment(serializer.StandardSerializer(), SingleTaskScheduler(NullTask()), byte_mode=True)
         learner = TryAllInputsLearner()
         s = session.Session(env, learner)
 
