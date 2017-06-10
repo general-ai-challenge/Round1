@@ -25,8 +25,7 @@ OutputMessageUpdated = namedtuple('OutputMessageUpdated', ('output_message',))
 # TODO horrible way of making second_state optional
 class StateChanged(namedtuple('StateChanged', ('state', 'second_state'))):
     """
-    Event that is triggered when some member variable within the
-    state object of a Task or a World is changed.
+    Event that is triggered when some member variable within the state object of a Task or a World is changed.
     """
     def __new__(cls, state, second_state=None):
         """
@@ -39,8 +38,7 @@ class StateChanged(namedtuple('StateChanged', ('state', 'second_state'))):
 
 
 class MessageReceived():
-    """ helper methods for handling received messages
-    A message received event. It has some useful helpers
+    """ helper methods for handling received messages A message received event. It has some useful helpers
     """
     def __init__(self, message):
         """ this instance variable gets assigned the outcome of the trigger's condition
