@@ -1,4 +1,4 @@
-# Unofficial Fork of the General AI Challenge - Round 1 repository #
+# Unofficial Fork of the General AI Challenge - Round 1#
 
 ## Overview ##
 
