@@ -10,17 +10,38 @@ import core.events as events
 
 
 class MyEvent(object):
+    """
+
+    """
     pass
 
 
 class TestEvents(unittest.TestCase):
+    """
+
+    """
     def __init__(self, *args, **kwargs):
+        """
+
+        :param args:
+        :param kwargs:
+        """
         super(TestEvents, self).__init__(*args, **kwargs)
 
     def testEvents(self):
+        """
+
+        :return:
+        """
         self.event_raised = False
 
         def on_start(self, event):
+            """
+
+            :param self:
+            :param event:
+            :return:
+            """
             self.event_raised = True
 
         em = events.EventManager()
