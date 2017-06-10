@@ -1,4 +1,4 @@
-# General AI Challenge - Round 1 #
+# Unofficial Fork of the General AI Challenge - Round 1
 
 ## Overview ##
 
