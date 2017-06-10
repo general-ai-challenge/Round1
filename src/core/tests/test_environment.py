@@ -11,31 +11,71 @@ import core.environment as environment
 
 
 class SerializerMock(object):
+    """
+
+    """
     pass
 
 
 class SingleTaskScheduler:
+    """
+
+    """
     def __init__(self, task):
+        """
+
+        :param task:
+        """
         self.task = task
 
     def get_next_task(self):
+        """
+
+        :return:
+        """
         return self.task
 
     def reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         pass
 
 
 class TestEnvironment(unittest.TestCase):
+    """
+
+    """
 
     def testRegistering(self):
+        """
+
+        :return:
+        """
         class TestTask(task.Task):
+            """
+
+            """
             def __init__(self, *args, **kwargs):
+                """
+
+                :param args:
+                :param kwargs:
+                """
                 super(TestTask, self).__init__(*args, **kwargs)
                 self.handled = False
 
             @task.on_start()
             def start_handler(self, event):
+                """
+
+                :param event:
+                :return:
+                """
                 self.handled = True
+
         tt = TestTask(max_time=10)
         env = environment.Environment(SerializerMock(), SingleTaskScheduler(tt))
         tt.start(env)
@@ -49,53 +89,65 @@ class TestEnvironment(unittest.TestCase):
         self.assertFalse(env.raise_event(task.Start()))
 
     def testDynRegistering(self):
+        """
+
+        :return:
+        """
         class TestTask(task.Task):
+            """
+
+            """
             def __init__(self, *args, **kwargs):
+                """
+
+                :param args:
+                :param kwargs:
+                """
                 super(TestTask, self).__init__(*args, **kwargs)
                 self.start_handled = False
                 self.end_handled = False
 
             @task.on_start()
             def start_handler(self, event):
+                """ End cannot be handled. # Start should be handled# The start handler should have been executed
+                # Now the End should be handled# The end handler should have been executed# Start should not be
+                handled anymore# End should not be handled anymore# Register them again! mwahaha (evil laugh) -- lol,
+                 End should not be handled anymore/ Deregister them again! mwahahahaha (more evil laugh)
+                :param event:
+                :return:
+                """
                 try:
-                    self.add_handler(task.on_ended()(
-                        self.end_handler.im_func))
+                    self.add_handler(task.on_ended()(self.end_handler.im_func))
                 except AttributeError: # Python 3
-                    self.add_handler(task.on_ended()(
-                        self.end_handler.__func__))
+                    self.add_handler(task.on_ended()(self.end_handler.__func__))
                 self.start_handled = True
 
             def end_handler(self, event):
+                """
+
+                :param event:
+                :return:
+                """
                 self.end_handled = True
 
         tt = TestTask(max_time=10)
         env = environment.Environment(SerializerMock(), SingleTaskScheduler(tt))
         tt.start(env)
         env._register_task_triggers(tt)
-        # End cannot be handled
         self.assertFalse(env.raise_event(task.Ended()))
         self.assertFalse(tt.end_handled)
-        # Start should be handled
         self.assertTrue(env.raise_event(task.Start()))
-        # The start handler should have been executed
         self.assertTrue(tt.start_handled)
-        # Now the End should be handled
         self.assertTrue(env.raise_event(task.Ended()))
-        # The end handler should have been executed
         self.assertTrue(tt.end_handled)
         env._deregister_task_triggers(tt)
-        # Start should not be handled anymore
         self.assertFalse(env.raise_event(task.Start()))
         tt.end_handled = False
-        # End should not be handled anymore
         self.assertFalse(env.raise_event(task.Ended()))
         self.assertFalse(tt.end_handled)
-        # Register them again! mwahaha (evil laugh) -- lol
         env._register_task_triggers(tt)
-        # End should not be handled anymore
         self.assertFalse(env.raise_event(task.Ended()))
         self.assertFalse(tt.end_handled)
-        # Deregister them again! mwahahahaha (more evil laugh)
         env._deregister_task_triggers(tt)
         self.assertFalse(env.raise_event(task.Ended()))
         self.assertFalse(tt.end_handled)
