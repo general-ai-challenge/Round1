@@ -7,17 +7,36 @@
 
 
 class Observable(object):
-    '''Simple implementation of the observer pattern'''
-
+    """
+    Simple implementation of the observer pattern
+    """
     def __init__(self):
+        """
+
+        """
         self.observers = []
 
     def register(self, callback):
+        """
+
+        :param callback:
+        :return:
+        """
         self.observers.append(callback)
 
     def deregister(self, callback):
+        """
+
+        :param callback:
+        :return:
+        """
         self.observers.remove(callback)
 
     def __call__(self, *args):
+        """
+
+        :param args:
+        :return:
+        """
         for c in self.observers:
             c(*args)
