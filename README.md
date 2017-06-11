@@ -1,4 +1,8 @@
-# Unofficial Fork of the General AI Challenge - Round 1
+## Unofficial Fork of the General AI Challenge - Round 1
+
+### JetBrains have joined the Intelligent Machine Learning team as a sponsor! They have donated the full JetBrains suite, including PyCharm Professional, to team members.  Send stephenbhope a message for license information.
+
+### Jetbrains https://www.jetbrains.com/
 
 ## Overview ##
 
