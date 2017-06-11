@@ -23,52 +23,78 @@ REQUIRED_CONSECUTIVE_REWARDS = 10   # more or less arbitrary constant; high enou
 
 
 class MicroBase(Task):
+    """
+
+    """
     reg_answer_end = r'.'
     FAILED_TASK_TOLERANCE = 1.0
     SUCCESS_TOLERANCE = 4.0
     tasker = None
 
     def __init__(self, world=None):
+        """
+
+        :param world:
+        """
         super(MicroBase, self).__init__(world=world, max_time=10000)
         self.skip_task_separator = True
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         pass
 
     def agent_solved_instance_under_time_limit(self):
-        '''
-        Checks whether the agent solved task instance successfully
-        '''
+        """ Checks whether the agent solved task instance successfully
+
+        :return:
+        """
         return self.under_time_limit_for_successfull_solution() and self.agent_solved_instance()
 
     def agent_solved_instance(self):
-        '''
-        Checks whether the agent solved task instance
-        '''
+        """ Checks whether the agent solved task instance
+
+        :return:
+        """
         return self.consecutive_reward >= REQUIRED_CONSECUTIVE_REWARDS
 
     def agent_should_know_answers(self):
-        '''
-        Checks whether the information provided to agent was sufficient for it to know the correct solution to task instance
-        Tasks may override this method - this is equal to knowing all the correct answers from first step
-        '''
+        """ Checks whether the information provided to agent was sufficient for it to know the correct solution to
+        task instance Tasks may override this method - this is equal to knowing all the correct answers from first step
+
+
+        :return:
+        """
         return True
 
     def under_time_limit_for_successfull_solution(self):
-        '''
-        Checks whether the task is still in stage, where agent can successfully solve the task.
-        This method does not check whether agent actually solved the task! Only if the time for the solution ran up or not!
-        '''
+        """ Checks whether the task is still in stage, where agent can successfully solve the task. This method does
+        not check whether agent actually solved the task! Only if the time for the solution ran up or not!
+
+        :return:
+        """
         if self.max_questions_for_success:
             return self.questions_asked <= self.max_questions_for_success
         else:
             return True
 
     def get_original_question(self, question):
+        """
+
+        :param question:
+        :return:
+        """
         return self.tasker.get_original_question(question)
 
     @on_start()
     def new_task_instance(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
@@ -78,9 +104,19 @@ class MicroBase(Task):
         self.give_instructions()
 
     def preprocess_answer(self, message):
-        self.agent_answer += message[-1]    # add the newest char
+        """ add the newest char
+
+        :param message:
+        :return:
+        """
+        self.agent_answer += message[-1]
 
     def provide_reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         if reward > 0:
             self.consecutive_reward += 1
         elif reward < 0:
@@ -88,101 +124,148 @@ class MicroBase(Task):
         self.set_immediate_reward(reward)
 
     def question_answered(self, is_correct):
+        """
+
+        :param is_correct:
+        :return:
+        """
         self.questions_asked += 1
 
     def check_if_task_instance_finished(self):
-        if self.agent_solved_instance_under_time_limit():    # agent solved instance in time
+        """  # agent solved instance in time # agent solved instance too late# agent did not solve it but should know
+        answers from now on # agent failed but give him some time to learn task # agent used up all the extra time
+
+        :return:
+        """
+        if self.agent_solved_instance_under_time_limit():
             self.set_result(True, provide_result_as_reward=False)
             return True
-
-        if self.agent_solved_instance():    # agent solved instance too late
+        if self.agent_solved_instance():
             self.set_result(False, provide_result_as_reward=False)
             return True
-
-        if not self.max_questions_for_success and self.agent_should_know_answers():  # agent did not solve it but should know answers from now on
-            self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (1.0 + self.SUCCESS_TOLERANCE)
-
-        if not self.max_questions_nr and not self.under_time_limit_for_successfull_solution():  # agent failed but give him some time to learn task
+        if not self.max_questions_for_success and self.agent_should_know_answers():
+            self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (
+                1.0 + self.SUCCESS_TOLERANCE)
+        if not self.max_questions_nr and not self.under_time_limit_for_successfull_solution():
             self.max_questions_nr = self.questions_asked * (1.0 + self.FAILED_TASK_TOLERANCE)
-
-        if self.max_questions_nr and self.questions_asked > self.max_questions_nr:  # agent used up all the extra time
+        if self.max_questions_nr and self.questions_asked > self.max_questions_nr:
             self.set_result(False, provide_result_as_reward=False)
             self._raise_timeout()
             return True
         return False
 
     def provide_feedback(self, correct):
+        """
+
+        :param correct:
+        :return:
+        """
         feedback_text = self.tasker.get_feedback_text(correct, self.question)
         self.set_message(feedback_text)
 
     def give_instructions(self):
+        """ internal buffer reset
+
+        :return:
+        """
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
-        # internal buffer reset
         self.agent_answer = ''
         self.remaining_instruction_length = len(self.question)
 
-    @on_message()   # on every character
+    @on_message()
     def check_response(self, event):
+        """# on every character # agent is still speaking - do not check it yet # no stripping of agent's answer
+        # if one task sub-instance solved # give next instruction
+        :param event:
+        :return:
+        """
         self.remaining_instruction_length -= 1
-
         if not self._env.is_silent():
             if not event.message[-1] == ' ':
                 self.set_immediate_reward(-1)
             return
-
         if self.remaining_instruction_length > 1:
             return
-
         self.preprocess_answer(event.message)
-
         if not self._answer_ended(self.agent_answer):
-            return      # agent is still speaking - do not check it yet
-
-        answer = self.agent_answer # no stripping of agent's answer
-
+            return
+        answer = self.agent_answer
         finished, correct, reward = self.tasker.check_answer(answer, self.question)
         self.provide_reward(reward)
-
-        # if one task sub-instance solved
         if finished:
             self.question_answered(correct)
             self.provide_feedback(correct)
             if not self.check_if_task_instance_finished():
-                # give next instruction
                 self.give_instructions()
 
-    @on_timeout()   # while we use checking if agent solved instance ASAP - can this actually happen?
+    @on_timeout()
     def end_task_instance(self, event):
+        """ # while we use checking if agent solved instance ASAP - can this actually happen?
+
+        :param event:
+        :return:
+        """
         self.set_result(False, provide_result_as_reward=False)
 
     @staticmethod
     def is_prefix(answer, correct_answer):
+        """
+
+        :param answer:
+        :param correct_answer:
+        :return:
+        """
         if len(answer) >= len(correct_answer):
             return False
         return correct_answer.startswith(answer)
 
     def _answer_ended(self, message):
+        """
+
+        :param message:
+        :return:
+        """
         return not (re.search(self.reg_answer_end, message, re.DOTALL) is None)
 
 
 class Micro1Task(MicroBase):
+    """
+
+    """
     ALPHABET_SIZE = 10
 
     def __init__(self):
+        """
+
+        """
         self.base_alphabet = string.ascii_letters + string.digits + ' ,.!;?-'
         super(Micro1Task, self).__init__()
 
     @on_start()
     def micro1_on_start(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         self.remaining_options = len(self.base_alphabet)
         self.should_know = False
 
     def agent_should_know_answers(self):
+        """
+
+        :return:
+        """
         return self.should_know
 
     def question_answered(self, is_correct):
+        """
+
+        :param is_correct:
+        :return:
+        """
         super(Micro1Task, self).question_answered(is_correct)
         if is_correct or self.remaining_options == 0:
             self.should_know = True
@@ -190,19 +273,42 @@ class Micro1Task(MicroBase):
             self.remaining_options -= 1
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         alphabet = self.alphabet
         correct_answer = random.choice(alphabet)
 
         def micro1_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             return random.choice(alphabet), correct_answer
         return TaskGenerator(micro1_question)
 
 
 def random_string_from(length, subset):
+    """
+
+    :param length:
+    :param subset:
+    :return:
+    """
     return "".join(random.choice(subset) for _ in range(length))
 
 
 def random_strings_from(charset, nr_of_strings, string_len_options=None, append=''):
+    """
+
+    :param charset:
+    :param nr_of_strings:
+    :param string_len_options:
+    :param append:
+    :return:
+    """
     string_len_options = string_len_options or [1]
     result = []
     for _ in range(nr_of_strings):
@@ -213,30 +319,48 @@ def random_strings_from(charset, nr_of_strings, string_len_options=None, append=
 
 
 class MicroMappingTask(MicroBase):
+    """
+
+    """
 
     task_gen_kwargs = {}
 
     def agent_should_know_answers(self):
+        """
+
+        :return:
+        """
         if len(self.known_mapping) > 0:
             return self.should_know
         else:
             return True
 
     def _get_mapping_options(self, mapping):
-        '''
-        This method is optional but if implemented, it should return dictionary where keys are all possible questions for agent and value is number of possible
-        answers on that question from which agent has to find the right one.
-        If mapping does not want to implement "agent_should_know_answers" it can implement this method and MicroMapping will use its "agent_should_know_answers"
-        mechanism.
-        '''
+        """ This method is optional but if implemented, it should return dictionary where keys are all possible
+        questions for agent and value is number of possible answers on that question from which agent has to find
+        the right one. If mapping does not want to implement "agent_should_know_answers" it can implement this method
+        and MicroMapping will use its "agent_should_know_answers" mechanism.
+
+        :param mapping:
+        :return:
+        """
         return {}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         pass
 
     def question_answered(self, is_correct):
+        """ # not all Mapping tasks use the all_mapping_options concept
+
+        :param is_correct:
+        :return:
+        """
         super(MicroMappingTask, self).question_answered(is_correct)
-        if len(self.known_mapping) == 0:    # not all Mapping tasks use the all_mapping_options concept
+        if len(self.known_mapping) == 0:
             return
         if self.question[-1] == '.' and len(self.question) > 1:
             question = self.question[:-1]
@@ -246,16 +370,24 @@ class MicroMappingTask(MicroBase):
             self.known_mapping[question] = 1
         else:
             self.known_mapping[question] = max(self.known_mapping[question] - 1, 1)
-
         if all(x == 1 for x in self.known_mapping.values()):
             self.should_know = True
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         mapping = self._get_mapping()
         self.known_mapping = self._get_mapping_options(mapping)
         self.should_know = False
 
         def multigen(d):
+            """
+
+            :param d:
+            :return:
+            """
             while True:
                 k = list(d.keys()) * len(d.keys())
                 random.shuffle(k)
@@ -264,7 +396,18 @@ class MicroMappingTask(MicroBase):
         gen = multigen(mapping)
 
         def micro_mapping_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             def micro_mapping_reward(answer, question):
+                """
+
+                :param answer:
+                :param question:
+                :return:
+                """
                 key = self.get_original_question(question)
                 if len(answer) > 0 and MicroBase.is_prefix(answer, mapping[key]):
                     return None, 0
@@ -275,17 +418,41 @@ class MicroMappingTask(MicroBase):
             return next(gen), micro_mapping_reward
         return TaskGenerator(micro_mapping_question, **self.task_gen_kwargs)
 
-    # this could be solved by less code, but I chose the explicit way
+
     def _get_simple_feedback_provider(self, mapping):
+        """# this could be solved by less code, but I chose the explicit way
+
+        :param mapping:
+        :return:
+        """
         def feedback_provider(is_correct, question):
+            """
+
+            :param is_correct:
+            :param question:
+            :return:
+            """
             key = self.get_original_question(question)
             return mapping[key]
         return feedback_provider
 
     def _get_prepend_feedback_provider(self, mapping, prepend_set, prepend_len_options=None):
+        """
+
+        :param mapping:
+        :param prepend_set:
+        :param prepend_len_options:
+        :return:
+        """
         prepend_len_options = prepend_len_options or [1]
 
         def feedback_provider(is_correct, question):
+            """
+
+            :param is_correct:
+            :param question:
+            :return:
+            """
             key = self.get_original_question(question)
             prepend_len = random.choice(prepend_len_options)
             prepend = random_string_from(prepend_len, prepend_set)
@@ -294,21 +461,41 @@ class MicroMappingTask(MicroBase):
 
 
 class Micro2Task(MicroMappingTask):
+    """
+
+    """
     ALPHABET_SIZE = 4
     base_alphabet = string.ascii_lowercase
 
     def __init__(self):
+        """
+
+        """
         super(Micro2Task, self).__init__()
 
     @on_start()
     def micro2_on_start(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
         self.remaining_options = len(self.base_alphabet)
 
     def agent_should_know_answers(self):
+        """
+
+        :return:
+        """
         return self.should_know
 
     def question_answered(self, is_correct):
+        """
+
+        :param is_correct:
+        :return:
+        """
         super(Micro2Task, self).question_answered(is_correct)
         if (is_correct and self.question in self.alphabet) or self.remaining_options == 0:
             self.should_know = True
@@ -316,6 +503,10 @@ class Micro2Task(MicroMappingTask):
             self.remaining_options -= 1
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         correct_answer = random.choice(self.alphabet)
         mapping = {x: correct_answer for x in self.alphabet}
         for c in ' !":?.,;':
@@ -324,20 +515,37 @@ class Micro2Task(MicroMappingTask):
 
 
 class Micro3Task(MicroMappingTask):
+    """
+
+    """
     ALPHABET_SIZE = 4
     base_alphabet = string.ascii_lowercase
 
     @on_start()
     def micro3_on_start(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         self.alphabet = random.sample(self.base_alphabet, self.ALPHABET_SIZE)
 
     def _get_mapping_options(self, mapping):
+        """
+
+        :param mapping:
+        :return:
+        """
         result = {x: len(self.base_alphabet) for x in self.alphabet}
         for c in ' !":?.,;':
             result[c] = 1
         return result
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         permutation = ''.join(random.sample(self.alphabet, len(self.alphabet)))
         mapping = dict(zip(self.alphabet, permutation))
         for c in ' !":?.,;':
@@ -346,79 +554,132 @@ class Micro3Task(MicroMappingTask):
 
 
 class Micro4Task(MicroMappingTask):
+    """
+
+    """
     ALPHABET_SIZE = 4
 
     @on_start()
     def micro4_on_start(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         self.alphabet = random.sample(string.ascii_lowercase + ' !":?.,;', self.ALPHABET_SIZE)
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         alphabet = self.alphabet
         mapping = dict(zip(alphabet, alphabet))
         return mapping
 
 
 class FeedbackMappingTaskMixin(MicroMappingTask):
-    '''
-    This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
+    """ This mixin should be used when the task uses feedback and we assume the feedback can be exploited already.
     The only one occurrence is needed for every key from mapping.
-    '''
 
+    """
     def _get_mapping_options(self, mapping):
+        """
+
+        :param mapping:
+        :return:
+        """
         keys = mapping.keys()
         return {x: 2 for x in keys}
 
 
 class Micro5Sub1Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         permutation = ''.join(random.sample(numbers, len(numbers)))
         mapping = dict(zip(numbers, permutation))
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub2Task(Micro5Sub1Task):
+    """
+
+    """
     task_gen_kwargs = {'feedback_sep': ';'}
 
 
 class Micro5Sub3Task(Micro5Sub1Task):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
 
 class Micro5Sub4Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random_string_from(2, numbers) for x in numbers}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub5Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub6Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
 
         def feedback_provider(is_correct, question):
+            """
+
+            :param is_correct:
+            :param question:
+            :return:
+            """
             key = self.get_original_question(question)
             if is_correct:
                 return mapping[key][:-1]    # remove trailing dot
@@ -428,9 +689,16 @@ class Micro5Sub6Task(FeedbackMappingTaskMixin, MicroMappingTask):
 
 
 class Micro5Sub7Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         answers = random_strings_from(numbers, len(numbers), [1, 2], '.')
         mapping = dict(zip(numbers, answers))
@@ -440,36 +708,55 @@ class Micro5Sub7Task(FeedbackMappingTaskMixin, MicroMappingTask):
 
 
 class Micro5Sub8Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, [2])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub9Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, [1, 2])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 # TODO: should be the ignored part be always the same for the same inputs or can it change? - this version changes it
 class Micro5Sub10Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
 
@@ -478,13 +765,26 @@ class Micro5Sub10Task(FeedbackMappingTaskMixin, MicroMappingTask):
 
 
 class Micro5Sub11Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
 
         def feedback_provider(is_correct, question):
+            """
+
+            :param is_correct:
+            :param question:
+            :return:
+            """
             key = self.get_original_question(question)
             do_prepend = random.choice([True, False])
             if do_prepend:
@@ -495,110 +795,156 @@ class Micro5Sub11Task(FeedbackMappingTaskMixin, MicroMappingTask):
         self.task_gen_kwargs['provide_feedback'] = feedback_provider
         return mapping
 
-
-# stems from 5.7
-# TODO: description says "either 3 or 4 or 5 chars. Shown example for 3
-# chars". So will it be always the same size of feedback for on task
-# instance? Or can it be mixed? - this version is mixed
-# same question for 5.13, 5.14, 5.15, 5.16, 5.17 and 5.18
+"""
+stems from 5.7
+TODO: description says "either 3 or 4 or 5 chars. Shown example for 3 chars". So will it be always the same size of 
+feedback for on task instance? Or can it be mixed? - this version is mixed same question for 5.13, 5.14, 5.15, 5.16, 
+5.17 and 5.18
+"""
 class Micro5Sub12Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         answers = random_strings_from(numbers, len(numbers), [3, 4, 5], '.')
         mapping = dict(zip(numbers, answers))
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 # stems from 5.9
 class Micro5Sub13Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, [3, 4, 5])
         mapping = {x: random.choice(numbers) + '.' for x in questions}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 # stems from 5.12
 class Micro5Sub14Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_prepend_feedback_provider(mapping, numbers, [2, 3, 4])
         return mapping
 
 
 class Micro5Sub15Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         answers = random_strings_from(numbers, len(numbers), range(1, 6), '.')
         mapping = dict(zip(numbers, answers))
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub16Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, range(1, 6))
         mapping = {x: random.choice(numbers) + '.' for x in questions}
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 class Micro5Sub17Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, range(1, 6))
         answers = random_strings_from(numbers, len(questions), range(1, 6), '.')
         mapping = dict(zip(questions, answers))
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
-# stems from 5.17
+
 class Micro5Sub18Task(FeedbackMappingTaskMixin, MicroMappingTask):
+    """
+    # stems from 5.17
+    """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
     MAPPING_SIZE = 10
 
     def _get_mapping(self):
+        """
+
+        :return:
+        """
         numbers = string.digits
         questions = random_strings_from(numbers, self.MAPPING_SIZE, range(1, 11))
         answers = random_strings_from(numbers, len(questions), range(1, 11), '.')
         mapping = dict(zip(questions, answers))
-
         self.task_gen_kwargs['provide_feedback'] = self._get_simple_feedback_provider(mapping)
         return mapping
 
 
 def load_dictionary(file_name):
+    """
+
+    :param file_name:
+    :return:
+    """
     current_dir = os.path.dirname(__file__)
     file_path = os.path.join(current_dir, '../../../' + file_name)
     with open(file_path) as f:
         content = f.readlines()
-
     return [x.strip() for x in content
             if not any(map(lambda forbidden: forbidden in x.strip(), load_dictionary.forbidden_strings))]
 
@@ -606,20 +952,37 @@ load_dictionary.forbidden_strings = []
 
 
 class Micro6Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
     MAPPING_SIZE = 8
     FAILED_TASK_TOLERANCE = 2.0
 
     @on_start()
     def new_task_instance(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         super(Micro6Task, self).new_task_instance(event)
         self.should_know = False
         self.actual_key = ''
 
     def agent_should_know_answers(self):
+        """
+
+        :return:
+        """
         return self.should_know
 
     def question_answered(self, is_correct):
+        """
+
+        :param is_correct:
+        :return:
+        """
         super(Micro6Task, self).question_answered(is_correct)
         key = self.question.split()[-1].split('.')[0]
         self.mapping_check[key] = True
@@ -627,15 +990,29 @@ class Micro6Task(MicroBase):
             self.should_know = True
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         content = load_dictionary(DICTIONARY_FILE)
         vocabulary = content[:200]
-        mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE),
-                           random.sample(vocabulary, self.MAPPING_SIZE)))
+        mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE), random.sample(vocabulary, self.MAPPING_SIZE)))
         keys = list(mapping.keys())
         self.mapping_check = {key: False for key in keys}
 
         def micro6_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             def micro6_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -653,20 +1030,43 @@ class Micro6Task(MicroBase):
 
 @contextmanager
 def forbid_dictionary_strings(words):
+    """
+
+    :param words:
+    :return:
+    """
     load_dictionary.forbidden_strings = words
     yield
     load_dictionary.forbidden_strings = []
 
 
 class Micro7Sub1Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro7_1_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             correct_answer = random.choice(string.ascii_lowercase) + '.'
             question = "say: {}".format(correct_answer)
 
             def micro7_1_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + correct_answer
             return question, [correct_answer], micro7_1_feedback
@@ -674,16 +1074,34 @@ class Micro7Sub1Task(MicroBase):
 
 
 class Micro7Sub2Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_2_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             word = random.choice(valid_words) + '.'
             question = "say: {}".format(word)
 
             def micro7_2_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + word
             return question, [word], micro7_2_feedback
@@ -691,16 +1109,34 @@ class Micro7Sub2Task(MicroBase):
 
 
 class Micro7Sub3Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_3_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             sentence = random.choice(valid_words) + ' ' + random.choice(valid_words) + '.'
             question = "say: {}".format(sentence)
 
             def micro7_3_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + sentence
             return question, [sentence], micro7_3_feedback
@@ -708,10 +1144,22 @@ class Micro7Sub3Task(MicroBase):
 
 
 class Micro8Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro8_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             alphabet = string.ascii_lowercase
             sentence = "{}{}{}{}{}.".format(' ' * random.randint(0, 6), random.choice(alphabet), ' ' * random.randint(0, 6),
                                             random.choice(alphabet), ' ' * random.randint(0, 6))
@@ -719,6 +1167,12 @@ class Micro8Task(MicroBase):
             sentence = re.sub(' +', ' ', sentence).strip()
 
             def micro8_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "correct" if is_correct else "false"
                 return reaction + '! ' + sentence
             return question, [sentence], micro8_feedback
@@ -727,16 +1181,34 @@ class Micro8Task(MicroBase):
 
 
 class Micro9Sub1Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro9_1_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             valid_words = string.ascii_lowercase
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
 
             def micro9_1_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
             return question, [sentence], micro9_1_feedback
@@ -744,16 +1216,33 @@ class Micro9Sub1Task(MicroBase):
 
 
 class Micro9Sub2Task(MicroBase):
+    """"
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro9_2_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             valid_words = load_dictionary(DICTIONARY_FILE)
             word = random.choice(valid_words) + '.'
             question = "spell: {}".format(word)
             sentence = " ".join(word)
 
             def micro9_2_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
 
@@ -763,10 +1252,22 @@ class Micro9Sub2Task(MicroBase):
 
 
 class Micro9Sub3Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro9_3_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             valid_words = load_dictionary(DICTIONARY_FILE)
             word = random.choice(valid_words)
             joint = random.choice(['-', '#', ','])
@@ -774,6 +1275,12 @@ class Micro9Sub3Task(MicroBase):
             sentence = joint.join(word) + '.'
 
             def micro9_3_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 return reaction + '! ' + sentence
 
@@ -783,10 +1290,22 @@ class Micro9Sub3Task(MicroBase):
 
 
 class Micro10Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro10_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             valid_words = load_dictionary(DICTIONARY_FILE)
             n = random.randint(2, 3)
             questions = []
@@ -799,6 +1318,12 @@ class Micro10Task(MicroBase):
             sentence = ' '.join(words) + '.'
 
             def micro10_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -809,10 +1334,22 @@ class Micro10Task(MicroBase):
 
 
 class Micro11Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro11_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             actions = ['reverse', 'concatenate', 'interleave']
             action = random.choice(actions)
             valid_words = ["ab", "ac", "ad", "bc", "bd", "cd"]
@@ -834,6 +1371,12 @@ class Micro11Task(MicroBase):
             sentence += '.'
 
             def micro11_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -844,20 +1387,44 @@ class Micro11Task(MicroBase):
 
 
 class Micro12Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     @staticmethod
     def string_special_union(str1, str2):
+        """
+
+        :param str1:
+        :param str2:
+        :return:
+        """
         if str1.find(str2) >= 0:
             return str1
         return str1 + str2
 
     @staticmethod
     def string_special_exclude(str1, str2):
+        """
+
+        :param str1:
+        :param str2:
+        :return:
+        """
         return str1.replace(str2, '')
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro12_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             actions = ['union', 'exclude']
             action = random.choice(actions)
             valid_words = ["abc", "acd", "adc", "bcd", "bda", "cdb"]
@@ -872,6 +1439,12 @@ class Micro12Task(MicroBase):
             sentence += '.'
 
             def micro12_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -882,11 +1455,29 @@ class Micro12Task(MicroBase):
 
 
 class Micro13Sub1Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro13_1_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             def micro13_1_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -909,6 +1500,12 @@ class Micro13Sub1Task(MicroBase):
                 sentence = '{}.'.format(random.choice([word1, word2]))
 
                 def or_reward(answer, question=''):
+                    """
+
+                    :param answer:
+                    :param question:
+                    :return:
+                    """
                     answer_ = answer[:-1]
                     correct = answer_ == word1 or answer_ == word2 or answer_ == word1 + word2 or answer_ == word2 + word1
                     return correct, 1 if correct else -1
@@ -948,11 +1545,29 @@ class Micro13Sub1Task(MicroBase):
 
 
 class Micro13Sub2Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro13_2_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             def micro13_2_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -985,10 +1600,22 @@ class Micro13Sub2Task(MicroBase):
 
 
 class Micro14Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         def micro14_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             alphabet = string.ascii_lowercase
             idx = random.randint(0, len(alphabet) - 2)
             question = 'after {} comes what:.'.format(alphabet[idx])
@@ -996,6 +1623,12 @@ class Micro14Task(MicroBase):
             sentence += '.'
 
             def micro14_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -1006,18 +1639,35 @@ class Micro14Task(MicroBase):
 
 
 class Micro15Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
     FAILED_TASK_TOLERANCE = 2.0
 
     @on_start()
     def new_task_instance(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         super(Micro15Task, self).new_task_instance(event)
         self.should_know = False
 
     def agent_should_know_answers(self):
+        """
+
+        :return:
+        """
         return self.should_know
 
     def question_answered(self, is_correct):
+        """
+
+        :param is_correct:
+        :return:
+        """
         super(Micro15Task, self).question_answered(is_correct)
         key = self.question.split()[-1].split('.')[0]
         self.mapping_check[key] = True
@@ -1025,6 +1675,10 @@ class Micro15Task(MicroBase):
             self.should_know = True
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         sequence1 = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
         sequence2 = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth']
         sequence3 = ['ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety']
@@ -1038,7 +1692,18 @@ class Micro15Task(MicroBase):
         self.mapping_check = {key: False for key in chosen_sequence[0:-1]}
 
         def micro15_question(self):
+            """
+
+            :param self:
+            :return:
+            """
             def micro15_feedback(is_correct, question):
+                """
+
+                :param is_correct:
+                :param question:
+                :return:
+                """
                 reaction = "good job" if is_correct else "wrong"
                 if not is_correct:
                     return reaction + '! ' + sentence
@@ -1054,6 +1719,9 @@ class Micro15Task(MicroBase):
 
 
 class Micro16Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
     m8 = Micro9Sub2Task()
     m9 = Micro10Task()
@@ -1061,12 +1729,19 @@ class Micro16Task(MicroBase):
     m11 = Micro12Task()
 
     def get_task_generator(self):
+        """
+
+        :return:
+        """
         tasks = [self.m8, self.m9, self.m10, self.m11]
         task = random.choice(tasks)
         return task.get_task_generator()
 
 
 class Micro19Task(MicroBase):
+    """
+
+    """
     reg_answer_end = r'\.'
     m10 = Micro10Task()
     m11 = Micro11Task()
@@ -1079,38 +1754,54 @@ class Micro19Task(MicroBase):
                 'after': ['after', 'behind', 'next'],
                 'union': ['union', 'consolidate', 'joint'],
                 'exclude': ['exclude', 'prohibit', 'ignore', 'remove']}
-
     tasks = []
     forbidden_strings = []
     for original, syn in synonyms.items():
         forbidden_strings.extend(syn)
-
     pattern_find = '(^|[^\w]){0}([^\w])'
     pattern_replace = '\g<1>{0}\g<2>'
 
     def replace(self, from_word, to_word, sentence):
+        """
+
+        :param from_word:
+        :param to_word:
+        :param sentence:
+        :return:
+        """
         return re.sub(self.pattern_find.format(from_word), self.pattern_replace.format(to_word), sentence)
 
     @on_start()
     def new_task_instance(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         super(Micro19Task, self).new_task_instance(event)
         self.should_know = False
 
     def get_task_generator(self):
-        # choose task randomly, but provide all n tasks in n tries
+        """ # choose task randomly, but provide all n tasks in n tries
+
+        :return:
+        """
         if len(self.tasks) == 0:
             self.tasks = [self.m10, self.m11, self.m12, self.m14]
         task = random.choice(self.tasks)
         self.tasks.remove(task)
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
-
         get_random_synonym = self.get_random_synonym
 
         def func_outer(self_):
+            """
+
+            :param self_:
+            :return:
+            """
             with forbid_dictionary_strings(self.forbidden_strings):
                 question, a, b = func_inner(self_)
-
             for original in self.synonyms.keys():
                 synonym = get_random_synonym(original)
                 question = self.replace(original, synonym, question)
@@ -1119,37 +1810,47 @@ class Micro19Task(MicroBase):
         return task_generator
 
     def get_random_synonym(self, word):
+        """
+
+        :param word:
+        :return:
+        """
         return random.choice(self.synonyms[word])
 
 
 class Micro20Task(Micro19Task):
+    """
+
+    """
     tasks = []
 
     def get_task_generator(self):
+        """# choose task randomly, but provide all n tasks in n tries
+
+        :return:
+        """
         with forbid_dictionary_strings(self.forbidden_strings):
             content = load_dictionary(DICTIONARY_FILE)
-
         vocabulary = content[200:400]
         self.synonyms = {o: s for (o, s) in zip(self.synonyms.keys(), random.sample(vocabulary, len(self.synonyms)))}
-
         current_forbidden_strings = self.forbidden_strings + list(self.synonyms.values())
-
-        # choose task randomly, but provide all n tasks in n tries
         if len(self.tasks) == 0:
             self.tasks = [self.m10, self.m11, self.m12, self.m14]
         task = random.choice(self.tasks)
         self.tasks.remove(task)
-
         task_generator = task.get_task_generator()
         func_inner = task_generator.instancer
-
         synonym_list = self.synonyms.keys()
         get_synonym = self.get_synonym
 
         def func_outer(self_):
+            """
+
+            :param self_:
+            :return:
+            """
             with forbid_dictionary_strings(current_forbidden_strings):
                 question, a, b = func_inner(self_)
-
             synonym_present = [synonym for synonym in synonym_list if question.find(synonym) >= 0]
             synonym = random.choice(synonym_present)
             new_synonym = get_synonym(synonym)
@@ -1160,4 +1861,9 @@ class Micro20Task(Micro19Task):
         return task_generator
 
     def get_synonym(self, word):
+        """
+
+        :param word:
+        :return:
+        """
         return self.synonyms[word]
