@@ -1,14 +1,13 @@
-# Copyright (c) 2016-present, Facebook, Inc.
-# All rights reserved.
+# -*- coding: utf-8
+#
+# Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
+#
+# CommAI-env Copyright (c) 2016-present, Facebook, Inc., All rights reserved.
+# Round1 Copyright (c) 2017-present, GoodAI All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree. An additional grant
-# of patent rights can be found in the PATENTS file in the same directory.
+# LICENSE_CHALLENGE file in the root directory of this source tree.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 from core.task import Task, on_start, on_message, on_sequence,\
     on_state_changed, on_timeout, on_output_message
 from tasks.competition.base import BaseTask
@@ -24,11 +23,8 @@ negation = ["do not", "don\'t"]
 
 # FIXME: replace with association's objects and properties?
 phrases = ["apple", "banana", "cat", "hello world"]
-context = ["and you will get a reward",
-           "and a reward is yours",
-           "and you will pass this task",
+context = ["and you will get a reward", "and a reward is yours", "and you will pass this task",
            "and you will solve this problem"]
-
 # repetition tasks configuration
 repeat_min = 2
 repeat_max = 3
@@ -36,8 +32,7 @@ repeat_max = 3
 
 class BeSilentTask(Task):
     def __init__(self, world=None):
-        super(BeSilentTask, self).__init__(world=world,
-                                           max_time=random.randint(100, 1000))
+        super(BeSilentTask, self).__init__(world=world, max_time=random.randint(100, 1000))
 
     # give instructions at the beginning of the task
     @on_start()
