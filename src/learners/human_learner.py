@@ -16,10 +16,15 @@ import re
 
 
 class HumanLearner(BaseLearner):
+    """
+
+    """
     def __init__(self, serializer, byte_mode):
-        '''
-        Takes the serialization protocol
-        '''
+        """Takes the serialization protocol
+
+        :param serializer:
+        :param byte_mode:
+        """
         self._serializer = serializer
         if byte_mode:
             self._input_channel = ByteInputChannel(serializer)
@@ -32,38 +37,54 @@ class HumanLearner(BaseLearner):
         self.speaking = False
 
     def set_view(self, view):
-        '''
-        Sets the user interface to get the user input
-        '''
+        """ Sets the user interface to get the user input
+
+        :param view:
+        :return:
+        """
         self._view = view
 
     def reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         self.logger.info("Reward received: {0}".format(reward))
         self._input_channel.clear()
         self._output_channel.clear()
 
     def next(self, input):
-        # If the buffer is empty, fill it with silence
+        """ If the buffer is empty, fill it with silence # Add one silence token to the buffer # Get the bit to return
+        Interpret the bit from the learner
+
+        :param input:
+        :return:
+        """
         if self._output_channel.is_empty():
             self.logger.debug("Output buffer is empty, filling with silence")
-            # Add one silence token to the buffer
             self._output_channel.set_message(self._serializer.SILENCE_TOKEN)
-        # Get the bit to return
         output = self._output_channel.consume()
-        # Interpret the bit from the learner
         self._input_channel.consume(input)
         return output
 
     def on_message(self, message):
-        # we ask for input on two consecutive silences
+        """ we ask for input on two consecutive silences # If we were speaking, we are not speaking anymore
+
+        :param message:
+        :return:
+        """
         if message[-2:] == self._serializer.SILENCE_TOKEN * 2 and \
                 self._output_channel.is_empty() and not self.speaking:
             self.ask_for_input()
         elif self._output_channel.is_empty():
-            # If we were speaking, we are not speaking anymore
             self.speaking = False
 
     def ask_for_input(self):
+        """
+
+        :return:
+        """
         output = self._view.get_input()
         self.logger.debug(u"Received input from the human: '{0}'".format(output))
         if output:
@@ -73,10 +94,15 @@ class HumanLearner(BaseLearner):
 
 
 class ImmediateHumanLearner(HumanLearner):
+    """
+
+    """
     def __init__(self, serializer, byte_mode):
-        '''
-        Takes the serialization protocol
-        '''
+        """ Takes the serialization protocol
+
+        :param serializer:
+        :param byte_mode:
+        """
         self._serializer = serializer
         if byte_mode:
             self._input_channel = ByteInputChannel(serializer)
@@ -88,31 +114,48 @@ class ImmediateHumanLearner(HumanLearner):
         self.speaking = False
 
     def on_message(self, message):
+        """ # Ask for input # If the buffer is empty, fill it with silence # Add one silence token to the buffer Get
+        the bit to return # Interpret the bit from the learner
+
+        :param message:
+        :return:
+        """
         self.ask_for_input()
 
     def next(self, input):
-        # Ask for input
+        """
+
+        :param input:
+        :return:
+        """
         self.ask_for_input()
-        # If the buffer is empty, fill it with silence
         if self._output_channel.is_empty():
             self.logger.debug("Output buffer is empty, filling with silence")
-            # Add one silence token to the buffer
             self._output_channel.set_message(self._serializer.SILENCE_TOKEN)
-        # Get the bit to return
         output = self._output_channel.consume()
-        # Interpret the bit from the learner
         self._input_channel.consume(input)
         return output
 
 
 class HaltOnDotHumanLearner(HumanLearner):
+    """
+
+    """
     def __init__(self, serializer, byte_mode):
+        """
+
+        :param serializer:
+        :param byte_mode:
+        """
         super(HaltOnDotHumanLearner, self).__init__(serializer, byte_mode)
 
     def on_message(self, message):
-        # we ask for input on two consecutive silences
+        """# we ask for input on two consecutive silences If we were speaking, we are not speaking anymore
+
+        :param message:
+        :return:
+        """
         if message[-1:] == '.' and self._output_channel.is_empty() and not self.speaking:
             self.ask_for_input()
         elif self._output_channel.is_empty():
-            # If we were speaking, we are not speaking anymore
             self.speaking = False
