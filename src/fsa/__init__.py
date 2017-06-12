@@ -13,6 +13,9 @@ import math
 
 
 class MiniTasksAutomaton(object):
+    """
+
+    """
 
     _separator_string = " "
     _negation_string = "not"
@@ -24,6 +27,11 @@ class MiniTasksAutomaton(object):
         _sigma.append(chr(ord('A') + i))
 
     def __init__(self, description, logical_op):
+        """
+
+        :param description:
+        :param logical_op:
+        """
         self.description = description
         self.description_split = self.description.split(self._separator_string)
         self.logical_op = logical_op
@@ -37,14 +45,12 @@ class MiniTasksAutomaton(object):
         #self._distribute_remaining_alphabet_symbols()
 
     def _distribute_remaining_alphabet_symbols(self):
-        """
-        takes unused alphabet symbols and distributes them randomly between the positive and negative alphabets
+        """ takes unused alphabet symbols and distributes them randomly between the positive and negative alphabets
         :return: None
         """
         if len(self.negative_alphabet) == 0:
             self.positive_alphabet = list(self._sigma)
             return
-
         all = set(self._sigma)
         all.difference_update(set(self.positive_alphabet))
         all.difference_update(self.negative_alphabet)
@@ -56,12 +62,26 @@ class MiniTasksAutomaton(object):
         return
 
     def _is_in_final_state(self, automaton, state):
+        """
+
+        :param automaton:
+        :param state:
+        :return:
+        """
         for f in automaton.Final:
             if f in state:
                 return True
         return False
 
     def _is_in_final_state_with_sufficient_depth(self, automaton, state, state_depth_table, min_depth):
+        """
+
+        :param automaton:
+        :param state:
+        :param state_depth_table:
+        :param min_depth:
+        :return:
+        """
         for f in automaton.Final:
             if f in state:
                 if state_depth_table[f] >= min_depth:
@@ -69,13 +89,13 @@ class MiniTasksAutomaton(object):
         return False
 
     def _build_automaton(self, ngram_table):
-        """
-        # builds a trie-like automaton without any loops
-        :param ngram_table: the ngrams which will form the trie
+        """ builds a trie-like automaton without any loops# loop on initial state is added during usage of the
+        automaton to increase efficiency# state_depth_dict will be useful for accepting
+
+        :param ngram_table:  the ngrams which will form the trie
         :return: automaton, association table from state to its distance from initial state, alphabet of the n-grams
         """
         nfa = NFA()
-
         nfa.setSigma(self._sigma)
         initial_state = 0
         state_depth_dict = {initial_state: 0}
@@ -83,12 +103,9 @@ class MiniTasksAutomaton(object):
         nfa.addInitial(initial_state)
         state = 1
         alphabet = []
-
         for string in ngram_table:
             source_state = initial_state
-
             for i in range(len(string)):
-                # loop on initial state is added during usage of the automaton to increase efficiency
                 nfa.addState(state)
                 nfa.addTransition(source_state, string[i], state)
                 alphabet.append(string[i])
@@ -97,8 +114,7 @@ class MiniTasksAutomaton(object):
                     nfa.addFinal(state)
                 source_state = state
                 state += 1
-
-        return nfa, state_depth_dict, alphabet  # state_depth_dict will be useful for accepting
+        return nfa, state_depth_dict, alphabet
 
     def _parse_positive_from_description(self):
         """
@@ -119,7 +135,6 @@ class MiniTasksAutomaton(object):
                 continue
             if string != self._anything_string:
                 ret.append(string)
-
         return ret
 
     def _parse_negative_from_description(self):
@@ -129,7 +144,6 @@ class MiniTasksAutomaton(object):
         """
         ret = []
         next_negated = False
-
         for string in self.description_split:
             if len(string) == 0:
                 continue
@@ -140,7 +154,6 @@ class MiniTasksAutomaton(object):
                 next_negated = False
                 if string != self._anything_string:
                     ret.append(string)
-
         return ret
 
     def _parse_anything_from_description(self):
@@ -157,8 +170,8 @@ class MiniTasksAutomaton(object):
     def _get_available_transition_symbols(self, automaton, state_depth_dict, from_states, min_depth):
         """
         computes which symbols are available for making a transition if the reachable states are at least of min_depth
-        assumes epsilon-closure has been performed on the from_states
-        assumes a trie-like structure of states
+        assumes epsilon-closure has been performed on the from_states # assumes the target state has a greater depth
+        than the source state assumes a trie-like structure of states
         :param automaton:
         :param state_depth_dict:
         :param from_states:
@@ -175,7 +188,7 @@ class MiniTasksAutomaton(object):
             transition = automaton.delta[state]
             assert len(transition) > 0
             for symbol in transition:
-                symbols.add(symbol)  # assumes the target state has a greater depth than the source state
+                symbols.add(symbol)
 
         return symbols
 
@@ -194,13 +207,10 @@ class MiniTasksAutomaton(object):
         automaton = self.negative_automaton
         state = automaton.epsilonClosure(automaton.Initial)
         initial = state.copy()
-
         # to avoid a bug that it puts two almost not strings together to form a full not string
         for c in current_chrs:
             state = automaton.evalSymbol(state, c).union(initial)
-
         alphabet_to_use = self.negative_alphabet
-
         for pos in range(length):
             random.shuffle(alphabet_to_use)
             for symbol in alphabet_to_use:
