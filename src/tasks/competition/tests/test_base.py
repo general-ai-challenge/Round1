@@ -15,23 +15,51 @@ from tasks.competition.tests.helpers import task_messenger
 
 
 class TestBase(unittest.TestCase):
+    """
 
+    """
     def testIgnoreInterruptions(self):
+        """
+
+        :return:
+        """
         class TestTask(base.BaseTask):
+            """
+
+            """
             def __init__(self, max_time=1000):
+                """
+
+                :param max_time:
+                """
                 super(TestTask, self).__init__(max_time=max_time)
 
             @on_start()
             def on_start(self, event):
+                """
+
+                :param event:
+                :return:
+                """
                 self.interrupted = False
                 self.set_message("Saying.")
 
             @on_message(r"Interrupt.$")
             def on_interrupt(self, event):
+                """
+
+                :param event:
+                :return:
+                """
                 self.set_message("Interrupted.")
 
             @on_message(r"Respectful.$")
             def on_respect(self, event):
+                """
+
+                :param event:
+                :return:
+                """
                 self.set_message("Good.")
 
         with task_messenger(TestTask) as m:
