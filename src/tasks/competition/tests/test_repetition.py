@@ -289,7 +289,7 @@ task testing routines
         :return:
         """
         def get_correct_answer(m):
-            """# get the string to be repeated
+            """ get the string to be repeated
 
             :param m:
             :return:
