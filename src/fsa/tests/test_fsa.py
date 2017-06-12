@@ -14,13 +14,24 @@ from src.fsa import build_automaton
 
 
 class TestFSA(unittest.TestCase):
+    """
 
+    """
     def assertGeneratedStrings(self, obj):
+        """
+
+        :param obj:
+        :return:
+        """
         for i in range(100):
             self.assertTrue(obj.is_string_correct(obj.get_correct_string(random.randint(1, 20))))
             self.assertFalse(obj.is_string_correct(obj.get_wrong_string(random.randint(1, 20), 0)))
 
     def test_fsa_1_1(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("C", "and")
         self.assertTrue(obj.is_string_correct("C"))
         self.assertTrue(obj.is_string_correct("CCC"))
@@ -31,6 +42,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_1_2(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("C", "or")
         self.assertTrue(obj.is_string_correct("C"))
         self.assertTrue(obj.is_string_correct("CCC"))
@@ -41,6 +56,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_1_3(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB", "and")
         self.assertTrue(obj.is_string_correct("AB"))
         self.assertTrue(obj.is_string_correct("ABABAB"))
@@ -49,6 +68,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_1_4(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("FJG", "and")
         self.assertTrue(obj.is_string_correct("FJG"))
         self.assertTrue(obj.is_string_correct("FJGFJGFJG"))
@@ -59,6 +82,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_1_5(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("XYX", "or")
         self.assertTrue(obj.is_string_correct("XYX"))
         self.assertTrue(obj.is_string_correct("XYXXYXXYX"))
@@ -69,14 +96,22 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_1_6(self):
+        """  # even odd length should be "true"
+
+        :return:
+        """
         obj = build_automaton("XX", "and")
-        self.assertTrue(obj.is_string_correct("XXX"))  # even odd length should be "true"
+        self.assertTrue(obj.is_string_correct("XXX"))
         self.assertTrue(obj.is_string_correct("XXXX"))
         self.assertFalse(obj.is_string_correct("XXY"))
         self.assertFalse(obj.is_string_correct("ABGD"))
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_1(self):
+        """# self.assertGeneratedStrings(obj)  # cannot generate a wrong string in this case
+
+        :return:
+        """
         obj = build_automaton("anything", "or")
         self.assertTrue(obj.is_string_correct("X"))
         self.assertTrue(obj.is_string_correct("Y"))
@@ -84,9 +119,12 @@ class TestFSA(unittest.TestCase):
         self.assertTrue(obj.is_string_correct("XYYYYYABCYXXXYXYXYYYYABC"))
         self.assertTrue(obj.is_string_correct("XXYZABC"))
         self.assertTrue(obj.is_string_correct("ABCGDTRW"))
-        # self.assertGeneratedStrings(obj)  # cannot generate a wrong string in this case
 
     def test_fsa_2_2(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB CD", "or")
         self.assertTrue(obj.is_string_correct("AB"))
         self.assertTrue(obj.is_string_correct("CD"))
@@ -96,6 +134,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_3(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("FAB GG MIL", "or")
         self.assertTrue(obj.is_string_correct("FAB"))
         self.assertTrue(obj.is_string_correct("GG"))
@@ -107,6 +149,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_4(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("X Y", "or")
         self.assertTrue(obj.is_string_correct("X"))
         self.assertTrue(obj.is_string_correct("Y"))
@@ -116,6 +162,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_5(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("X Y ABC", "or")
         self.assertTrue(obj.is_string_correct("X"))
         self.assertTrue(obj.is_string_correct("Y"))
@@ -126,6 +176,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_6(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("C CAB ABC", "or")
         self.assertTrue(obj.is_string_correct("CABCAB"))
         self.assertTrue(obj.is_string_correct("ABCABC"))
@@ -136,6 +190,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_2_7(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("ZJA J Y", "or")
         self.assertTrue(obj.is_string_correct("JYJYJ"))
         self.assertTrue(obj.is_string_correct("JJJJJJJJ"))
@@ -146,6 +204,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_3_1(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB CF", "and")
         self.assertTrue(obj.is_string_correct("ABABABCF"))
         self.assertTrue(obj.is_string_correct("ABCFABCFCF"))
@@ -158,6 +220,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_3_2(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("HL RM BT", "and")
         self.assertTrue(obj.is_string_correct("RMBTBTHLHLBT"))
         self.assertTrue(obj.is_string_correct("HLRMBT"))
@@ -170,6 +236,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_3_3(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("GLE EA ABC", "and")
         self.assertTrue(obj.is_string_correct("GLEABCEA"))
         self.assertTrue(obj.is_string_correct("GLEABC"))
@@ -181,6 +251,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_3_4(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB anything", "and")
         self.assertTrue(obj.is_string_correct("FKGABJJKJKSD"))
         self.assertTrue(obj.is_string_correct("GLEABC"))
@@ -193,6 +267,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_3_5(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB CF anything", "and")
         self.assertTrue(obj.is_string_correct("FJGKJKJKJKJDCFCFDJKJKJKSJAB"))
         self.assertTrue(obj.is_string_correct("ABCF"))
@@ -205,6 +283,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_4_1(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("not AB anything", "and")
         self.assertTrue(obj.is_string_correct("ADFCFHGHADDDB"))
         self.assertTrue(obj.is_string_correct("FJGKJKJKJKJDCFCFDJKJKJKSJA"))
@@ -218,6 +300,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_4_2(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("not AB CF anything", "and")
         self.assertTrue(obj.is_string_correct("DJFKJKJSCFDSFG"))
         self.assertTrue(obj.is_string_correct("FJGKJKJKJKJDCFCFDJKJKJKSJA"))
@@ -231,6 +317,10 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_4_3(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("not AB not CF anything", "and")
         self.assertTrue(obj.is_string_correct("DJFKJKJSCEFDSFG"))
         self.assertTrue(obj.is_string_correct("FJGKJKJKJKJDCAFCAFDJKJKJKSJA"))
@@ -245,31 +335,48 @@ class TestFSA(unittest.TestCase):
         self.assertGeneratedStrings(obj)
 
     def test_fsa_generator_1(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("C", "and")
         for ind in range(100):
             self.assertFalse(obj.is_string_correct(obj.get_wrong_string(random.randint(1, 20), 1)))
 
     def test_fsa_generator_2(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB CF ABC", "or")
         for ind in range(100):
             string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
 
     def test_fsa_generator_3(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("AB CF ABC", "and")
         for ind in range(100):
             string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
 
     def test_fsa_generator_4(self):
+        """
+
+        :return:
+        """
         obj = build_automaton("MNO KL not CF not ABC anything", "and")
         for ind in range(100):
             string = obj.get_correct_string(random.randint(1, 20))
             self.assertTrue(obj.is_string_correct(string))
-
+"""
 # obj = build_automaton("AB anything", "or")  # this is not handled
 
 # obj = build_automaton("AB CF", "and")
 # for ind in range(1000):
 #     string = obj.get_wrong_string(0)
 #     assert(not obj.is_string_correct(string))
+"""
