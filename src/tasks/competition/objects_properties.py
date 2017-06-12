@@ -647,8 +647,8 @@ class HowManyObjectsHaveACertainPropertyTask(BaseTask):
                for correct_alt in msg.number_to_strings(self.object_count)):
             self.set_result(1, random.choice(msg.congratulations))
         else:
-            feedback = 'the right answer is: {' \
-                       'answer}. please try again. '.format(answer=msg.number_to_string(self.object_count))
+            feedback = 'the right answer is: {' 'answer}. please try again. '.format(
+                answer=msg.number_to_string(self.object_count))
             feedback += self.question
             self.set_message(feedback)
 
