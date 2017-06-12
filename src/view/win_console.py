@@ -26,17 +26,15 @@ code = locale.getpreferredencoding()
 
 
 def get_console_size():
+    """# stdin handle is -10# stdout handle is -11 # stderr handle is -12    # default values
+
+    :return:
+    """
     try:
         from ctypes import windll, create_string_buffer
-
-        # stdin handle is -10
-        # stdout handle is -11
-        # stderr handle is -12
-
         h = windll.kernel32.GetStdHandle(-12)
         csbi = create_string_buffer(22)
         res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
-
         if res:
             import struct
             (bufx, bufy, curx, cury, wattr,
@@ -51,173 +49,236 @@ def get_console_size():
         sizex, sizey = os.popen('stty size', 'r').read().split()
         return int(sizex), int(sizey)
 
-    # default values
     return 25, 140
 
 
 class WinBaseView(object):
+    """
 
+    """
     NEXT_UPDATE = 1000
-
     def __init__(self, env, session):
+        """# observe basic high level information about the session and environment we save information for display
+        later
+
+        :param env:
+        :param session:
+        """
         self._env = env
         self._session = session
         self._last_update = 0
-
-        # observe basic high level information about the session and environment
         env.task_updated.register(
             self.on_task_updated)
         session.total_reward_updated.register(
             self.on_total_reward_updated)
         session.total_time_updated.register(
             self.on_total_time_updated)
-
         self.logger = logging.getLogger(__name__)
-        # we save information for display later
         self.info = {'reward': 0, 'time': 0, 'current_task': 'None'}
 
     def on_total_reward_updated(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         self.info['reward'] = reward
 
     def on_total_time_updated(self, time):
+        """
+
+        :param time:
+        :return:
+        """
         self.info['time'] = time
 
     def on_task_updated(self, task):
+        """
+
+        :param task:
+        :return:
+        """
         if 'current_task' in self.info:
             if self.info['current_task'] != task.get_name():
                 self.info['current_task'] = task.get_name()
 
     def print_info(self):
-        print('Time {}; Current task: {}; Reward {}.'.format(self.info['time'], self.info['current_task'],
-                                                             self.info['reward']))
+        """
+
+        :return:
+        """
+        print('Time {}; Current task: {}; Reward {}.'.format(
+            self.info['time'], self.info['current_task'], self.info['reward']))
 
     def initialize(self):
+        """
+
+        :return:
+        """
         pass
 
     def finalize(self):
+        """
+
+        :return:
+        """
         pass
 
 
 class StdOutView(WinBaseView):
+    """
+
+    """
     def __init__(self, env, session):
+        """
+
+        :param env:
+        :param session:
+        """
         super(StdOutView, self).__init__(env, session)
 
     def on_total_reward_updated(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         super(StdOutView, self).on_total_reward_updated(reward)
         self.print_info()
 
     def on_total_time_updated(self, time):
+        """
+
+        :param time:
+        :return:
+        """
         super(StdOutView, self).on_total_time_updated(time)
         if self._last_update + self.NEXT_UPDATE <= time:
             self._last_update = time
             self.print_info()
 
     def on_task_updated(self, task):
+        """
+
+        :param task:
+        :return:
+        """
         if self.info['current_task'] != task.get_name():
             self.info['current_task'] = task.get_name()
             print('Change of a current task to: {} in time {}'.format(task.get_name(), self.info['time']))
 
 
 class StdInOutView(WinBaseView):
+    """
 
+    """
     def __init__(self, env, session, serializer, show_world=False, byte_channels=False):
-        super(StdInOutView, self).__init__(env, session)
+        """# for visualization purposes, we keep an internal buffer of the input and output stream so when they are
+        cleared from task to task, we can keep the history intact.# record what the learner says# record what the
+         environment says# reward buffer # record what the learner says # record what the environment says# listen to
+         the updates in these channels # register a handler to plot the world if show_world is active # connect
+         the channels with the observed input bits
 
-        # for visualization purposes, we keep an internal buffer of the
-        # input and output stream so when they are cleared from task to
-        # task, we can keep the history intact.
+        :param env:
+        :param session:
+        :param serializer:
+        :param show_world:
+        :param byte_channels:
+        """
+        super(StdInOutView, self).__init__(env, session)
         self.input_buffer = ''
         self.output_buffer = ''
         self.panic = u'SKIP'
         self.quit = 'QUIT'
         self._byte_channels = byte_channels
-
         if byte_channels:
-            # record what the learner says
             self._learner_channel = ByteInputChannel(serializer)
-            # record what the environment says
             self._env_channel = ByteInputChannel(serializer)
-            # reward buffer
             self._reward_buffer = ''
         else:
-            # record what the learner says
             self._learner_channel = InputChannel(serializer)
-            # record what the environment says
             self._env_channel = InputChannel(serializer)
-
-
-
-        # listen to the updates in these channels
-        self._learner_channel.sequence_updated.register(
-            self.on_learner_sequence_updated)
-        self._learner_channel.message_updated.register(
-            self.on_learner_message_updated)
-        self._env_channel.sequence_updated.register(
-            self.on_env_sequence_updated)
-        self._env_channel.message_updated.register(
-            self.on_env_message_updated)
+        self._learner_channel.sequence_updated.register(self.on_learner_sequence_updated)
+        self._learner_channel.message_updated.register(self.on_learner_message_updated)
+        self._env_channel.sequence_updated.register(self.on_env_sequence_updated)
+        self._env_channel.message_updated.register(self.on_env_message_updated)
         if show_world:
-            # register a handler to plot the world if show_world is active
-            env.world_updated.register(
-                self.on_world_updated)
-        # connect the channels with the observed input bits
+            env.world_updated.register(self.on_world_updated)
         session.env_token_updated.register(self.on_env_token_updated)
         session.learner_token_updated.register(self.on_learner_token_updated)
         del self.info['current_task']
 
     def on_total_reward_updated(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         change = reward - self.info['reward']
         self.info['reward'] = reward
         if self._byte_channels:
             self._reward_buffer = self._reward_buffer[0:-1]
             self._reward_buffer += self._encode_reward(change)
-            self._reward = self.channel_to_str(
-                self._reward_buffer + ' ',
-                self._env_channel.get_undeserialized())
+            self._reward = self.channel_to_str(self._reward_buffer + ' ', self._env_channel.get_undeserialized())
 
     @staticmethod
     def _encode_reward(reward):
+        """
+
+        :param reward:
+        :return:
+        """
         d = {0: " ", 1: "+", -1: "-", 2: "2", -2: "\u01BB"}
         return d[reward]
 
     def on_env_token_updated(self, token):
+        """
+
+        :param token:
+        :return:
+        """
         self._env_channel.consume(token)
 
     def on_learner_token_updated(self, token):
         self._learner_channel.consume(token)
 
     def on_learner_message_updated(self, message):
-        # we use the fact that messages arrive character by character
+        """# we use the fact that messages arrive character by character
+
+        :param message:
+        :return:
+        """
         if self._learner_channel.get_text():
             self.input_buffer += self._learner_channel.get_text()[-1]
             self.input_buffer = self.input_buffer[-self._scroll_msg_length:]
-            self._learner_input = self.channel_to_str(
-                self.input_buffer + ' ',
-                self._learner_channel.get_undeserialized())
+            self._learner_input = self.channel_to_str(self.input_buffer + ' ',
+                                                      self._learner_channel.get_undeserialized())
             if self._byte_channels:
                 self._reward_buffer += ' '
-                self._reward = self.channel_to_str(
-                    self._reward_buffer + ' ',
-                    self._env_channel.get_undeserialized())
+                self._reward = self.channel_to_str(self._reward_buffer + ' ', self._env_channel.get_undeserialized())
 
     def on_learner_sequence_updated(self, sequence):
-        self._learner_input = self.channel_to_str(
-            self.input_buffer + ' ',
-            self._learner_channel.get_undeserialized())
+        """
+
+        :param sequence:
+        :return:
+        """
+        self._learner_input = self.channel_to_str(self.input_buffer + ' ', self._learner_channel.get_undeserialized())
 
     def on_env_message_updated(self, message):
+        """
+
+        :param message:
+        :return:
+        """
         if self._env_channel.get_text():
             self.output_buffer += \
                 self._env_channel.get_text()[-1]
             self.output_buffer = self.output_buffer[-self._scroll_msg_length:]
-            self._env_output = self.channel_to_str(
-                self.output_buffer,
-                self._env_channel.get_undeserialized())
+            self._env_output = self.channel_to_str(self.output_buffer, self._env_channel.get_undeserialized())
 
     def on_env_sequence_updated(self, sequence):
-        self._env_output = self.channel_to_str(
-            self.output_buffer,
-            self._env_channel.get_undeserialized())
+        self._env_output = self.channel_to_str(self.output_buffer, self._env_channel.get_undeserialized())
 
     def on_world_updated(self, world):
         if world:
