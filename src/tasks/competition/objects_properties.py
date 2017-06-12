@@ -323,7 +323,7 @@ class ListPropertiesOfAnObjectTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
-        """# select a random object from a random basket# retrieving the properties of the selected object# building
+        """ select a random object from a random basket# retrieving the properties of the selected object# building
         a regexp to match the answer# final string must be delimited by period# add check_response as a handler for
         a message matching the above described enumeration# on_message handler created dynamically when the number of
          expected responses is known

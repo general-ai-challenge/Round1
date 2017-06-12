@@ -21,7 +21,7 @@ class TestNavigation(unittest.TestCase):
     helper methods
     """
     def check_positive_feedback(self, m, instructions):
-        """# hear the congratulations# there is some feedback
+        """ hear the congratulations# there is some feedback
 
         :param m:
         :param instructions:

@@ -281,24 +281,39 @@ class StdInOutView(WinBaseView):
         self._env_output = self.channel_to_str(self.output_buffer, self._env_channel.get_undeserialized())
 
     def on_world_updated(self, world):
+        """
+
+        :param world:
+        :return:
+        """
         if world:
             world.state_updated.register(self.on_world_state_updated)
 
     def on_world_state_updated(self, world):
+        """
+
+        :param world:
+        :return:
+        """
         pass
         print(str(world))
 
     def initialize(self):
+        """# properties init
+
+        :return:
+        """
         rows, columns = get_console_size()
         reward_len = 15
         self._total_msg_length = columns - 1
         self._scroll_msg_length = columns - 1 - reward_len
-        # properties init
-        self._learner_input = self.channel_to_str(
-            ' ',
-            self._learner_channel.get_undeserialized())
+        self._learner_input = self.channel_to_str(' ', self._learner_channel.get_undeserialized())
 
     def get_input(self):
+        """
+
+        :return:
+        """
         print("_"*self._total_msg_length)
         print(self._env_output + ' reward:{:7}'.format(self.info['reward']))
         print(self._learner_input + ' time:{:9}'.format(self.info['time']))
@@ -319,6 +334,12 @@ class StdInOutView(WinBaseView):
         return input_str
 
     def channel_to_str(self, text, bits):
+        """
+
+        :param text:
+        :param bits:
+        :return:
+        """
         length = self._scroll_msg_length - 10
         if length <= 1:
             raise Exception('The command window is too small.')

@@ -54,7 +54,7 @@ class TestObjectsProperties(unittest.TestCase):
             self.assertIn(answer, exp_answer)
 
     def solve_correctly_test(self, m, get_correct_answer):
-        """ # read the instructions # get the instructions # get the answer # send the answer with the termination
+        """  read the instructions # get the instructions # get the answer # send the answer with the termination
         marker # hear the congratulations
 
         :param m:
