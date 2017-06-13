@@ -18,7 +18,13 @@ from learners.base import BaseLearner
 
 
 class NullTask(task.Task):
+    """
+
+    """
     def __init__(self):
+        """
+
+        """
         super(NullTask, self).__init__(max_time=100)
 
 

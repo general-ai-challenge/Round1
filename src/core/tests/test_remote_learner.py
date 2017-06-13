@@ -13,6 +13,10 @@ import random
 
 
 def main():
+    """# think...
+
+    :return:
+    """
     port = "5556"
     context = zmq.Context()
     socket = context.socket(zmq.PAIR)
@@ -26,8 +30,6 @@ def main():
         print(reward)
         msg_in = socket.recv()
         print(msg_in)
-
-        # think...
         msg_out = str(random.getrandbits(1) if cnt % 7 == 0 else 1)
         if cnt % 2 == 0:
             msg_out = str(message[cnt % 8])

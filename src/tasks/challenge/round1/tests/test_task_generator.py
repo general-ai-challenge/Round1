@@ -16,6 +16,9 @@ from tasks.challenge.round1.task_generator import TaskGenerator
 
 
 class TestTaskGenerator(unittest.TestCase):
+    """
+
+    """
 
     def test_instancer_iterable(self):
         """
