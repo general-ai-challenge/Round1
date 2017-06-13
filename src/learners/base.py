@@ -12,24 +12,47 @@ import subprocess
 
 
 class BaseLearner(object):
+    """
+
+    """
 
     def try_reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         if reward is not None:
             self.reward(reward)
 
     def reward(self, reward):
-        # YEAH! Reward!!! Whatever...
+        """ YEAH! Reward!!! Whatever...
+
+        :param reward:
+        :return:
+        """
         pass
 
     def next(self, input):
-        # do super fancy computations
-        # return our guess
+        """ do super fancy computations return our guess
+
+        :param input:
+        :return:
+        """
         return input
 
 
 class RemoteLearner(BaseLearner):
+    """
+
+    """
 
     def __init__(self, cmd, port):
+        """# launch learner
+
+        :param cmd:
+        :param port:
+        """
         try:
             import zmq
         except ImportError:
@@ -39,28 +62,44 @@ class RemoteLearner(BaseLearner):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
         self.socket.bind("tcp://*:%s" % port)
-
-        # launch learner
         if cmd is not None:
             subprocess.Popen((cmd + ' ' + str(self.port)).split())
         handshake_in = self.socket.recv().decode('utf-8')
         assert handshake_in == 'hello'  # handshake
 
-    # send to learner, and get response;
     def next(self, inp):
+        """ send to learner, and get response;
+
+        :param inp:
+        :return:
+        """
         self.socket.send_string(str(inp))
         reply = self.receive_socket()
         return reply
 
     def try_reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         reward = reward if reward is not None else 0
         self.socket.send_string(str(reward))
 
     def receive_socket(self):
+        """
+
+        :return:
+        """
         reply = self.socket.recv()
         if type(reply) == type(b''):
             reply = reply.decode('utf-8')
         return reply
 
     def set_view(self, view):
+        """
+
+        :param view:
+        :return:
+        """
         pass
