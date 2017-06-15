@@ -13,7 +13,6 @@ import subprocess
 
 
 class BaseLearner(object):
-
     def try_reward(self, reward):
         if reward is not None:
             self.reward(reward)
@@ -29,21 +28,27 @@ class BaseLearner(object):
 
 
 class RemoteLearner(BaseLearner):
-
-    def __init__(self, cmd, port):
+    def __init__(self, cmd, port, address=None):
         try:
             import zmq
         except ImportError:
             raise ImportError("Must have zeromq for remote learner.")
 
-        self.port = port if port is not None else 5556
+        if address is None:
+            address = '*'
+
+        if port is None:
+            port = 5556
+        elif int(port) < 1 or int(port) > 65535:
+            raise ValueError("Invalid port number: %s" % port)
+
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
-        self.socket.bind("tcp://172.18.0.1:%s" % port)
+        self.socket.bind("tcp://%s:%s" % (address, port))
 
         # launch learner
         if cmd is not None:
-            subprocess.Popen((cmd + ' ' + str(self.port)).split())
+            subprocess.Popen((cmd + ' ' + str(port)).split())
         handshake_in = self.socket.recv().decode('utf-8')
         assert handshake_in == 'hello'  # handshake
 
@@ -66,6 +71,7 @@ class RemoteLearner(BaseLearner):
     def set_view(self, view):
         pass
 
+
 class RemoteTimedLearner(BaseLearner):
-    def __init__(self, cmd, port):
-        super().__init__(cmd, port)
+    def __init__(self, cmd, port, address=None):
+        super().__init__(cmd, port, address)
