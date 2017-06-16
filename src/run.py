@@ -45,8 +45,10 @@ def main():
     op.add_option('--learner-cmd',
                   help='The cmd to run to launch RemoteLearner.')
     op.add_option('--learner-port',
-                  default=5556,
+                  default=5556, type=int,
                   help='Port on which to accept remote learner.')
+    op.add_option('--learner-address',
+                  help='Network address on which the remote learner listens.')
     op.add_option('--max-reward-per-task',
                   default=2147483647, type=int,
                   help='Maximum reward that we can give to a learner for'
@@ -66,7 +68,8 @@ def main():
     # the bit signal
     serializer = StandardSerializer()
     # create a learner (the human learner takes the serializer)
-    learner = create_learner(opt.learner, serializer, opt.learner_cmd, opt.learner_port, not opt.bit_mode)
+    learner = create_learner(opt.learner, serializer,
+                             opt.learner_cmd, opt.learner_port, opt.learner_address, not opt.bit_mode)
     # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     # construct an environment
@@ -113,7 +116,7 @@ def create_view(view_type, learner_type, env, session, serializer, show_world, u
             return BaseView(env, session)
 
 
-def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byte_mode=False):
+def create_learner(learner_type, serializer, learner_cmd, learner_port=None, learner_address=None, byte_mode=False):
     if learner_type.split('.')[0:2] == ['learners', 'human_learner']:
         c = learner_type.split('.')[2]
         if c == 'HumanLearner':
@@ -132,7 +135,7 @@ def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byt
         c = getattr(m, cname)
         # instantiate the learner
 
-        return c(learner_cmd, learner_port) if 'RemoteLearner' in cname else c()
+        return c(learner_cmd, learner_port, learner_address) if 'RemoteLearner' in cname else c()
 
 
 def create_tasks_from_config(tasks_config_file):
