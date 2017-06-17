@@ -564,16 +564,14 @@ class NameAnObjectWithAPropertyTask(BaseTask):
         :param event:
         :return:
         """
-
-            if any(event.is_message(object_, '.')
-                   for object_ in self.objects):
-                # is match found, give reward
-                self.set_result(1, random.choice(msg.congratulations))
-            else:
-                feedback = 'one right answer is: {' \
-                           'answer}. please try again. '.format(answer=random.choice(self.objects))
-                feedback += self.question
-                self.set_message(feedback)
+        if any(event.is_message(object_, '.')
+               for object_ in self.objects):
+            # is match found, give reward
+            self.set_result(1, random.choice(msg.congratulations))
+        else:
+            feedback = 'one right answer is: {''answer}. please try again. '.format(answer=random.choice(self.objects))
+            feedback += self.question
+            self.set_message(feedback)
 
     @on_timeout()
     def give_away_answer(self, event):
