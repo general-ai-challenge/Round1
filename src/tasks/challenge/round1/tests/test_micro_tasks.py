@@ -1305,7 +1305,7 @@ class TestMicroTaskBase(unittest.TestCase):
 
         :return:
         """
-         task = self._get_task()
+        task = self._get_task()
         scheduler, messenger = init_env(task)
         learner = self._get_failing_learner()
         basic_task_run(self, messenger, learner, task)
