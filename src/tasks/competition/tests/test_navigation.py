@@ -85,20 +85,20 @@ class TestNavigation(unittest.TestCase):
 """
 
 
-    def testAssociateObjectWithProperty(self):
-        """ # this has been moved into repetition
+def testAssociateObjectWithProperty(self):
+    """ # this has been moved into repetition
 
+    :return:
+    """
+    def solve(m):
+        """ # find the answer in the instructions
+
+        :param m:
         :return:
         """
-        def solve(m):
-            """ # find the answer in the instructions
-
-            :param m:
-            :return:
-            """
-            verb, = m.search_last_message(r"'I (\w+)'")
-            m.send("I {verb}.".format(verb=verb))
-        self.do_test_battery(repetition.VerbTask, solve)
+        verb, = m.search_last_message(r"'I (\w+)'")
+        m.send("I {verb}.".format(verb=verb))
+    self.do_test_battery(repetition.VerbTask, solve)
 
     def testTurningTask(self):
         """
@@ -129,7 +129,7 @@ class TestNavigation(unittest.TestCase):
             :return:
             """
             m.send("I move forward.")
-        self.do_test_battery(navigation.MovingTask, solve)
+            self.do_test_battery(navigation.MovingTask, solve)
 
     def testMovingRelative(self):
         """
