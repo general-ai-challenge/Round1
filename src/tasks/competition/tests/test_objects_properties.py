@@ -148,21 +148,19 @@ class TestObjectsProperties(unittest.TestCase):
 """
     # tasks testing routines
 """
-    def testAssociateObjectWithProperty(self):
-        """
+def testAssociateObjectWithProperty(self):
+    """
 
-        :param self:
+    :param self:
+    :return:
+    """
+    def get_correct_answer(m):
+        """ # find the answer in the instructions
+        :param m:
         :return:
         """
-        def get_correct_answer(m):
-            """ # find the answer in the instructions
-
-            :param m:
-            :return:
-            """
-            property_, = m.search_last_message(r"basket is (\w+)")
-            return property_,
-
+        property_, = m.search_last_message(r"basket is (\w+)")
+        return property_,
         self.do_test_battery(objects_properties.AssociateObjectWithPropertyTask, get_correct_answer)
 
     def testVerifyThatObjectHasProperty(self):
