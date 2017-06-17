@@ -60,7 +60,7 @@ class TestChannels(unittest.TestCase):
         ic.message_updated.register(all_good)
         ic.clear()
 
-    def testOutputSerialization(self):\
+    def testOutputSerialization(self):
         """
         
         :return: 
