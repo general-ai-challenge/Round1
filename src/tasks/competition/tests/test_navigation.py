@@ -147,7 +147,7 @@ def testAssociateObjectWithProperty(self):
             m.send("I turn {direction}.".format(direction=direction))
             m.read()
             m.send("I move forward.")
-        self.do_test_battery(navigation.MovingRelativeTask, solve)
+            self.do_test_battery(navigation.MovingRelativeTask, solve)
 
     def testMovingAbsolute(self):
         """
