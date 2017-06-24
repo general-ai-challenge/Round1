@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO task unresolved ref
 from core.task import Task, on_message
 
 
@@ -24,7 +24,6 @@ class BaseTask(Task):
         :param kwargs:
         """
         super(BaseTask, self).__init__(*args, **kwargs)
-
 
     @on_message('.')
     def on_any_message(self, event):
