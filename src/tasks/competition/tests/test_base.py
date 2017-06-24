@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO grid_world, competition.tests.helpers unresolved ref
 import unittest
 import tasks.competition.base as base
 from core.task import on_start, on_message
@@ -37,6 +37,7 @@ class TestBase(unittest.TestCase):
 
             @on_start()
             def on_start(self, event):
+                # TODO event not used, interrupted def outside init
                 """
 
                 :param event:
@@ -47,6 +48,7 @@ class TestBase(unittest.TestCase):
 
             @on_message(r"Interrupt.$")
             def on_interrupt(self, event):
+                # TODO event not used
                 """
 
                 :param event:
@@ -56,6 +58,7 @@ class TestBase(unittest.TestCase):
 
             @on_message(r"Respectful.$")
             def on_respect(self, event):
+                # TODO event not used
                 """
 
                 :param event:
