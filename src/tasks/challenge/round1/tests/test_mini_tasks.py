@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -15,6 +15,7 @@ import unittest
 import core.environment as environment
 import core.serializer as serializer
 import tasks.challenge.round1.challenge_mini as comm_ai_mini
+# TODO fix imports
 from core.scheduler import ConsecutiveTaskScheduler
 from learners.base import BaseLearner
 from tasks.challenge.round1.tests.test_micro_tasks import EnvironmentByteMessenger, FixedLearner
@@ -182,6 +183,7 @@ def task_solved_successfuly(task):
     :param task:
     :return:
     """
+    # TODO protected member
     return task._env._last_result
 
 
@@ -205,6 +207,7 @@ def basic_task_run(test, messenger, learner, task):
         answer = learner.next(question)
         reward = messenger.send(answer)
         learner.reward(reward)
+
         if task._env._last_result is not None:
             break
 
@@ -264,6 +267,7 @@ class TestMicroTaskBase(unittest.TestCase):
         return FixedLearner('*')
 
     def init_env(self, task, success_threshold=2):
+        # TODO static
         """
 
         :param task:
@@ -274,7 +278,7 @@ class TestMicroTaskBase(unittest.TestCase):
         scheduler = ConsecutiveTaskScheduler([task], success_threshold)
         env = environment.Environment(slzr, scheduler, max_reward_per_task=float("inf"), byte_mode=True)
         messenger = EnvironmentByteMessenger(env, slzr)
-        return (scheduler, messenger)
+        return scheduler, messenger
 
     def test_task(self):
         """
