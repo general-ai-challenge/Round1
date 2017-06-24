@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -11,7 +11,7 @@
 
 import random
 import string
-
+# TODO core.task, competition.base unresolved ref
 import tasks.competition.messages as msg
 from core.task import on_message, on_start, on_timeout
 from fsa import build_automaton
@@ -63,6 +63,7 @@ class TaskSet0(BaseTask):
         prev_subtask = self._subtask_nr
         self._subtask_nr = self._task_nr // self._SWITCH_TO_NEXT_SUBTASK
         if prev_subtask != self._subtask_nr:
+            # TODO _description, _automation  etc def outside init
             self._description = random_string(length_of_description)
             self._automaton = build_automaton(self._description, "and")
         is_correct = random.choice([True, False])
@@ -91,6 +92,7 @@ class TaskSet0(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner
         sending appropriate feedback.
 
@@ -177,7 +179,7 @@ class TaskSetBase(BaseTask):
             verify = automaton.get_correct_string(verify_length)
         else:
             verify = automaton.get_wrong_string(verify_length, 0)
-        return (is_correct, "description: {}; verify: {}.".format(complete_description, verify))
+        return is_correct, "description: {}; verify: {}.".format(complete_description, verify)
 
     def __init__(self, world=None):
         """
@@ -204,6 +206,7 @@ class TaskSetBase(BaseTask):
             raise AttributeError("Some of the TaskSet attributes are not set!")
         is_correct, task = TaskSetBase.get_task(self.max_length_of_description, self.max_nr_of_groups, self.max_length_of_verify,
                                                 self.description_type, self.not_portion, self.subset_size, self.without_anything)
+        # TODO def outside init answer, give_away_message
         self.answer = "true" if is_correct else "false"
         self.give_away_message = 'Wrong. The right answer is: {}.'.format(self.answer)
         self.set_message(task)
@@ -211,7 +214,7 @@ class TaskSetBase(BaseTask):
     @on_message(r'\.')
     def check_response(self, event):
         """ # check if given answer matches if the message sent by the learner equals the teacher's expected answer
-        followed by a period, reward the learner.
+        followed by a period, reward the learner.# If the learner said anything else, it fails the task.
 
         :param event:
         :return:
@@ -219,11 +222,11 @@ class TaskSetBase(BaseTask):
         if event.is_message(self.answer, '.'):
             self.set_result(True, random.choice(msg.congratulations))
         else:
-            # If the learner said anything else, it fails the task.
             self.fail_learner()
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner sending
         appropriate feedback.
 
