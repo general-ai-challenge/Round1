@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -69,6 +69,7 @@ class ItalianHowManyPropertiesDoesAnObjectHaveTask(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ counting properties of selected object.  translating the object.  alphabetic conversion only supported up
         to ten
 
@@ -95,6 +96,7 @@ class ItalianHowManyPropertiesDoesAnObjectHaveTask(Task):
 
     @on_output_message(r"\?$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -121,6 +123,7 @@ class ItalianHowManyPropertiesDoesAnObjectHaveTask(Task):
 
     @on_timeout()
     def give_away_answer(self,event):
+        # TODO event not used
         """ randomly pick digit or string version.  no choice if there is no alphabetic version, else flip a  coin
         to decide whether to return digit or string version
 
@@ -153,6 +156,7 @@ class GuessTheNumberAskingQuestionsExplicitModelTask(Task):
         :param event:
         :return:
         """
+        # TODO def outside init
         self.digits = random.randint(1, 5)
         self.target_number=str(random.randint(1, 9))
         self.target_number+=''.join(["%s" % random.randint(0, 9) for i in range(1, self.digits)])
@@ -167,11 +171,13 @@ class GuessTheNumberAskingQuestionsExplicitModelTask(Task):
 
     @on_output_message(r"[\.\?]$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
         :return:
         """
+        # TODO def outside init
         self.instructions_completed = True
 
     @on_message()
@@ -231,6 +237,7 @@ class GuessTheNumberAskingQuestionsTask(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -254,6 +261,7 @@ class GuessTheNumberAskingQuestionsTask(Task):
 
     @on_timeout()
     def give_away_answer(self,event):
+        # TODO event not used
         """
 
         :param event:
@@ -274,6 +282,7 @@ class GuessTheNumberAskingForDigitsExplicitModelTask(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ we need to edit the number_questions list by replacing "number" with "next digit"; we will keep two
         versions of the resulting list: one with just the relevant string replaced, and one with escaped .? for the
         regular expression.  picking a random nuber of digits between 1 and 5.  generating a random number with that
@@ -302,6 +311,7 @@ class GuessTheNumberAskingForDigitsExplicitModelTask(Task):
 
     @on_output_message(r"[\.\?]$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -329,6 +339,7 @@ class GuessTheNumberAskingForDigitsExplicitModelTask(Task):
 
     @on_timeout()
     def give_away_answer(self,event):
+        # TODO event not used
         """
 
         :param event:
@@ -354,6 +365,7 @@ class GuessTheNumberAskingForDigitsTask(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ we need to edit the number_questions list by replacing "number" with "next digit"; we will keep two
         versions of the resulting list: one with just the relevant string replaced, and one with escaped .? for the
         regular expression.  picking a random nuber of digits between 1 and 5.  generating a random number with that
@@ -363,8 +375,6 @@ class GuessTheNumberAskingForDigitsTask(Task):
         :param event:
         :return:
         """
-
-
         self.digit_questions=[]
         escaped_digit_questions=[]
         for question in number_questions:
@@ -383,6 +393,7 @@ class GuessTheNumberAskingForDigitsTask(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -410,6 +421,7 @@ class GuessTheNumberAskingForDigitsTask(Task):
 
     @on_timeout()
     def give_away_answer(self,event):
+        # TODO event not used
         give_away_message = ''
         if (self.next_digit<(self.digits)):
             give_away_message += 'if you asked: ' + random.choice(self.digit_questions) + ', I would have said: ' + self.target_number[self.next_digit] + '. '
@@ -481,6 +493,7 @@ class RepeatCharacter(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -493,6 +506,7 @@ class RepeatCharacter(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -524,6 +538,7 @@ class RepeatStringMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -539,6 +554,7 @@ class RepeatStringMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -571,6 +587,7 @@ class RepeatStringMin5Max10(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -586,6 +603,7 @@ class RepeatStringMin5Max10(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -617,6 +635,7 @@ class GlobalTwoAssociatedCharacters(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -628,6 +647,7 @@ class GlobalTwoAssociatedCharacters(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -659,6 +679,7 @@ class GlobalCharacterPrimeTarget(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -671,6 +692,7 @@ class GlobalCharacterPrimeTarget(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -708,6 +730,7 @@ class LocalCharacterPrimeTarget(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -720,6 +743,7 @@ class LocalCharacterPrimeTarget(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -751,6 +775,7 @@ class GlobalTwoAssociatedDelimitedStringsMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -764,6 +789,7 @@ class GlobalTwoAssociatedDelimitedStringsMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """"""
 
         self.instructions_completed = True
@@ -793,6 +819,7 @@ class GlobalTwoAssociatedStringsMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -806,6 +833,7 @@ class GlobalTwoAssociatedStringsMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         self.instructions_completed = True
 
     @on_message()
@@ -829,6 +857,7 @@ class LocalTwoAssociatedDelimitedStringsMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -842,6 +871,7 @@ class LocalTwoAssociatedDelimitedStringsMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -876,6 +906,7 @@ class LocalTwoAssociatedStringsMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -889,6 +920,7 @@ class LocalTwoAssociatedStringsMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -921,6 +953,7 @@ class GlobalStringPrimeTargetMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -934,6 +967,7 @@ class GlobalStringPrimeTargetMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -964,6 +998,7 @@ class LocalStringPrimeTargetMax4(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -978,6 +1013,7 @@ class LocalStringPrimeTargetMax4(Task):
 
     @on_output_message(r"\.$")
     def check_ending(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -1003,6 +1039,7 @@ class GlobalStringPrimeTargetMin5Max10(Task):
 
     """
     def __init__(self, env):
+        # TODO env not used
         """
 
         :param env:
@@ -1011,6 +1048,7 @@ class GlobalStringPrimeTargetMin5Max10(Task):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
