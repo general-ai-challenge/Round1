@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -28,6 +28,7 @@ def number_to_string(num):
     """
     return random.choice(number_to_strings(num))
 
+
 def number_to_strings(num):
     """ Returns all the string versions of a number.
 
@@ -54,6 +55,7 @@ def string_to_number(n):
 """
 # simple grammatical functions
 """
+
 
 def indef_article(x):
     """
