@@ -34,8 +34,8 @@ def main():
     op = OptionParser("Usage: %prog [options] " "(tasks_config.json | tasks_config.py)")
     op.add_option('-o', '--output', default='results.out', help='File where the simulation results are saved.')
     op.add_option(
-        '--scramble', action='store_true', default=False, help='Randomly scramble the words in the tasks for '
-                  'a human player.')
+        '--scramble', action='store_true', default=False, help='Randomly scramble the words in the tasks for ' 
+                                                               'a human player.')
     op.add_option('-w', '--show-world', action='store_true', default=False,
                   help='shows a visualization of the world in the console ' '(mainly for debugging)')
     op.add_option('-d', '--time-delay', default=0, type=float, help='adds some delay between each timestep for easier'
@@ -45,8 +45,8 @@ def main():
     op.add_option('--learner-cmd', help='The cmd to run to launch RemoteLearner.')
     op.add_option('--learner-port', default=5556, help='Port on which to accept remote learner.')
     op.add_option(
-        '--max-reward-per-task', default=2147483647, type=int, help='Maximum reward that we can give to a learner for'
-                  ' a given task.')
+        '--max-reward-per-task', default=2147483647, type=int, help='Maximum reward that we can give to a learner for' 
+                                                                    ' a given task.')
     op.add_option(
         '--curses', action='store_true', default=False, help='Uses standard output instead of curses library.')
     op.add_option('--bit-mode', action='store_true', default=False, help='Environment receives input in bytes.')
@@ -92,12 +92,14 @@ def create_view(view_type, learner_type, env, session, serializer, show_world, u
     """
     if not use_curses:
         from view.win_console import StdInOutView, StdOutView
+        # TODO unreselved ref win_conole, StdInOutView, StdOutView not found
         if learner_type.split('.')[0:2] == ['learners', 'human_learner'] or view_type == 'ConsoleView':
             return StdInOutView(env, session, serializer, show_world, byte_mode)
         else:
             return StdOutView(env, session)
     else:
         from view.console import ConsoleView, BaseView
+        # TODO unresolved ref console, ConsoleView, BaseView not found
         if learner_type.split('.')[0:2] == ['learners', 'human_learner'] or view_type == 'ConsoleView':
             return ConsoleView(env, session, serializer, show_world, byte_mode)
         else:
