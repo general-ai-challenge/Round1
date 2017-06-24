@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -13,7 +13,7 @@ import curses
 import curses.textpad
 import logging
 import locale
-
+# TODO byte_channels, channels unresolved ref
 from core.byte_channels import ByteInputChannel
 from core.channels import InputChannel
 
@@ -22,10 +22,14 @@ code = locale.getpreferredencoding()
 
 import platform
 if platform.python_version_tuple()[0] == '2':
+    # TODO text.converters, channels unresolved ref
     from kitchen.text.converters import to_unicode
 
 
 class BaseView(object):
+    """
+
+    """
 
     def __init__(self, env, session):
         """ # observe basic high level information about the session and environment# we save information for
@@ -98,6 +102,7 @@ class BaseView(object):
 
         :return:
         """
+        # TODO _stdscr, _info_win_height, .height, ._win, _info_win def outside init
         self._stdscr = curses.initscr()
         # TODO generalize this:
         begin_x = 0
@@ -112,6 +117,7 @@ class BaseView(object):
         curses.cbreak()
 
     def finalize(self):
+        # TODO static method
         """
 
         :return:
@@ -199,6 +205,7 @@ class ConsoleView(BaseView):
         self._learner_channel.consume(token)
 
     def on_learner_message_updated(self, message):
+        # TODO message not used
         """# we use the fact that messages arrive character by character
 
         :param message:
@@ -212,6 +219,7 @@ class ConsoleView(BaseView):
             self._win.refresh()
 
     def on_learner_sequence_updated(self, sequence):
+        # TODO sequence not used
         """
 
         :param sequence:
@@ -223,6 +231,7 @@ class ConsoleView(BaseView):
         self._win.refresh()
 
     def on_env_message_updated(self, message):
+        # TODO message not used
         """
 
         :param message:
@@ -236,6 +245,7 @@ class ConsoleView(BaseView):
             self._win.refresh()
 
     def on_env_sequence_updated(self, sequence):
+        # TODO sequence not used
         """
 
         :param sequence:
@@ -273,6 +283,7 @@ class ConsoleView(BaseView):
 
         :return:
         """
+        # TODO def outside init
         self._stdscr = curses.initscr()
         begin_x = 0
         begin_y = 0
