@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -12,7 +12,7 @@
 import random
 import string
 import unittest
-
+# TODO tasks.challenge.round1.task_generator unresolved ref
 from tasks.challenge.round1.task_generator import TaskGenerator
 
 
@@ -34,6 +34,7 @@ class TestTaskGenerator(unittest.TestCase):
             """
             return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase
         tasker = TaskGenerator(micro1_question)
+        # TODO question, answer not used
         question, answer = tasker.get_task_instance()
         check_correct_answer = tasker.check_answer('a')
         check_normal_answer = tasker.check_answer(' ')
@@ -57,6 +58,7 @@ class TestTaskGenerator(unittest.TestCase):
             :return:
             """
             def micro1_reward(answer, question=''):
+                # TODO quesion not used
                 """
 
                 :param answer:
@@ -88,6 +90,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -104,6 +107,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -120,6 +124,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -138,12 +143,14 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
             :return:
             """
             def micro1_answer(answer, question=None):
+                # TODO question not used
                 """
 
                 :param answer:
@@ -163,6 +170,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -180,6 +188,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -197,6 +206,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -205,6 +215,7 @@ class TestTaskGenerator(unittest.TestCase):
             return random.choice(string.ascii_lowercase + ' '), string.ascii_lowercase + ' '
 
         def micro1_feedback(correct, question):
+            # TODO question not used
             """
 
             :param correct:
@@ -225,6 +236,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -243,6 +255,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -260,6 +273,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -281,6 +295,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -298,6 +313,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -315,6 +331,7 @@ class TestTaskGenerator(unittest.TestCase):
         :return:
         """
         def micro1_question(self):
+            # TODO self not used
             """
 
             :param self:
