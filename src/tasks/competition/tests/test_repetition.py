@@ -129,31 +129,30 @@ class TestRepetitionTasks(unittest.TestCase):
 """
 task testing routines
 """
-    def testBeSilent(self):
-        """# read the instructions# there are some instructions# stay silent until rewarded# read the instructions
-        again# there are some instructions# we fail# we should have prompted a restart# there are some instructions
-
-        :param self:
-        :return:
-        """
-        with task_messenger(repetition.BeSilentTask) as m:
-            instructions_blen = m.read()
-            instructions = m.get_last_message()
-            self.assertGreater(instructions_blen, 0)
-            for x in range(1000):
-                if m.get_cumulative_reward() > 0:
-                    break
-                m.send()
-            self.assertEqual(m.get_cumulative_reward(), 1)
-            instructions_blen = m.read()
-            instructions = m.get_last_message()
-            self.assertGreater(instructions_blen, 0)
-            m.send('a')
-            self.assertEqual(m.get_cumulative_reward(), 1)
-            m.read()
-            instructions = m.get_last_message()
-            self.assertGreater(len(instructions), 0)
-            self.assertEqual(m.get_cumulative_reward(), 1)
+def testBeSilent(self):
+    """# read the instructions# there are some instructions# stay silent until rewarded# read the instructions
+    again# there are some instructions# we fail# we should have prompted a restart# there are some instructions
+    :param self:
+    :return:
+    """
+    with task_messenger(repetition.BeSilentTask) as m:
+        instructions_blen = m.read()
+        instructions = m.get_last_message()
+        self.assertGreater(instructions_blen, 0)
+        for x in range(1000):
+            if m.get_cumulative_reward() > 0:
+                break
+            m.send()
+        self.assertEqual(m.get_cumulative_reward(), 1)
+        instructions_blen = m.read()
+        instructions = m.get_last_message()
+        self.assertGreater(instructions_blen, 0)
+        m.send('a')
+        self.assertEqual(m.get_cumulative_reward(), 1)
+        m.read()
+        instructions = m.get_last_message()
+        self.assertGreater(len(instructions), 0)
+        self.assertEqual(m.get_cumulative_reward(), 1)
 
     def testRepeatCharacter(self):
         """
