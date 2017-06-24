@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -12,6 +12,7 @@
 import unittest
 import tasks.competition.messages as msg
 import tasks.competition.objects_properties as objects_properties
+# TODO competition.tests.helpers unresolved ref
 from tasks.competition.tests.helpers import task_messenger
 import random
 
@@ -148,7 +149,10 @@ class TestObjectsProperties(unittest.TestCase):
 """
     # tasks testing routines
 """
+
+
 def testAssociateObjectWithProperty(self):
+    # TODO function to lower
     """
 
     :param self:
@@ -164,6 +168,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.AssociateObjectWithPropertyTask, get_correct_answer)
 
     def testVerifyThatObjectHasProperty(self):
+        # TODO function to lower, func not used testVerifyThatObjectHasProperty
         """
 
         :param self:
@@ -186,12 +191,14 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.VerifyThatObjectHasPropertyTask, get_correct_answer)
 
     def testListPropertiesOfAnObject(self):
+        # TODO function to lower, func not used testListPropertiesOfAnObject
         """
 
         :param self:
         :return:
         """
         def get_correct_answer(m):
+            # TODO shadows name
             """ # find the answer in the instructions
 
             :param m:
@@ -205,6 +212,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.ListPropertiesOfAnObjectTask, get_correct_answer)
 
     def testNameAPropertyOfAnObject(self):
+        # TODO func lowercase, testNameAPropertyOfAnObject not used
         """
 
         :param self:
@@ -225,6 +233,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.NameAPropertyOfAnObjectTask, get_correct_answer)
 
     def testHowManyPropertiesDoesAnObjectHave(self):
+        # TODO func lowercase, testHowManyPropertiesDoesAnObjectHave not used
         """
 
         :param self:
@@ -249,6 +258,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.HowManyPropertiesDoesAnObjectHaveTask, get_correct_answer)
 
     def testListObjectsWithACertainProperty(self):
+        # TODO func lowercase, testListObjectsWithACertainProperty not used
         """
 
         :param self:
@@ -270,12 +280,14 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.ListObjectsWithACertainPropertyTask, get_correct_answer)
 
     def testNameAnObjectWithAProperty(self):
+        # TODO func lowercase, testNameAnObjectWithAProperty not used
         """
 
         :param self:
         :return:
         """
         def get_correct_answer(m):
+            # TODO shadows name
             """  # find the answer in the instructions
 
             :param m:
@@ -294,12 +306,14 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.NameAnObjectWithAPropertyTask, get_correct_answer)
 
     def testHowManyObjectsHaveACertainProperty(self):
+        # TODO func lowercase, testHowManyObjectsHaveACertainProperty not used
         """
 
         :param self:
         :return:
         """
         def get_correct_answer(m):
+            # TODO shadows name
             """ # find the answer in the instructions
 
             :param m:
@@ -318,6 +332,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.HowManyObjectsHaveACertainPropertyTask, get_correct_answer)
 
     def testWhoHasACertainObjectWithACertainProperty(self):
+        # TODO func lowercase, testWhoHasACertainObjectWithACertainProperty not used
         """
 
         :param self:
@@ -340,6 +355,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.WhoHasACertainObjectWithACertainPropertyTask, get_correct_answer)
 
     def testListThePropertiesThatAnObjectHasInABasketOnly(self):
+        # TODO func lowercase, testListThePropertiesThatAnObjectHasInABasketOnly not used
         """
 
         :param self:
@@ -367,6 +383,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(objects_properties.ListThePropertiesThatAnObjectHasInABasketOnlyTask, get_correct_answer)
 
         def testListThePropertiesThatAnObjectHasInAllBaskets(self):
+            # TODO func lowercase, testListThePropertiesThatAnObjectHasInAllBaskets not used
             """
 
             :param self:
