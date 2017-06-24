@@ -9,6 +9,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
+# TODO unresolved ref .task
 from core.task import World, on_world_start, on_message, on_sequence, \
     on_state_changed, on_timeout, on_output_message
 from collections import namedtuple, defaultdict
@@ -126,6 +127,7 @@ class GridWorld(World):
         super(GridWorld, self).__init__()
         self._init_pos = init_pos
         self._init_direction = init_direction
+        # TODO expected type 'str' tuple got int
         self.valid_directions = {'north': Span(0, -1), 'east': Span(1, 0), 'south': Span(0, 1), 'west': Span(-1, 0)}
         self.clockwise_directions = ['north', 'east', 'south', 'west']
         self.logger = logging.getLogger(__name__)
@@ -169,6 +171,7 @@ class GridWorld(World):
 
     @on_world_start()
     def on_start_grid_world(self, event):
+        # TODO event not used
         """ creates a new Point tuple using init_pos tuple as parameters.  the agent also faces one direction.
         dictionary of entities in the world.  inventory of the learner (a multiset).  inventory of the teacher (a
         multiset).  set of objects the teacher is willing to receive.
@@ -185,6 +188,7 @@ class GridWorld(World):
 
     @on_message(r"I turn left\.$")
     def on_turn_left(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -196,6 +200,7 @@ class GridWorld(World):
 
     @on_message(r"I turn right\.$")
     def on_turn_right(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -207,6 +212,7 @@ class GridWorld(World):
 
     @on_message(r"I move forward\.$")
     def on_move_forward(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -216,6 +222,7 @@ class GridWorld(World):
 
     @on_message(r"I look\.$")
     def on_looking(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -300,6 +307,7 @@ class GridWorld(World):
         elif self.state.learner_direction == 'south':
             dx = 0
             dy = dz
+            # TODO dx dy ref before assignment
         new_pos = self.state.learner_pos + Span(dx, dy)
         if self.can_move_to(new_pos):
             self.state.learner_pos = new_pos
@@ -315,6 +323,7 @@ class GridWorld(World):
         """
         return p not in self.state.entities or self.state.entities[p].traversable
 
+    @property
     def __str__(self):
         """Creates a grid world representation as a string.  there should be cell in the center to show the learner.
         print the coordinates. we print the learner in the middle, using its facing direction first character. if
@@ -328,14 +337,11 @@ class GridWorld(World):
         cell_h = 2
         cell_w = 3
         lines = []
-        l = []
-        l.append(' ' * (cell_w + 1))
+        l = [' ' * (cell_w + 1)]
         for j in range(grid_w):
             l.append('{0: >{length}d} '.format(self.state.learner_pos.x - int(cell_w / 2) - 1 + j, length=cell_w))
         lines.append(''.join(l))
-        l = []
-        l.append(' ' * (cell_w + 1))
-        l.append('+')
+        l = [' ' * (cell_w + 1), '+']
         for j in range(grid_w):
             l.append('-' * cell_w)
             l.append('+')
@@ -353,6 +359,7 @@ class GridWorld(World):
                 for j in range(grid_w):
                     absolute_i = self.state.learner_pos.y + i - int(grid_h / 2)
                     absolute_j = self.state.learner_pos.x + j - int(grid_w / 2)
+                    # TODO expected str got int absolute_j, absolute_i
                     absolute_pos = Point(absolute_j, absolute_i)
                     if i == int(grid_h / 2) and j == int(grid_w / 2):
                         l.append(self.state.learner_direction[0] * cell_w)
@@ -363,9 +370,7 @@ class GridWorld(World):
                         l.append(' ' * cell_w)
                     l.append('+')
                 lines.append(''.join(l))
-            l = []
-            l.append(' ' * (cell_w + 1))
-            l.append('+')
+            l = [' ' * (cell_w + 1), '+']
             for j in range(grid_w):
                 l.append('-' * cell_w)
                 l.append('+')
