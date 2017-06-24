@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO task, competition.base competition.objects_properties unresolved ref
 from core.task import Task, on_start, on_message, on_sequence, on_state_changed, on_timeout, on_output_message, on_ended
 import tasks.competition.messages as msg
 from tasks.competition.base import BaseTask
@@ -39,6 +39,7 @@ class TurningTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """ during initalization of task, save the direction the learner is facing # randomly choose a target
         direction and save it too # ask the learner to turn in the target direction
 
@@ -55,6 +56,7 @@ class TurningTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_direction == ts.target_direction)
     def on_moved(self, event):
+        # TODO event not used
         """# reward the learner when it's facing the right direction
 
         :param event:
@@ -64,6 +66,7 @@ class TurningTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -85,6 +88,7 @@ class MovingTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# during initalization task, save the learner's position # save the destination position one step forward
         from the learner is ask the learner to move forward
 
@@ -99,6 +103,7 @@ class MovingTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -149,6 +154,7 @@ class MovingRelativeTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -158,6 +164,7 @@ class MovingRelativeTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -199,6 +206,8 @@ class MovingAbsoluteTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
+        # TODO event not used
+
         """
 
         :param event:
@@ -208,6 +217,7 @@ class MovingAbsoluteTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -230,6 +240,7 @@ class PickUpTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# choose some random object# find the cell in front of the learner# place the object there
 
         :param event:
@@ -249,6 +260,7 @@ class PickUpTask(BaseTask):
                              object=self.target_obj))
 
     def on_object_picked_up(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -258,6 +270,7 @@ class PickUpTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -281,6 +294,7 @@ class PickUpAroundTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# choose a random object# find a random cell around the learner# place the object there
 
         :param event:
@@ -299,6 +313,7 @@ class PickUpAroundTask(BaseTask):
                              direction=self.direction, object=self.target_obj))
 
     def on_object_picked_up(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -308,6 +323,7 @@ class PickUpAroundTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -332,6 +348,7 @@ class PickUpInFrontTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """ # choose a random object # select a random number of steps # place the object that number of steps in
         front of the learner
 
@@ -351,6 +368,7 @@ class PickUpInFrontTask(BaseTask):
                              n=msg.number_to_string(self.n), object=self.target_obj))
 
     def on_object_picked_up(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -360,6 +378,7 @@ class PickUpInFrontTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -382,6 +401,7 @@ class GivingTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# pick a random object# give one of it to the learner# save how many objects of this we have# inform the
         world that we can expect to receive such an object
 
@@ -408,6 +428,7 @@ class GivingTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -424,6 +445,7 @@ class PickUpAroundAndGiveTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# pick a random object# save how many objects of this we have# save how many instances of the object the
         learner intially had# choose some random direction# measure a cell one step in that direction# put an object
         in the given position# initialize a variable to check if the object has been picked up# inform the world that
@@ -448,6 +470,7 @@ class PickUpAroundAndGiveTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.learner_inventory[ts.target_obj] == ts.learner_initial_count + 1)
     def on_object_picked_up(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -458,6 +481,7 @@ class PickUpAroundAndGiveTask(BaseTask):
 
     @on_state_changed(lambda ws, ts: ws.teacher_inventory[ts.target_obj] == ts.initial_count + 1)
     def on_give_me_object(self, event):
+        # TODO event not used
         """ # if I have one more of the target object, the learner solved the task if it also picked up the object
         in the grid.
 
@@ -471,6 +495,7 @@ class PickUpAroundAndGiveTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """# cleaning up
 
         :param event:
@@ -482,6 +507,7 @@ class PickUpAroundAndGiveTask(BaseTask):
 
     @on_ended()
     def on_ended(self, event):
+        # TODO event not used
         """# cleanup
 
         :param event:
@@ -508,6 +534,7 @@ class CountingInventoryTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         self.target_obj, = random.sample(objects, 1)
         self.set_message("How many {0} do you have?".format(msg.pluralize(self.target_obj, 2)))
 
@@ -530,6 +557,7 @@ class CountingInventoryTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -552,6 +580,7 @@ class CountingInventoryGivingTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         self.failed = False
         self.time_gave_me_object = None
         self.state.target_obj, = random.sample(objects, 1)
@@ -621,6 +650,7 @@ class CountingInventoryGivingTask(BaseTask):
 
     @on_timeout()
     def fail_learner(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -630,6 +660,7 @@ class CountingInventoryGivingTask(BaseTask):
 
     @on_ended()
     def on_ended(self, event):
+        # TODO event not used
         """# cleanup
 
         :param event:
@@ -653,6 +684,7 @@ class LookTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -664,6 +696,7 @@ class LookTask(BaseTask):
 
     @on_message(r"I look\.$")
     def on_message(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -687,6 +720,7 @@ class LookAroundTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -700,6 +734,7 @@ class LookAroundTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos != ts.learner_pos)
     def on_moved(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -709,6 +744,7 @@ class LookAroundTask(Task):
 
     @on_message(r"I look\.$")
     def on_message(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -742,6 +778,7 @@ class FindObjectAroundTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# random assignment of object to location
 
         :param event:
@@ -763,6 +800,7 @@ class FindObjectAroundTask(Task):
 
     @on_ended()
     def on_ended(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -774,6 +812,7 @@ class FindObjectAroundTask(Task):
             self.get_world().remove_entity(np)
 
     def on_object_picked(self, event):
+        # TODO event not used
         """
 
         :param event:
