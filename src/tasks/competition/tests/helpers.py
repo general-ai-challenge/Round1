@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -46,6 +46,7 @@ class EnvironmentMessenger:
 
         :return:
         """
+        # TODO self._env._output_channel access outside class
         return self._env._output_channel.is_silent()
 
     def read(self):
@@ -72,6 +73,7 @@ class EnvironmentMessenger:
             try:
                 return condition(self)
             except BaseException:
+                # TODO exception too broad
                 return False
         nsymbols = 0
         while not self.is_silent() and not safe_condition_eval():
