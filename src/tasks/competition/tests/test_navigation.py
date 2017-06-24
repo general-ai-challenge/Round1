@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -10,6 +10,7 @@
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
 import unittest
+# TODO grid_world, competition.tests.helpers unresolved ref
 from worlds.grid_world import GridWorld
 import tasks.competition.messages as msg
 import tasks.competition.navigation as navigation
@@ -22,6 +23,7 @@ class TestNavigation(unittest.TestCase):
     helper methods
     """
     def check_positive_feedback(self, m, instructions):
+        # TODO instructions not used
         """ hear the congratulations# there is some feedback
 
         :param m:
@@ -57,6 +59,7 @@ class TestNavigation(unittest.TestCase):
         self.check_positive_feedback(m, instructions)
 
     def timeout_test(self, m, solve):
+        # TODO solve not used
         """ # read the instructions # stay silent # hear the correction
 
         :param m:
@@ -101,6 +104,7 @@ def testAssociateObjectWithProperty(self):
     self.do_test_battery(repetition.VerbTask, solve)
 
     def testTurningTask(self):
+        # TODO testTurningTask not used, lower case
         """
 
         :param self:
@@ -117,6 +121,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.TurningTask, solve)
 
     def testMoving(self):
+        # TODO testMoving not used, lower case
         """ # find the answer in the instructions
 
         :param self:
@@ -132,6 +137,7 @@ def testAssociateObjectWithProperty(self):
             self.do_test_battery(navigation.MovingTask, solve)
 
     def testMovingRelative(self):
+        # TODO testMovingRelative not used, lower case
         """
 
         :param self:
@@ -150,12 +156,14 @@ def testAssociateObjectWithProperty(self):
             self.do_test_battery(navigation.MovingRelativeTask, solve)
 
     def testMovingAbsolute(self):
+        # TODO testMovingAbsolute not used, lower case
         """
 
         :param self:
         :return:
         """
         def solve(m):
+            # TODO shadows solve
             """ # wait for feedback # move
 
             :param m:
@@ -179,6 +187,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.MovingAbsoluteTask, solve)
 
     def testPickUp(self):
+        # TODO testPickUp not used, lower case
         """
 
         :param self:
@@ -195,12 +204,14 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.PickUpTask, solve)
 
     def testPickUpAround(self):
+        # TODO testPickUpAround not used, lower case
         """
 
         :param self:
         :return:
         """
         def solve(m):
+            # TODO shadows outer scope
             """ # wait for feedback # pick up the object
 
             :param m:
@@ -224,6 +235,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.PickUpAroundTask, solve)
 
     def testPickUpInFront(self):
+        # TODO testPickUpInFront not used, lower case
         """
 
         :param self:
@@ -244,6 +256,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.PickUpInFrontTask, solve)
 
     def testGiving(self):
+        # TODO testGiving not used, lower case
         """
 
         :param self:
@@ -260,6 +273,7 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.GivingTask, solve)
 
     def testPickUpAroundAndGive(self):
+        # TODO testPickUpAroundAndGive not used, lower case
         """
 
         :param self:
@@ -292,12 +306,14 @@ def testAssociateObjectWithProperty(self):
         self.do_test_battery(navigation.PickUpAroundAndGiveTask, solve)
 
     def testCountingInventoryGiving(self):
+        # TODO testCountingInventoryGiving not used, lower case
         """
 
         :param self:
         :return:
         """
         def solve(m):
+            #shadows outer scope
             """ # I don't have anything in the beginning # The teacher just gave me somthing # Give the object back
             to the teacher # I don't have anything anymore
 
