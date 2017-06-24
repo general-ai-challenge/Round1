@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO task, competition.base unresolved ref
 from core.task import on_start, on_message, on_timeout
 from tasks.competition.base import BaseTask
 import tasks.competition.messages as msg
@@ -39,6 +39,7 @@ class SimpleCountingTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ # pick how many objects in total will be described # for last object change separator from "," to "and"
          # pick object # build up message # update counter # pick object to ask the question
         :param event:
@@ -82,6 +83,7 @@ class SimpleCountingTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """ # if the learner has not produced any plausible answer by the max_time allowed, fail the learner sending
         appropriate feedback.
 
