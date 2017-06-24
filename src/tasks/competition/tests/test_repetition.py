@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO unresovled ref tasks.competition.tests.helpers
 import unittest
 import tasks.competition.repetition as repetition
 import tasks.competition.messages as msg
@@ -96,6 +96,7 @@ class TestRepetitionTasks(unittest.TestCase):
         self.assertEqual(m.get_cumulative_reward(), 0, "Doing nothing is not a solution")
 
     def repeat_everything(self, m, get_correct_answer):
+        # TODO get_correct_answer not used
         """# first, send one silence# repeat the previous char sent by the teacher# read feedback, if any
 
         :param m:
@@ -129,7 +130,10 @@ class TestRepetitionTasks(unittest.TestCase):
 """
 task testing routines
 """
+
+
 def testBeSilent(self):
+    # TODO func name lowercase, instructions not used
     """# read the instructions# there are some instructions# stay silent until rewarded# read the instructions
     again# there are some instructions# we fail# we should have prompted a restart# there are some instructions
     :param self:
@@ -155,6 +159,7 @@ def testBeSilent(self):
         self.assertEqual(m.get_cumulative_reward(), 1)
 
     def testRepeatCharacter(self):
+        # TODO func name lowercase
         """
 
         :param self:
@@ -180,6 +185,7 @@ def testBeSilent(self):
             self.timeout_test(m, get_correct_answer)
 
     def testRepeatWhatISay(self):
+        # TODO func name to lowercase, testRepeatWhatISay not used
         """
 
         :param self:
