@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO task, competition.base unresolved ref
 from core.task import on_start, on_message, on_timeout
 from tasks.competition.base import BaseTask
 import tasks.competition.messages as msg
@@ -84,6 +84,7 @@ class ObjectExistenceTask1(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -121,6 +122,7 @@ class ObjectExistenceTask1(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -138,11 +140,11 @@ class ObjectExistenceTask2(BaseTask):
 
         :param world:
         """
-        super(ObjectExistenceTask2, self).__init__(
-            world=world, max_time=3000)
+        super(ObjectExistenceTask2, self).__init__(world=world, max_time=3000)
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ # pick how many objects in total will be enumerated # for last object change separator from "," to "and"
         # pick object# build up message# update counter# pick object to ask the question
         :param event:
@@ -188,6 +190,7 @@ class ObjectExistenceTask2(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """ if the learner has not produced any plausible answer by the max_time allowed, fail the learner sending
         appropriate feedback.
 
@@ -217,6 +220,7 @@ class AssociateObjectWithPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ # pick some random basket, object and property# ask the leearner for the property
 
         :param event:
@@ -240,6 +244,7 @@ class AssociateObjectWithPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -262,6 +267,7 @@ class VerifyThatObjectHasPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# extracting the set of properties (from both baskets)# find the properties that that the selected objects
         does NOT have # deciding if we'll ask about the true or false property # ask for a false property # ask for
          a true property
@@ -303,6 +309,7 @@ class VerifyThatObjectHasPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -324,6 +331,7 @@ class ListPropertiesOfAnObjectTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ select a random object from a random basket# retrieving the properties of the selected object# building
         a regexp to match the answer# final string must be delimited by period# add check_response as a handler for
         a message matching the above described enumeration# on_message handler created dynamically when the number of
@@ -357,6 +365,7 @@ class ListPropertiesOfAnObjectTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -381,6 +390,7 @@ class NameAPropertyOfAnObjectTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# pick some basket and object# retrieving the properties of the selected object
 
         :param event:
@@ -405,6 +415,7 @@ class NameAPropertyOfAnObjectTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """# randomly picked right property
 
         :param event:
@@ -426,6 +437,7 @@ class HowManyPropertiesDoesAnObjectHaveTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# pick some object in a random basket# counting properties of selected object
 
         :param event:
@@ -452,6 +464,7 @@ class HowManyPropertiesDoesAnObjectHaveTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """# inform the answer randomly choosing a numeric or alphabetic format.
 
         :param event:
@@ -473,6 +486,7 @@ class ListObjectsWithACertainPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ # chose a random property# retrieving the objects that have this property# building a regexp to match
         the answer# final string must be delimited by period
 
@@ -512,6 +526,7 @@ class ListObjectsWithACertainPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -544,6 +559,7 @@ class NameAnObjectWithAPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# chose a random property# retrieving the objects that have the selected property
 
         :param event:
@@ -575,6 +591,7 @@ class NameAnObjectWithAPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param self:
@@ -599,6 +616,7 @@ class HowManyObjectsHaveACertainPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# we will sample from the actual properties, plus a random string representing a "property" that no object
         has# added slots to make random properties more likely# if we picked the last integer or higher, we will
         generate a fake property for which the answer should be 0# if instead we picked an integer within the
@@ -653,6 +671,7 @@ class HowManyObjectsHaveACertainPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """# inform the answer randomly choosing a numeric or alphabetic format.
 
         :param event:
@@ -676,6 +695,7 @@ class WhoHasACertainObjectWithACertainPropertyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# we find the set of baskets that have the relevant object and property combination# at this point, if
         baskets list is empty we add "nobody" as the only item in it # building a regexp to match the answer#
         final string must be delimited by period
@@ -692,8 +712,7 @@ class WhoHasACertainObjectWithACertainPropertyTask(BaseTask):
         self.question = "who has {property_object} in the basket?".format(
             property_object=msg.indef_article(property_ + " " + object_))
         self.set_message(self.question)
-        enum_re = delimiters.join(
-            [r'([a-z]+)'] * len(self.basket_set))
+        enum_re = delimiters.join([r'([a-z]+)'] * len(self.basket_set))
         enum_re += r'\.$'
         self.re_query = re.compile(enum_re)
 
@@ -728,7 +747,7 @@ class WhoHasACertainObjectWithACertainPropertyTask(BaseTask):
             potential_baskets=set(re_out.groups())
         else:
             potential_baskets=set()
-        if (self.basket_set == potential_baskets):
+        if self.basket_set == potential_baskets:
             self.set_result(1, random.choice(msg.congratulations))
         else:
             answer = self.get_shuffled_correct_baskets(self.basket_set)
@@ -738,6 +757,7 @@ class WhoHasACertainObjectWithACertainPropertyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -770,6 +790,7 @@ class ListThePropertiesThatAnObjectHasInABasketOnlyTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """# get an object that appears in a least two baskets # choose one of the baskets # ask the learner
         # construct the expected answer which is given by the properties of the object in the given basket minus
          t he properties in all the rest of the baskets:# building a regexp to match the answer# final string must
@@ -853,6 +874,7 @@ class ListThePropertiesThatAnObjectHasInABasketOnlyTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -886,6 +908,7 @@ class ListThePropertiesThatAnObjectHasInAllBasketsTask(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """ # get an object that appears in a least two baskets# ask the learner# construct the expected answer
         which is given by the properties of the object in the given basket minus the properties in all the rest of
         the baskets:# building a regexp to match the answer# final string must be delimited by period
@@ -958,6 +981,7 @@ class ListThePropertiesThatAnObjectHasInAllBasketsTask(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
