@@ -11,7 +11,7 @@
 
 import logging
 import locale
-
+# TODO byte_channels, channels, unresloved ref
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from core.channels import InputChannel
 import sys
@@ -20,6 +20,7 @@ import platform
 
 import platform
 if platform.python_version_tuple()[0] == '2':
+    # TODO unresolved ref .text.converters
     from kitchen.text.converters import to_unicode
 
 locale.setlocale(locale.LC_ALL, '')
@@ -33,14 +34,14 @@ def get_console_size():
     """
     try:
         from ctypes import windll, create_string_buffer
+        # TODO create_string_buffer should be included in except block
         h = windll.kernel32.GetStdHandle(-12)
         csbi = create_string_buffer(22)
         res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
         if res:
             import struct
-            (bufx, bufy, curx, cury, wattr,
-            left, top, right, bottom, maxx, maxy) = \
-                struct.unpack("hhhhHhhhhhh", csbi.raw)
+            (bufx, bufy, curx, cury, wattr, left, top, right, bottom, maxx, maxy
+             ) = struct.unpack("hhhhHhhhhhh", csbi.raw)
             sizex = right - left + 1
             sizey = bottom - top + 1
             return sizey, sizex
@@ -58,6 +59,7 @@ class WinBaseView(object):
 
     """
     NEXT_UPDATE = 1000
+
     def __init__(self, env, session):
         """# observe basic high level information about the session and environment we save information for display
         later
@@ -220,6 +222,7 @@ class StdInOutView(WinBaseView):
         if self._byte_channels:
             self._reward_buffer = self._reward_buffer[0:-1]
             self._reward_buffer += self._encode_reward(change)
+            # TODO self._reward def outside init
             self._reward = self.channel_to_str(self._reward_buffer + ' ', self._env_channel.get_undeserialized())
 
     @staticmethod
@@ -241,9 +244,15 @@ class StdInOutView(WinBaseView):
         self._env_channel.consume(token)
 
     def on_learner_token_updated(self, token):
+        """
+
+        :param token:
+        :return:
+        """
         self._learner_channel.consume(token)
 
     def on_learner_message_updated(self, message):
+        # TODO message not used
         """# we use the fact that messages arrive character by character
 
         :param message:
@@ -252,18 +261,22 @@ class StdInOutView(WinBaseView):
         if self._learner_channel.get_text():
             self.input_buffer += self._learner_channel.get_text()[-1]
             self.input_buffer = self.input_buffer[-self._scroll_msg_length:]
+            # TODO self._learner_input def outside init
             self._learner_input = self.channel_to_str(self.input_buffer + ' ',
                                                       self._learner_channel.get_undeserialized())
             if self._byte_channels:
                 self._reward_buffer += ' '
+                # TODO self._reward def outside init
                 self._reward = self.channel_to_str(self._reward_buffer + ' ', self._env_channel.get_undeserialized())
 
     def on_learner_sequence_updated(self, sequence):
+        # TODO sequence not used
         """
 
         :param sequence:
         :return:
         """
+        # TODO self._learner_input def ouside init
         self._learner_input = self.channel_to_str(self.input_buffer + ' ', self._learner_channel.get_undeserialized())
 
     def on_env_message_updated(self, message):
@@ -276,9 +289,16 @@ class StdInOutView(WinBaseView):
             self.output_buffer += \
                 self._env_channel.get_text()[-1]
             self.output_buffer = self.output_buffer[-self._scroll_msg_length:]
+            # TODO self._env_output def ouside init
             self._env_output = self.channel_to_str(self.output_buffer, self._env_channel.get_undeserialized())
 
     def on_env_sequence_updated(self, sequence):
+        # TODO sequence not used
+        """
+
+        :param sequence:
+        :return:
+        """
         self._env_output = self.channel_to_str(self.output_buffer, self._env_channel.get_undeserialized())
 
     def on_world_updated(self, world):
@@ -291,6 +311,7 @@ class StdInOutView(WinBaseView):
             world.state_updated.register(self.on_world_state_updated)
 
     def on_world_state_updated(self, world):
+        # TODO static method
         """
 
         :param world:
@@ -306,6 +327,7 @@ class StdInOutView(WinBaseView):
         """
         rows, columns = get_console_size()
         reward_len = 15
+        # TODO self._total_msg_length, self._scroll_msg_length, self._learner_input def outside init
         self._total_msg_length = columns - 1
         self._scroll_msg_length = columns - 1 - reward_len
         self._learner_input = self.channel_to_str(' ', self._learner_channel.get_undeserialized())
@@ -344,5 +366,4 @@ class StdInOutView(WinBaseView):
         length = self._scroll_msg_length - 10
         if length <= 1:
             raise Exception('The command window is too small.')
-        return "{0:_>{length}}[{1: <8}]".format(
-            text[-length:], bits[-7:], length=length)
+        return "{0:_>{length}}[{1: <8}]".format(text[-length:], bits[-7:], length=length)
