@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -14,7 +14,7 @@ import random
 import re
 import string
 from contextlib import contextmanager
-
+# TODO core.task, challenge.round1.task_generator unresolved ref
 from core.task import Task
 from core.task import on_message, on_start, on_timeout
 from tasks.challenge.round1.task_generator import TaskGenerator
@@ -96,6 +96,7 @@ class MicroBase(Task):
         :param event:
         :return:
         """
+        # TODO def outside init
         self.tasker = self.get_task_generator()
         self.questions_asked = 0
         self.consecutive_reward = 0
@@ -121,6 +122,7 @@ class MicroBase(Task):
         if reward > 0:
             self.consecutive_reward += 1
         elif reward < 0:
+            # TODO def outside init
             self.consecutive_reward = 0
         self.set_immediate_reward(reward)
 
@@ -145,9 +147,11 @@ class MicroBase(Task):
             self.set_result(False, provide_result_as_reward=False)
             return True
         if not self.max_questions_for_success and self.agent_should_know_answers():
+            # TODO def outside init
             self.max_questions_for_success = self.questions_asked + REQUIRED_CONSECUTIVE_REWARDS * (
                 1.0 + self.SUCCESS_TOLERANCE)
         if not self.max_questions_nr and not self.under_time_limit_for_successfull_solution():
+            # TODO def outside init
             self.max_questions_nr = self.questions_asked * (1.0 + self.FAILED_TASK_TOLERANCE)
         if self.max_questions_nr and self.questions_asked > self.max_questions_nr:
             self.set_result(False, provide_result_as_reward=False)
@@ -169,8 +173,10 @@ class MicroBase(Task):
 
         :return:
         """
+        # TODO def outside init
         self.question, self.check_answer = self.tasker.get_task_instance()
         self.set_message(self.question)
+        # TODO def outside init
         self.agent_answer = ''
         self.remaining_instruction_length = len(self.question)
 
@@ -202,6 +208,7 @@ class MicroBase(Task):
 
     @on_timeout()
     def end_task_instance(self, event):
+        # TODO event not used
         """ # while we use checking if agent solved instance ASAP - can this actually happen?
 
         :param event:
@@ -245,6 +252,7 @@ class Micro1Task(MicroBase):
 
     @on_start()
     def micro1_on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -427,6 +435,7 @@ class MicroMappingTask(MicroBase):
         :return:
         """
         def feedback_provider(is_correct, question):
+            # TODO is_correct not used
             """
 
             :param is_correct:
@@ -448,6 +457,7 @@ class MicroMappingTask(MicroBase):
         prepend_len_options = prepend_len_options or [1]
 
         def feedback_provider(is_correct, question):
+            # TODO is_correct not used
             """
 
             :param is_correct:
@@ -476,6 +486,7 @@ class Micro2Task(MicroMappingTask):
 
     @on_start()
     def micro2_on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -524,6 +535,7 @@ class Micro3Task(MicroMappingTask):
 
     @on_start()
     def micro3_on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -562,6 +574,7 @@ class Micro4Task(MicroMappingTask):
 
     @on_start()
     def micro4_on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -675,7 +688,7 @@ class Micro5Sub6Task(FeedbackMappingTaskMixin, MicroMappingTask):
         mapping = {x: random.choice(numbers) + '.' for x in numbers}
 
         def feedback_provider(is_correct, question):
-            """
+            """ # remove trailing dot
 
             :param is_correct:
             :param question:
@@ -683,7 +696,7 @@ class Micro5Sub6Task(FeedbackMappingTaskMixin, MicroMappingTask):
             """
             key = self.get_original_question(question)
             if is_correct:
-                return mapping[key][:-1]    # remove trailing dot
+                return mapping[key][:-1]
             return mapping[key]
         self.task_gen_kwargs['provide_feedback'] = feedback_provider
         return mapping
@@ -840,10 +853,9 @@ class Micro5Sub13Task(FeedbackMappingTaskMixin, MicroMappingTask):
         return mapping
 
 
-# stems from 5.12
 class Micro5Sub14Task(FeedbackMappingTaskMixin, MicroMappingTask):
     """
-
+    # stems from 5.12
     """
     task_gen_kwargs = {'input_sep': '.', 'feedback_sep': ';'}
 
@@ -968,6 +980,7 @@ class Micro6Task(MicroBase):
         :return:
         """
         super(Micro6Task, self).new_task_instance(event)
+        # TODO def outside init
         self.should_know = False
         self.actual_key = ''
 
@@ -999,6 +1012,7 @@ class Micro6Task(MicroBase):
         vocabulary = content[:200]
         mapping = dict(zip(random.sample(vocabulary, self.MAPPING_SIZE), random.sample(vocabulary, self.MAPPING_SIZE)))
         keys = list(mapping.keys())
+        # TODO def outside init
         self.mapping_check = {key: False for key in keys}
 
         def micro6_question(self):
@@ -1053,6 +1067,7 @@ class Micro7Sub1Task(MicroBase):
         :return:
         """
         def micro7_1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1062,6 +1077,7 @@ class Micro7Sub1Task(MicroBase):
             question = "say: {}".format(correct_answer)
 
             def micro7_1_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1088,6 +1104,7 @@ class Micro7Sub2Task(MicroBase):
         valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_2_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1097,6 +1114,7 @@ class Micro7Sub2Task(MicroBase):
             question = "say: {}".format(word)
 
             def micro7_2_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1123,6 +1141,7 @@ class Micro7Sub3Task(MicroBase):
         valid_words = load_dictionary(DICTIONARY_FILE)
 
         def micro7_3_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1132,6 +1151,7 @@ class Micro7Sub3Task(MicroBase):
             question = "say: {}".format(sentence)
 
             def micro7_3_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1156,6 +1176,7 @@ class Micro8Task(MicroBase):
         :return:
         """
         def micro8_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1168,6 +1189,7 @@ class Micro8Task(MicroBase):
             sentence = re.sub(' +', ' ', sentence).strip()
 
             def micro8_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1193,6 +1215,7 @@ class Micro9Sub1Task(MicroBase):
         :return:
         """
         def micro9_1_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1204,6 +1227,7 @@ class Micro9Sub1Task(MicroBase):
             sentence = " ".join(word)
 
             def micro9_1_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1227,6 +1251,7 @@ class Micro9Sub2Task(MicroBase):
         :return:
         """
         def micro9_2_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1238,6 +1263,7 @@ class Micro9Sub2Task(MicroBase):
             sentence = " ".join(word)
 
             def micro9_2_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1264,6 +1290,7 @@ class Micro9Sub3Task(MicroBase):
         :return:
         """
         def micro9_3_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1276,6 +1303,7 @@ class Micro9Sub3Task(MicroBase):
             sentence = joint.join(word) + '.'
 
             def micro9_3_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1302,6 +1330,7 @@ class Micro10Task(MicroBase):
         :return:
         """
         def micro10_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1346,6 +1375,7 @@ class Micro11Task(MicroBase):
         :return:
         """
         def micro11_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1421,6 +1451,7 @@ class Micro12Task(MicroBase):
         :return:
         """
         def micro12_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1440,6 +1471,7 @@ class Micro12Task(MicroBase):
             sentence += '.'
 
             def micro12_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1467,12 +1499,14 @@ class Micro13Sub1Task(MicroBase):
         :return:
         """
         def micro13_1_question(self):
+            # TODO self not used
             """
 
             :param self:
             :return:
             """
             def micro13_1_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1501,6 +1535,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence = '{}.'.format(random.choice([word1, word2]))
 
                 def or_reward(answer, question=''):
+                    # TODO question not used
                     """
 
                     :param answer:
@@ -1520,6 +1555,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence = random.choice(words)
 
                 def anything_and_not_reward(answer, question=''):
+                    # TODO question not used
                     correct = answer.find(word2) < 0 and len(answer) > 1
                     return correct, 1 if correct else -1
                 return question, anything_and_not_reward, micro13_1_feedback
@@ -1537,6 +1573,7 @@ class Micro13Sub1Task(MicroBase):
                 sentence = random.choice(correct_word)
 
                 def or_but_not_reward(answer, question=''):
+                    # TODO question not used
                     answer_ = answer[:-1]
                     correct = answer_ == word1 or answer_ == word2 or answer_ == word1 + word2 or answer_ == word2 + word1
                     correct = correct and (answer.find(word3) < 0)
@@ -1557,12 +1594,14 @@ class Micro13Sub2Task(MicroBase):
         :return:
         """
         def micro13_2_question(self):
+            # TODO self not used
             """
 
             :param self:
             :return:
             """
             def micro13_2_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1587,6 +1626,7 @@ class Micro13Sub2Task(MicroBase):
                 sentence = random.choice([item for item in words])
 
                 def or_but_not_reward(answer, question=''):
+                    # TODO question not used
                     correct = any(answer.find(word) >= 0 for word in words)
                     return correct, 1 if correct else -1
                 question = 'say: ' + clause + '.'
@@ -1612,6 +1652,7 @@ class Micro14Task(MicroBase):
         :return:
         """
         def micro14_question(self):
+            # TODO self not used
             """
 
             :param self:
@@ -1624,6 +1665,7 @@ class Micro14Task(MicroBase):
             sentence += '.'
 
             def micro14_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
@@ -1693,12 +1735,14 @@ class Micro15Task(MicroBase):
         self.mapping_check = {key: False for key in chosen_sequence[0:-1]}
 
         def micro15_question(self):
+            # TODO self not used
             """
 
             :param self:
             :return:
             """
             def micro15_feedback(is_correct, question):
+                # TODO question not used
                 """
 
                 :param is_correct:
