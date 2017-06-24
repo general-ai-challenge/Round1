@@ -202,6 +202,7 @@ def testBeSilent(self):
         self.do_test_battery(repetition.RepeatWhatISayTask, get_correct_answer)
 
     def testRepeatWhatISay2(self):
+        # TODO func name to lowercase, testRepeatWhatISay2 not used
         """
 
         :param self:
@@ -219,6 +220,7 @@ def testBeSilent(self):
         self.do_test_battery(repetition.RepeatWhatISay2Task, get_correct_answer)
 
     def testRepeatWhatISayMultipleTimes(self):
+        # TODO func name to lowercase, testRepeatWhatISayMultipleTimes not used
         """
 
         :param self:
@@ -235,6 +237,7 @@ def testBeSilent(self):
         self.do_test_battery(repetition.RepeatWhatISayMultipleTimesTask, get_correct_answer)
 
     def testRepeatWhatISayMultipleTimes2(self):
+        # TODO func name to lowercase, testRepeatWhatISayMultipleTimes2 not used
         """
 
         :param self:
@@ -253,6 +256,7 @@ def testBeSilent(self):
         self.do_test_battery(repetition.RepeatWhatISayMultipleTimes2Task, get_correct_answer)
 
     def testRepeatWhatISayMultipleTimesSeparatedByComma(self):
+        # TODO func name to lowercase, testRepeatWhatISayMultipleTimesSeparatedByComma not used
         """
 
         :param self:
@@ -289,6 +293,7 @@ def testBeSilent(self):
         self.do_test_battery(repetition.RepeatWhatISayMultipleTimesSeparatedByAndTask, get_correct_answer)
 
     def testRepeatWhatISayMultipleTimesSeparatedByCA(self):
+        # TODO func name to lowercase, testRepeatWhatISayMultipleTimesSeparatedByCA not used
         """
 
         :param self:
