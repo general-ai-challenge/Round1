@@ -8,17 +8,16 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO .task .compertition.base unreslved ref
 from core.task import on_start, on_message, on_timeout
 from tasks.competition.base import BaseTask
 import random
-import string
-import re
 
 # list of congratulation and failed messages, in case we want to play with it
 micro_congratulations = ['correct.']
 # a list of congratulations messages to be issued when the learner fails a task
 micro_failed = ['wrong: ']
+
 
 def return_random_string(V,L):
     """ a function that takes two positive integers as input 1) the alphabet vocabulary size V (<=26) and 2) maximum
@@ -40,6 +39,7 @@ def return_random_string(V,L):
         random_string += chr(ord('A') + random.randint(0, V))
     return random_string
 
+
 class Repeat1V1L(BaseTask):
     def __init__(self, world=None):
         """ NB: we use a formula for max_time, in the hope to remember to adjust it from task to task: the only
@@ -51,6 +51,7 @@ class Repeat1V1L(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -73,6 +74,7 @@ class Repeat1V1L(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -104,6 +106,7 @@ class Repeat3V1L(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -126,6 +129,7 @@ class Repeat3V1L(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -157,6 +161,7 @@ class Repeat3V2L(BaseTask):
 
     @on_start()
     def give_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -179,6 +184,7 @@ class Repeat3V2L(BaseTask):
 
     @on_timeout()
     def give_away_answer(self, event):
+        # TODO event not used
         """
 
         :param event:
