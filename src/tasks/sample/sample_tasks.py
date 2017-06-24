@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -25,6 +25,7 @@ class RepeatingCharTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -58,6 +59,7 @@ class YesNoTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -106,6 +108,7 @@ class BeSilentTask(Task):
 
     @on_sequence(r'1')
     def on_bitread(self, event):
+        # TODO event not used
         """ if the learner produces a one, it loses
 
         :param event:
@@ -115,6 +118,7 @@ class BeSilentTask(Task):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """ if it reached timeout without loosing, it wins
 
         :param event:
@@ -136,6 +140,7 @@ class RepeatingPhraseTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """ For illustrative purposes only, we defer the instructions to a script that is executed when this variable
         takes the value 2 Don't hear the input coming from the learner until the instructions are over.
 
@@ -147,6 +152,7 @@ class RepeatingPhraseTask(Task):
 
     @on_state_changed(lambda s: s.sample_state == 2)
     def on_state_changed(self, event):
+        # TODO event not used
         """ This handler gets executed when the sample state changes to 2
 
         :param event:
@@ -156,6 +162,7 @@ class RepeatingPhraseTask(Task):
 
     @on_output_message(r"\.")
     def on_finished_instructions(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -165,6 +172,7 @@ class RepeatingPhraseTask(Task):
 
     @on_message()
     def on_any_message(self, event):
+        # TODO event not used
         """ we forget the input if the instructions are not completed yet
 
         :param event:
@@ -175,6 +183,7 @@ class RepeatingPhraseTask(Task):
 
     @on_message(r"I am not Mr Robot$")
     def on_correct_message(self, event):
+        # TODO event not used
         """ This handler gets exeuted whenever the learner says anything containing the string "I am not a Robot"
         (thus, a mimicking learner will be given credit)
 
@@ -186,6 +195,7 @@ class RepeatingPhraseTask(Task):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """ This handler gets executed if the learner didn't solve the task in 10000 steps
 
         :param event:
@@ -203,6 +213,7 @@ class SampleConflictingMessagesTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -212,6 +223,7 @@ class SampleConflictingMessagesTask(Task):
 
     @on_message("Say$")
     def on_disrespect(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -221,6 +233,7 @@ class SampleConflictingMessagesTask(Task):
 
     @on_message(r"my name$")
     def on_some_message(self, event):
+        # TODO event not used
         """ Send a low priority message that will be blocked
 
         :param event:
@@ -230,6 +243,7 @@ class SampleConflictingMessagesTask(Task):
 
     @on_message(r"Heisenberg$")
     def on_keyword_message(self, event):
+        # TODO event not used
         """ The priority parameter only applies for the message for now. In this case, the message will be blocked.
 
         :param event:
@@ -251,6 +265,7 @@ class MovingTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """ initialize state variables
 
         :param event:
@@ -263,6 +278,7 @@ class MovingTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_pos == ts.dest_pos)
     def on_moved(self, event):
+        # TODO event not used
         """ notice that we get the task state and the world state
 
         :param event:
@@ -285,6 +301,7 @@ class TurnLeftTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -297,6 +314,7 @@ class TurnLeftTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_direction == ts.dest_direction)
     def on_turned(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -316,6 +334,7 @@ class TurnRightTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -328,6 +347,7 @@ class TurnRightTask(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_direction == ts.dest_direction)
     def on_turned(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -349,10 +369,12 @@ class LookAroundTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         self.set_message("Look around.")
 
     @on_message(u"I look.")
     def on_message(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -374,6 +396,7 @@ class PickAnApple(Task):
 
     @on_ended()
     def cleanup(self, event):
+        # TODO event not used
         """ remove the objects that were laid by this task (the apple may not be there anymore, but it doesn't matter)
 
         :param event:
@@ -384,6 +407,7 @@ class PickAnApple(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """ drop an apple. drop an untraversable block drop an apple
 
         :param event:
@@ -402,6 +426,7 @@ class PickAnApple(Task):
 
     @on_state_changed(lambda ws, ts: ws.learner_inventory['apple'] > ts.starting_apples)
     def on_apple_picked(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -422,6 +447,7 @@ class UnicodeTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -431,6 +457,7 @@ class UnicodeTask(Task):
 
     @on_message(u"א$")
     def on_message(self, event):
+        # TODO event not used
         """ on non-silent character
 
         :param event:
