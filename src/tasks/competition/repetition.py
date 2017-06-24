@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO task, competition.base unresivled ref
 from core.task import Task, on_start, on_message, on_sequence,\
     on_state_changed, on_timeout, on_output_message
 from tasks.competition.base import BaseTask
@@ -45,6 +45,7 @@ class BeSilentTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# give instructions at the beginning of the task# initialize a variable to keep track if the learner has
          been failed
 
@@ -58,6 +59,7 @@ class BeSilentTask(Task):
 
     @on_message("[^ ]")
     def on_message(self, event):
+        # TODO event not used
         """# silence is represented by the space character catch any non-space character# if the learner produces
         anything but a space, it receives reward 0 and the task is over. We need to make sure to do this only once
         so for every incoming 1 bit we don't start again sending the feedback message.# set the flag, so we don't
@@ -72,6 +74,7 @@ class BeSilentTask(Task):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# when the maximum amount of time set for the task has elapsed# if the learner has been silent, it
         receives reward +1 and the task is over.
 
@@ -94,6 +97,7 @@ class RepeatCharacterTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# randomly sample a character to be repeated# ask the learner to repeat the phrase sampling one of the
         possible ways of asking that.
 
@@ -121,6 +125,7 @@ class RepeatCharacterTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner sending
         appropriate feedback.
 
@@ -150,6 +155,7 @@ class RepeatWhatISayTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# randomly sample a phrase# ask the learner to repeat the phrase sampling one of the possible
         # ways of asking that.
 
@@ -175,6 +181,7 @@ class RepeatWhatISayTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner
         sending appropriate feedback.
 
@@ -201,6 +208,7 @@ class RepeatWhatISay2Task(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# ask the learner to repeat the phrase sampling one of the possible ways of
         asking that, and putting some context after the target.
 
@@ -226,6 +234,7 @@ class RepeatWhatISay2Task(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner
         sending appropriate feedback.
 
@@ -255,6 +264,7 @@ class RepeatWhatISayMultipleTimesTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# sample the number of times it has to repeat the phrase (can be expressed in
         letters or numbers) # ask the learner to repeat the target phrase n times.# save the correct answer
 
@@ -283,6 +293,7 @@ class RepeatWhatISayMultipleTimesTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time allowed, fail the learner sending
         appropriate feedback.
 
@@ -313,6 +324,7 @@ class RepeatWhatISayMultipleTimes2Task(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# sample the number of times it has to repeat the phrase
         # (can be expressed in letters or numbers)# save the correct answer
 
@@ -341,6 +353,7 @@ class RepeatWhatISayMultipleTimes2Task(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -370,6 +383,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCommaTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# sample the number of times it has to repeat the phrase (can be expressed in l
         etters or numbers)# save the correct answer
 
@@ -399,6 +413,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCommaTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -428,6 +443,7 @@ class RepeatWhatISayMultipleTimesSeparatedByAndTask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# sample the number of times it has to repeat the phrase (can be expressed in
         letters or numbers)# save the correct answer
 
@@ -457,6 +473,7 @@ class RepeatWhatISayMultipleTimesSeparatedByAndTask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -486,6 +503,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCATask(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# sample a random phrase# sample the number of times it has to repeat the phrase (can be expressed in
         letters or numbers)# save the correct answer
 
@@ -515,6 +533,7 @@ class RepeatWhatISayMultipleTimesSeparatedByCATask(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -544,6 +563,7 @@ class RepeatWhatISayDisjunction(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# randomly sample two objects# ask the learner to repeat the phrase sampling one of the possible
         # ways of asking that.# compute the answer
 
@@ -575,6 +595,7 @@ class RepeatWhatISayDisjunction(BaseTask):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """# if the learner has not produced any plausible answer by the max_time
         # allowed, fail the learner sending appropriate feedback.
 
@@ -604,6 +625,7 @@ class RepeatWhatISayConjunctionNegation(BaseTask):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """# randomly sample two objects# randomly sample existence of negation for first and second object# ask the
         learner to repeat the phrase sampling one of the possible ways of asking that.# compute the answer# generate
         all permutations of objects separated by and# in case of no object (e.g., do not say x and do not say y)
@@ -693,6 +715,7 @@ class VerbTask(Task):
 
     @on_start()
     def on_start(self, event):
+        # TODO event not used
         """
 
         :param event:
@@ -716,6 +739,7 @@ class VerbTask(Task):
 
     @on_timeout()
     def on_timeout(self, event):
+        # TODO event not used
         """
 
         :param event:
