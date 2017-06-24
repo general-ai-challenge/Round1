@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-# TODO task, competition.base unresivled ref
+# TODO task, competition.base unresolved ref
 from core.task import Task, on_start, on_message, on_sequence,\
     on_state_changed, on_timeout, on_output_message
 from tasks.competition.base import BaseTask
