@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO fix imports
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from core.channels import InputChannel, OutputChannel
 from learners.base import BaseLearner
@@ -56,6 +56,7 @@ class HumanLearner(BaseLearner):
         self._output_channel.clear()
 
     def next(self, input):
+        # TODO input shadow
         """ If the buffer is empty, fill it with silence # Add one silence token to the buffer # Get the bit to return
         Interpret the bit from the learner
 
@@ -124,6 +125,7 @@ class ImmediateHumanLearner(HumanLearner):
         self.ask_for_input()
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
