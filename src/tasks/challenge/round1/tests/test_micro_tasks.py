@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -17,6 +17,7 @@ import unittest
 import core.environment as environment
 import core.serializer as serializer
 import tasks.challenge.round1.challenge_micro as micro
+# TODO fix imports
 from core.byte_channels import ByteInputChannel, ByteOutputChannel
 from core.scheduler import ConsecutiveTaskScheduler
 from learners.base import BaseLearner
@@ -45,6 +46,7 @@ class FixedLearner:
             self.reward(reward)
 
     def reward(self, reward):
+        # TODO static
         """ YEAH! Reward!!! Whatever...
 
         :param reward:
@@ -53,6 +55,7 @@ class FixedLearner:
         pass
 
     def next(self, input):
+        # TODO input not used and shadow
         """ do super fancy computations, return our guess
 
         :param input:
@@ -205,6 +208,7 @@ class TestMicro1Learner(BaseLearner):
         self.preserve_specials = preserve_specials
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
@@ -222,7 +226,7 @@ class TestMicro1Learner(BaseLearner):
         :param reward:
         :return:
         """
-        if reward < 0 and len(self.valid_chars) > 0:
+        if reward < 0 < len(self.valid_chars):
             self.char = None
 
 
@@ -237,6 +241,7 @@ class TestMicro3Learner(BaseLearner):
         self.mapping = {x: list(string.ascii_lowercase) for x in string.ascii_lowercase}
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
@@ -277,7 +282,8 @@ class TestMicro5Sub1Learner(BaseLearner):
         self.is_feedback = False
 
     def next(self, input):
-        """
+        # TODO input shadow
+        """# for usage with other than 5.1 task
 
         :param input:
         :return:
@@ -288,7 +294,7 @@ class TestMicro5Sub1Learner(BaseLearner):
             return
         else:
             self.last_input = input
-            if input in self.mapping:   # for usage with other than 5.1 task
+            if input in self.mapping:
                 self.answer = self.mapping[input][-1]
             self.is_feedback = not self.is_feedback
             return self.answer
@@ -315,7 +321,8 @@ class TestMicro5Sub2Learner(BaseLearner):
         self.is_feedback = False
 
     def next(self, input):
-        """
+        # TODO input shadow
+        """# for usage with other than 5.1 task
 
         :param input:
         :return:
@@ -328,7 +335,7 @@ class TestMicro5Sub2Learner(BaseLearner):
             return
         else:
             self.last_input = input
-            if input in self.mapping:   # for usage with other than 5.1 task
+            if input in self.mapping:
                 self.answer = self.mapping[input][-1]
             self.is_feedback = not self.is_feedback
             return self.answer
@@ -346,6 +353,7 @@ class TestMicro5Sub3Learner(BaseLearner):
         self.is_feedback = False
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
@@ -433,6 +441,7 @@ class TestMicroQuestionAnswerBase(BaseLearner):
         pass
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
@@ -643,6 +652,7 @@ class TestMicro7Sub1Learner(BaseLearner):
         return ' '
 
     def _handle_assignment(self, input):
+        # TODO input shadow
         """ # +2 to remove the colon and the ensuing space
 
         :param input:
@@ -656,6 +666,7 @@ class TestMicro7Sub1Learner(BaseLearner):
             self.is_assignment = False
 
     def _handle_output(self, input):
+        # TODO input shadow, not used
         """
 
         :param input:
@@ -668,6 +679,7 @@ class TestMicro7Sub1Learner(BaseLearner):
         return self.answer
 
     def next(self, input):
+        # TODO input shadow
         """
 
         :param input:
@@ -694,6 +706,7 @@ class TestMicro8Learner(TestMicro7Sub1Learner):
 
     """
     def _handle_assignment(self, input):
+        # TODO input shadow
         """ # trimming white spaces to a single one
 
         :param input:
@@ -716,6 +729,7 @@ class TestMicro9Learner(TestMicro7Sub1Learner):
         TestMicro7Sub1Learner.__init__(self)
 
     def _handle_assignment(self, input):
+        # TODO input shadow
         """ # trimming white spaces to a single one # +2 to remove the colon and the ensuing space # to handle
         interleave: abc by -. # remove the trailing period # add the interleave character to the string which will
         be output
@@ -1085,7 +1099,9 @@ def task_solved_successfully(task):
     :param task:
     :return:
     """
+    # TODO task._env._last_result ref to protected class
     return task._env._last_result and task.under_time_limit_for_successfull_solution()
+
 
 def basic_task_run(test, messenger, learner, task):
     """ raise the timeout constant on these tasks, because they are not finishing on nr_of_questions timeout, but on
@@ -1194,6 +1210,7 @@ class TestMicroTaskFlow(unittest.TestCase):
         self.assertTrue(task_changed[0])
         self.assertEqual(self.env._current_task, first_task)
         self.assertEqual(self.scheduler.reward_count, 0)
+
 
 def init_env(task, success_threshold=2):
     """
