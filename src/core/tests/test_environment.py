@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -10,6 +10,7 @@
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
 import unittest
+# TODO fix imports
 import core.task as task
 import core.environment as environment
 
@@ -40,6 +41,7 @@ class SingleTaskScheduler:
         return self.task
 
     def reward(self, reward):
+        # TODO static
         """
 
         :param reward:
@@ -73,13 +75,13 @@ class TestEnvironment(unittest.TestCase):
 
             @task.on_start()
             def start_handler(self, event):
+                # TODO event not used
                 """
 
                 :param event:
                 :return:
                 """
                 self.handled = True
-
         tt = TestTask(max_time=10)
         env = environment.Environment(SerializerMock(), SingleTaskScheduler(tt))
         tt.start(env)
@@ -127,6 +129,7 @@ class TestEnvironment(unittest.TestCase):
                 self.start_handled = True
 
             def end_handler(self, event):
+                # TODO event not used
                 """
 
                 :param event:
