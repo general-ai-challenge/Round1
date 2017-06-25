@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -36,6 +36,7 @@ class RandomTaskScheduler:
         return random.choice(self.tasks)
 
     def reward(self, reward):
+        # TODO static
         """ whatever
 
         :param reward:
@@ -66,6 +67,7 @@ class SequentialTaskScheduler:
         return ret
 
     def reward(self, reward):
+        # TODO static
         """ whatever
 
         :param reward:
@@ -203,6 +205,7 @@ class DependenciesTaskScheduler:
             self.find_available_tasks()
 
     def get_task_id(self, task):
+        # TODO static
         """
 
         :param task:
