@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -14,6 +14,7 @@ import core.task as task
 import core.session as session
 import core.serializer as serializer
 import core.environment as environment
+# TODO fix imports
 from core.obs.observer import Observable
 from learners.base import BaseLearner
 
@@ -45,6 +46,7 @@ class EnvironmentMock(object):
         :param task:
         :return:
         """
+        # TODO defined outside init
         self.task = task
 
     def next(self, token):
@@ -58,6 +60,7 @@ class EnvironmentMock(object):
         return token, 1
 
     def raise_event(self, event):
+        # TODO static
         """
 
         :param event:
@@ -75,7 +78,11 @@ class EnvironmentMock(object):
 
 
 class LearnerMock(object):
+    """
+
+    """
     def next(self, token):
+        # TODO static
         """
 
         :param token:
@@ -84,6 +91,7 @@ class LearnerMock(object):
         return token
 
     def try_reward(self, r):
+        # TODO static
         """
 
         :param r:
@@ -93,6 +101,9 @@ class LearnerMock(object):
 
 
 class SingleTaskScheduler():
+    """
+
+    """
     def __init__(self, task):
         """
 
@@ -108,6 +119,7 @@ class SingleTaskScheduler():
         return self.task
 
     def reward(self, reward):
+        # TODO static
         """
 
         :param reward:
@@ -150,6 +162,11 @@ class TestSession(unittest.TestCase):
         s = session.Session(env, learner)
 
         def on_time_updated(t):
+            """
+
+            :param t:
+            :return:
+            """
             if t >= 600:
                 s.stop()
         s.total_time_updated.register(on_time_updated)
@@ -163,6 +180,7 @@ class TryAllInputsLearner(BaseLearner):
     char = -1
 
     def reward(self, reward):
+        # TODO static
         """
 
         :param reward:
@@ -172,6 +190,7 @@ class TryAllInputsLearner(BaseLearner):
         pass
 
     def next(self, input):
+        # TODO input not used, shadowing
         """
 
         :param input:
