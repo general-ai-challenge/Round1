@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -29,6 +29,7 @@ class IdentitySerializer:
         self.logger = logging.getLogger(__name__)
 
     def to_binary(self, message):
+        # TODO static
         """
 
         :param message:
@@ -131,6 +132,7 @@ class ScramblingSerializerWrapper:
             return self.capitalize(word, self.word_mapping[word.lower()])
 
     def capitalize(self, word, scrambled_word):
+        # TODO static
         """ # if the two words have the same length, we preverve capitalization. just capitalize the first letter
 
         :param word:
