@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -10,6 +10,7 @@
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
 import unittest
+# TODO fix imports
 import core.serializer as serializer
 import core.channels as channels
 
@@ -123,6 +124,7 @@ class TestChannels(unittest.TestCase):
         while not oc.is_empty():
             b = oc.consume()
             ic.consume(b)
+            # TODO expected type Sized got int
         self.assertEqual(something_read[0], len(test_string))
 
     def testOverwrittingConsistency(self):
@@ -175,6 +177,10 @@ class TestChannels(unittest.TestCase):
 
 
 def main():
+    """
+
+    :return:
+    """
     unittest.main()
 
 if __name__ == '__main__':
