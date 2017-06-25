@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -37,6 +37,7 @@ for opt, arg in opts:
             sys.exit(2)
 
 context = zmq.Context()
+# TODO can not find PAIR in init
 socket = context.socket(zmq.PAIR)
 
 address = "tcp://%s:%s" % (host, port)
@@ -48,6 +49,7 @@ socket.send_string("hello")
 
 
 def handler(signal, frame):
+    # TODO signal from outer scope, frame not used
     """
 
     :param signal:
@@ -67,7 +69,8 @@ next_input = socket.recv()
 while True:
     socket.send_string("a")  # your attempt to solve the current task
     reward = socket.recv()
+    # TODO redeclared without use
     next_input = socket.recv()
     print(reward)
-
+# TODO unreachible
 signal.pause()
