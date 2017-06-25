@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -10,6 +10,7 @@
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
 import unittest
+# TODO fix imports
 import core.events as events
 
 
@@ -40,6 +41,7 @@ class TestEvents(unittest.TestCase):
         self.event_raised = False
 
         def on_start(self, event):
+            # TODO event not used
             """
 
             :param self:
@@ -56,6 +58,10 @@ class TestEvents(unittest.TestCase):
 
 
 def main():
+    """
+
+    :return:
+    """
     unittest.main()
 
 if __name__ == '__main__':
