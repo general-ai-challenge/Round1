@@ -51,6 +51,27 @@ def main():
     op.add_option(
         '--curses', action='store_true', default=False, help='Uses standard output instead of curses library.')
     op.add_option('--bit-mode', action='store_true', default=False, help='Environment receives input in bytes.')
+    op.add_option('-l', '--learner',
+                  default='learners.human_learner.HumanLearner',
+                  help='Defines the type of learner.')
+    op.add_option('-v', '--view',
+                  default='BaseView',
+                  help='Viewing mode.')
+    op.add_option('--learner-cmd',
+                  help='The cmd to run to launch RemoteLearner.')
+    op.add_option('--learner-port',
+                  default=5556, type=int,
+                  help='Port on which to accept remote learner.')
+    op.add_option('--learner-address',
+                  help='Network address on which the remote learner listens.')
+    op.add_option('--max-reward-per-task',
+                  default=2147483647, type=int,
+                  help='Maximum reward that we can give to a learner for'
+                  ' a given task.')
+    op.add_option('--curses', action='store_true', default=False,
+                  help='Uses standard output instead of curses library.')
+    op.add_option('--bit-mode', action='store_true', default=False,
+                  help='Environment receives input in bytes.')
     opt, args = op.parse_args()
     if len(args) == 0:
         op.error("Tasks schedule configuration file required.")
@@ -59,6 +80,10 @@ def main():
     logger.info("Starting new evaluation session")
     serializer = StandardSerializer()
     learner = create_learner(opt.learner, serializer, opt.learner_cmd, opt.learner_port, not opt.bit_mode)
+    # create a learner (the human learner takes the serializer)
+    learner = create_learner(opt.learner, serializer,
+                             opt.learner_cmd, opt.learner_port, opt.learner_address, not opt.bit_mode)
+    # create our tasks and put them into a scheduler to serve them
     task_scheduler = create_tasks_from_config(tasks_config_file)
     env = Environment(serializer, task_scheduler, opt.scramble, opt.max_reward_per_task, not opt.bit_mode)
     session = Session(env, learner, opt.time_delay)
@@ -106,7 +131,6 @@ def create_view(view_type, learner_type, env, session, serializer, show_world, u
         else:
             return BaseView(env, session)
 
-
 def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byte_mode=False):
     """ dynamically load the class given by learner_type.  separate the module from the class name.  import the 
     module (and the class within it) instantiate the learner
@@ -118,6 +142,8 @@ def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byt
     :param byte_mode: 
     :return: 
     """
+
+def create_learner(learner_type, serializer, learner_cmd, learner_port=None, learner_address=None, byte_mode=False):
     if learner_type.split('.')[0:2] == ['learners', 'human_learner']:
         c = learner_type.split('.')[2]
         if c == 'HumanLearner':
@@ -131,8 +157,7 @@ def create_learner(learner_type, serializer, learner_cmd, learner_port=None, byt
         mod, cname = '.'.join(path[:-1]), path[-1]
         m = __import__(mod, fromlist=[cname])
         c = getattr(m, cname)
-        return c(learner_cmd, learner_port) if 'RemoteLearner' in cname else c()
-
+        return c(learner_cmd, learner_port, learner_address) if 'RemoteLearner' in cname else c()
 
 def create_tasks_from_config(tasks_config_file):
     """ Returns a TaskScheduler based on either:
