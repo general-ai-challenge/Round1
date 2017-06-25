@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -72,6 +72,7 @@ class JSONConfigLoader:
         return scheduler_class(**scheduler_args)
 
     def instantiate_world(self, world_class):
+        # TODO static
         """ Return a world object given the world class
 
         :param world_class:
@@ -84,6 +85,7 @@ class JSONConfigLoader:
             raise RuntimeError("Failed to instantiate world {0} ({1})".format(world_class, e))
 
     def instantiate_task(self, task_class, worlds, world_id=None):
+        # TODO static
         """ Returns a task object given the task class and the world where it runs (if any)
 
         :param task_class:
@@ -107,6 +109,7 @@ class PythonConfigLoader:
     """
 
     def create_tasks(self, tasks_config_file):
+        # TODO static
         """ make sure we have a relative path.  just in case, remove initial unneeded "./" transform the config file
         path into a module path
 
