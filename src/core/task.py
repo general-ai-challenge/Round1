@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO fix imports
 from core.obs.observer import Observable
 from core.events import Trigger
 from collections import defaultdict, namedtuple
@@ -41,7 +41,7 @@ class StateChanged(namedtuple('StateChanged', ('state', 'second_state'))):
         return super(StateChanged, cls).__new__(cls, state, second_state)
 
 
-class MessageReceived():
+class MessageReceived:
     """ helper methods for handling received messages A message received event. It has some useful helpers
     """
     def __init__(self, message):
@@ -337,6 +337,7 @@ class StateTrackingDefaultdictWrapper(defaultdict):
 
         :return:
         """
+        # TODO access protect member of class
         return self._owner._raise_state_changed()
 
 
@@ -370,6 +371,7 @@ class StateTrackingDictionaryWrapper(dict):
 
         :return:
         """
+        # TODO access protect member of class
         return self._owner._raise_state_changed()
 
 
@@ -408,6 +410,7 @@ class State(object):
 
         :return:
         """
+        # TODO access protect member of class
         return self._owner._raise_state_changed()
 
 
@@ -459,6 +462,7 @@ class ScriptSet(object):
         self._env = env
         self._ended = False
         self._started = False
+        # TODO defined outside init
         self.state = State(self)
 
     def end(self):
@@ -503,6 +507,7 @@ class ScriptSet(object):
         """
         trigger = handler_to_trigger(handler)
         if trigger:
+            # TODO access protect member of class
             self._env._register_task_trigger(self, trigger)
             self.dyn_handlers.add(handler)
 
@@ -557,6 +562,7 @@ class ScriptSet(object):
 
         :return:
         """
+        # TODO access protect member of class
         self._env._input_channel.set_deserialized_buffer(
             self._env._input_channel.get_text()[:-1] + self._env._serializer.SILENCE_TOKEN)
 
@@ -611,6 +617,7 @@ class Task(ScriptSet):
         :param t:
         :return:
         """
+        # TODO access protect member of class
         if t >= self._max_time and self._env._output_channel.is_empty():
             self._raise_timeout()
             self._ended = True
@@ -647,6 +654,7 @@ class Task(ScriptSet):
 
         :return:
         """
+        # TODO access protect member of class
         return self._env._task_time
 
     def set_result(self, reward, message='', priority=1, provide_result_as_reward=True):
