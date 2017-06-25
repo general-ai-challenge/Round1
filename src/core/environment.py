@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO fix imports
 from core.events import EventManager
 from core.task import StateChanged, MessageReceived, SequenceReceived, OutputSequenceUpdated, OutputMessageUpdated
 from core.obs.observer import Observable
@@ -241,9 +241,9 @@ class Environment:
         self.logger.debug('Setting immediate reward {}'.format(reward))
 
     def set_message(self, message, priority=0):
-        ''' Saves the message in the output buffer so it can be delivered
+        """ Saves the message in the output buffer so it can be delivered
         bit by bit. It overwrites any previous content.
-        '''
+        """
         if self._output_channel.is_empty() or priority >= self._output_priority:
             self.logger.debug('Setting message "{0}" with priority {1}'.format(message, priority))
             self._output_channel.set_message(message)
@@ -254,6 +254,11 @@ class Environment:
                     message, priority, self._output_priority))
 
     def raise_event(self, event):
+        """
+
+        :param event:
+        :return:
+        """
         return self.event_manager.raise_event(event)
 
     def raise_state_changed(self):
