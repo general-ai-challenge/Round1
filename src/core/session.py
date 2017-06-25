@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,6 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
+# TODO fix imports
 from core.obs.observer import Observable
 from collections import defaultdict
 import time
@@ -49,6 +50,7 @@ class Session:
         token = None
         self.total_time_updated(self._total_time)
         self.total_reward_updated(self._total_reward)
+        # TODO defined outside init
         self._stop = False
         while not self._stop:
             token, reward = self._env.next(token)
@@ -68,6 +70,7 @@ class Session:
 
         :return:
         """
+        # TODO defined outside init
         self._stop = True
 
     def get_total_time(self):
@@ -123,6 +126,7 @@ class Session:
         :param task:
         :return:
         """
+        # TODO defined outside init
         self._current_task = task
         self._task_count[self._current_task.get_name()] += 1
 
