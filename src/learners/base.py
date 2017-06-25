@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -35,6 +35,7 @@ class BaseLearner(object):
         pass
 
     def next(self, input):
+        # TODO input shadow
         """ do super fancy computations return our guess
 
         :param input:
