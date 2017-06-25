@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to CommAI-env's documentation!
-==========================================
+======================================
 
 .. include:: intro.rst
 .. include:: run.rst

@@ -1,2 +1,0 @@
--r common.txt
-git+https://github.com/0xnurl/fado-python3

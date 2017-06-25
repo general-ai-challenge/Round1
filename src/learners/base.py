@@ -1,33 +1,60 @@
-# Copyright (c) 2016-present, Facebook, Inc.
-# All rights reserved.
+# -*- coding: utf-8
+# 'version': '0.3'
+#
+# Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
+#
+# CommAI-env Copyright (c) 2016-present, Facebook, Inc., All rights reserved.
+# Round1 Copyright (c) 2017-present, GoodAI All rights reserved.
 #
 # This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree. An additional grant
-# of patent rights can be found in the PATENTS file in the same directory.
+# LICENSE_CHALLENGE file in the root directory of this source tree.
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-from __future__ import unicode_literals
 import subprocess
 
 
 class BaseLearner(object):
+    """
+
+    """
     def try_reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         if reward is not None:
             self.reward(reward)
 
     def reward(self, reward):
-        # YEAH! Reward!!! Whatever...
+        """ YEAH! Reward!!! Whatever...
+
+        :param reward:
+        :return:
+        """
         pass
 
     def next(self, input):
-        # do super fancy computations
-        # return our guess
+        # TODO input shadow
+        """ do super fancy computations return our guess
+
+        :param input:
+        :return:
+        """
         return input
 
 
 class RemoteLearner(BaseLearner):
+    """
+
+    """
+
+    def __init__(self, cmd, port):
+        """# launch learner
+
+        :param cmd:
+        :param port:
+        """
+
     def __init__(self, cmd, port, address=None):
         try:
             import zmq
@@ -44,31 +71,49 @@ class RemoteLearner(BaseLearner):
 
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
+        self.socket.bind("tcp://*:%s" % port)
         self.socket.bind("tcp://%s:%s" % (address, port))
-
         # launch learner
         if cmd is not None:
             subprocess.Popen((cmd + ' ' + str(port)).split())
         handshake_in = self.socket.recv().decode('utf-8')
         assert handshake_in == 'hello'  # handshake
 
-    # send to learner, and get response;
     def next(self, inp):
+        """ send to learner, and get response;
+
+        :param inp:
+        :return:
+        """
         self.socket.send_string(str(inp))
         reply = self.receive_socket()
         return reply
 
     def try_reward(self, reward):
+        """
+
+        :param reward:
+        :return:
+        """
         reward = reward if reward is not None else 0
         self.socket.send_string(str(reward))
 
     def receive_socket(self):
+        """
+
+        :return:
+        """
         reply = self.socket.recv()
         if type(reply) == type(b''):
             reply = reply.decode('utf-8')
         return reply
 
     def set_view(self, view):
+        """
+
+        :param view:
+        :return:
+        """
         pass
 
 

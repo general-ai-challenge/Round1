@@ -9,15 +9,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
-FROM ubuntu
+#!/bin/bash
 
-RUN apt-get update && apt-get install -y libzmq1
+sudo apt install python3-pip
 
-WORKDIR /app
-
-ADD agent/example_learner /app/
-
-ENV NAME Learner
-
-CMD ["./example_learner"]
-
+pip3 install -r requirements.txt

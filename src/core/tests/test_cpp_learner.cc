@@ -1,3 +1,6 @@
+# -*- coding: utf-8
+# 'version': '0.3'
+
 #include <string.h>
 #include "zmq.h"
 
