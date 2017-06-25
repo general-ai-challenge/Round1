@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -10,6 +10,7 @@
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
 import unittest
+# TODO unresloved ref
 from core import serializer
 
 
@@ -38,11 +39,15 @@ class TestSerializer(unittest.TestCase):
         self.assertEqual(slzr.tokenize("a b "), [("a", "WORD"), (" ", 'SILENCE'), ('b', 'WORD'), (' ', 'SILENCE')])
         self.assertEqual(slzr.tokenize("a b, "), [("a", "WORD"), (" ", 'SILENCE'), ('b', 'WORD'), (
             ',', 'PUNCT'), (' ', 'SILENCE')])
-        self.assertEqual(slzr.tokenize("a b ."), [("a", "WORD"), (" ", 'SILENCE'), ('b', 'WORD'),(
+        self.assertEqual(slzr.tokenize("a b ."), [("a", "WORD"), (" ", 'SILENCE'), ('b', 'WORD') ,(
             ' ', 'SILENCE'), ('.', 'PUNCT')])
 
 
 def main():
+    """
+
+    :return:
+    """
     unittest.main()
 
 if __name__ == '__main__':
