@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -8,7 +8,7 @@
 #
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
-
+# TODO fix imports
 from core.obs.observer import Observable
 import logging
 
@@ -79,6 +79,10 @@ class InputChannel:
         return self._binary_buffer[self._deserialized_pos:]
 
     def get_text(self):
+        """
+
+        :return:
+        """
         return self._deserialized_buffer
 
     def _set_binary_buffer(self, new_buffer):
@@ -103,6 +107,9 @@ class InputChannel:
 
 
 class OutputChannel:
+    """
+
+    """
 
     def __init__(self, serializer):
         """ remembers the data that has to be shipped out.  event that gets fired every time we change the output sequence
