@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -9,7 +9,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
-
+# TODO fix imports
 from core.obs.observer import Observable
 import logging
 
@@ -75,6 +75,7 @@ class ByteInputChannel:
         return self._buffer
 
     def get_undeserialized(self):
+        # TODO static
         """ Returns the yet non deserialized chunk in the input
 
         :return:
