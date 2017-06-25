@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -20,10 +20,10 @@ def main():
     """
     port = "5556"
     context = zmq.Context()
+    # TODO cant find ref to PAIR in init
     socket = context.socket(zmq.PAIR)
     socket.connect("tcp://localhost:%s" % port)
     socket.send_string(str('hello'))
-
     message = '00101110'
     cnt = 0
     while True:
@@ -35,7 +35,7 @@ def main():
         if cnt % 2 == 0:
             msg_out = str(message[cnt % 8])
         socket.send(msg_out)
-        cnt = cnt + 1
+        cnt += 1
 
 if __name__ == '__main__':
     main()
