@@ -1,4 +1,5 @@
 # -*- coding: utf-8
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -122,7 +123,6 @@ class TestEvents(unittest.TestCase):
                 """
                 super(ConcreteTask, self).__init__(*args, **kwargs)
 
-
             @task.on_start()
             def start_handler(self, event):
                 """ # overridden handler
@@ -159,12 +159,14 @@ class TestEvents(unittest.TestCase):
 
             @task.on_start()
             def start_handler(self, event):
+                # TODO event not used
                 """
 
                 :param event:
                 :return:
                 """
                 def end_handler(self, event):
+                    # TODO event not used
                     """
 
                     :param self:
@@ -172,9 +174,10 @@ class TestEvents(unittest.TestCase):
                     :return:
                     """
                     pass
+
+                # TODO defined outside init
                 self.end_handler_func = end_handler
                 self.add_handler(task.on_ended()(end_handler))
-
         triggers = []
         tt = TestTask(max_time=10)
 
@@ -205,7 +208,6 @@ class TestEvents(unittest.TestCase):
                 :return:
                 """
                 self.triggers.append(trigger)
-
         # raise the start event
         tt.start(EnvironmentMock(triggers))
         triggers.extend(tt.get_triggers())
