@@ -15,3 +15,5 @@ tox-battery==0.3
 virtualenv==15.1.0
 -r common.txt
 git+https://github.com/0xnurl/fado-python3
+
+FAdo
