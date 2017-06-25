@@ -1,6 +1,6 @@
 --[[
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -59,6 +59,7 @@ end
 local message = '00101110'
 local tl = TorchLearner.new(
    tonumber(arg[1]),
+-- # TODO unused assignment
    function(self, r) end,
    function(self, i)
       local msg_out = self.t % 7 == 0 and math.random(0, 1) or 1
