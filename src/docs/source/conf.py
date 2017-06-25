@@ -45,7 +45,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+# source_encoding = 'utf-8-sig'
 
 # The master toctree document.
 master_doc = 'index'
@@ -201,7 +201,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [('index', 'CommAI-env.tex', u'CommAI-env Documentation', u'Facebook', 'manual'),]
+latex_documents = [('index', 'CommAI-env.tex', u'CommAI-env Documentation', u'Facebook', 'manual'), ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
@@ -240,7 +240,7 @@ man_pages = [('index', 'CommAI-env', u'CommAI-env Documentation', [u'Facebook'],
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [('index', 'CommAI-env', u'CommAI-env Documentation', u'Facebook', 'CommAI-env',
-                      'One line description of project.', 'Miscellaneous'),]
+                      'One line description of project.', 'Miscellaneous'), ]
 
 # Documents to append as an appendix to all manuals.
 # texinfo_appendices = []
