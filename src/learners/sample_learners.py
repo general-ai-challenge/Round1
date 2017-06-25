@@ -1,5 +1,5 @@
 # -*- coding: utf-8
-# 'version': '0.2'
+# 'version': '0.3'
 #
 # Copyright (c) 2017, Stephen B, Hope,  All rights reserved.
 #
@@ -9,12 +9,15 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE_CHALLENGE file in the root directory of this source tree.
 
-import random
+# TODO fix imports
 from core.serializer import StandardSerializer, IdentitySerializer
 from learners.base import BaseLearner
 
 
 class SampleRepeatingLearner(BaseLearner):
+    """
+
+    """
     def reward(self, reward):
         """ # YEAH! Reward!!! Whatever...
 
@@ -24,6 +27,7 @@ class SampleRepeatingLearner(BaseLearner):
         pass
 
     def next(self, input):
+        # TODO input shadow
         """# do super fancy computations return our guess
 
         :param input:
@@ -42,6 +46,7 @@ class SampleSilentLearner(BaseLearner):
         self.silence_i = 0
 
     def reward(self, reward):
+        # TODO reward not used
         """ YEAH! Reward!!! Whatever...
 
         :param reward:
@@ -50,6 +55,7 @@ class SampleSilentLearner(BaseLearner):
         self.silence_i = 0
 
     def next(self, input):
+        # TODO input shadow not used
         """
 
         :param input:
@@ -76,6 +82,7 @@ class SampleMemorizingLearner(BaseLearner):
         self.silence_i = 0
 
     def reward(self, reward):
+        # TODO reward not used
         """# YEAH! Reward!!! Whatever... Now this robotic teacher is going to mumble things again
 
         :param reward:
@@ -86,6 +93,7 @@ class SampleMemorizingLearner(BaseLearner):
         self.memory = ''
 
     def next(self, input):
+        # TODO input shadow
         """# If we have received a silence byte  # send the memorized sequence # memorize what the teacher said
 
         :param input:
