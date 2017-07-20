@@ -37,21 +37,36 @@ socket.connect(address)
 socket.send_string("hello")
 
 
-def handler(signal, frame):
+def disconnect():
     print('exiting...')
     socket.disconnect(address)
+
+
+def handler(signal, frame):
+    disconnect()
     exit()
 
 
 signal.signal(signal.SIGINT, handler)
 
-reward = socket.recv()
-next_input = socket.recv()
+
+def read_data():
+    _reward = socket.recv()
+    _input_str = socket.recv().decode('utf-8')
+    return _reward, _input_str
+
+
+reward, input_str = read_data()
 
 while True:
-    socket.send_string("a")  # your attempt to solve the current task
-    reward = socket.recv()
-    next_input = socket.recv()
-    print(reward)
+    print("reward: {}".format(reward))
+    print("input : {}".format(input_str))
+    for c in input_str:
+        if ord(c) >= 256:
+            print("Unexpected unicode character. Should be < 256.")
 
-signal.pause()
+    socket.send_string("a")  # your attempt to solve the current task
+    reward, input_str = read_data()
+
+
+disconnect()
