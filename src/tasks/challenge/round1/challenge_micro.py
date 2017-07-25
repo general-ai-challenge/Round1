@@ -124,7 +124,7 @@ class MicroBase(Task):
 
         if not self._env.is_silent():
             if not event.message[-1] == ' ':
-                self.set_immediate_reward(-1)
+                self.provide_reward(-1)
             return
 
         if self.remaining_instruction_length > 1:
